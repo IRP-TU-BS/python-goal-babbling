@@ -7,12 +7,12 @@ from pygb._impl._core._context import ContextType
 
 
 class AbstractGoalSelector(ABC, Generic[ContextType]):
-    def __init__(self, context: ContextType) -> None:
-        self.context = context
-
     @abstractmethod
-    def select(self) -> np.ndarray:
+    def select(self, context: ContextType) -> np.ndarray:
         """Select the target global goal for the next training sequence.
+
+        Args:
+            context: Goal Babbling context.
 
         Returns:
             Target global goal.
@@ -20,12 +20,12 @@ class AbstractGoalSelector(ABC, Generic[ContextType]):
 
 
 class AbstractLocalGoalGenerator(ABC, Generic[ContextType]):
-    def __init__(self, context: ContextType) -> None:
-        self.context = context
-
     @abstractmethod
-    def generate(self) -> np.ndarray:
+    def generate(self, context: ContextType) -> np.ndarray:
         """Generate a local goal between the global start and target goals.
+
+        Args:
+            context: Goal Babbling context.
 
         Returns:
             Local goal.
@@ -33,12 +33,12 @@ class AbstractLocalGoalGenerator(ABC, Generic[ContextType]):
 
 
 class AbstractWeightGenerator(ABC, Generic[ContextType]):
-    def __init__(self, context: ContextType) -> None:
-        self.context = context
-
     @abstractmethod
-    def generate(self) -> float:
+    def generate(self, context: ContextType) -> float:
         """Calculate the weight for the next training sample.
+
+        Args:
+            context: Goal Babbling context.
 
         Returns:
             Training sample weight.
