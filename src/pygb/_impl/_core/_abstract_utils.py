@@ -19,17 +19,19 @@ class AbstractGoalSelector(ABC, Generic[ContextType]):
         """
 
 
-class AbstractLocalGoalGenerator(ABC, Generic[ContextType]):
+class AbstractSequenceGenerator(ABC, Generic[ContextType]):
     @abstractmethod
     def generate(
-        self, start_goal: np.ndarray, stop_goal: np.ndarray, len_sequence: int, context: ContextType | None = None
+        self, start: np.ndarray, stop: np.ndarray, len_sequence: int, context: ContextType | None = None
     ) -> list[np.ndarray]:
-        """Generate local goals between the global start and target goals for a sequence.
+        """Generate a sequence of observations or actions between start and stop observations/actions.
+
+        Note: The kind of sequence (e.g. ObservationSequenc or ActionSequence) depends on the concrete implementation.
 
         Args:
-            start_goal: (Global) Start goal.
-            stopp_goal: (Global) Stop goal.
-            len_sequence: Number of observations per sequence.
+            start_goal: Sequence start.
+            stopp_goal: SequenceStop.
+            len_sequence: Number of observations/actions per sequence.
             context: Goal Babbling context. Defaults to None.
 
         Returns:

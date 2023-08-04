@@ -3,7 +3,7 @@ import numpy as np
 from pygb._impl._core._abstract_state import AbstractState
 from pygb._impl._core._abstract_utils import (
     AbstractGoalSelector,
-    AbstractLocalGoalGenerator,
+    AbstractSequenceGenerator,
     AbstractNoiseGenerator,
     AbstractWeightGenerator,
 )
@@ -19,7 +19,7 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
         self,
         context: GoalBabblingContext,
         goal_selector: AbstractGoalSelector,
-        local_goal_generator: AbstractLocalGoalGenerator,
+        local_goal_generator: AbstractSequenceGenerator,
         noise_generator: AbstractNoiseGenerator,
         weight_generator: AbstractWeightGenerator,
         event_system: EventSystem | None = None,
@@ -87,7 +87,7 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
             start_goal = context.runtime_data.previous_sequence.observations[-1]
 
         local_goal_sequence = self.local_goal_selector.generate(
-            start_goal=start_goal, stop_goal=target_goal, len_sequence=context.current_parameters.len_sequence
+            start=start_goal, stop=target_goal, len_sequence=context.current_parameters.len_sequence
         )
 
         return ObservationSequence(start_goal=start_goal, stop_goal=target_goal, local_goals=local_goal_sequence)

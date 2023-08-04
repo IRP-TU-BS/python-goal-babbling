@@ -20,8 +20,8 @@ from pygb.interfaces import (
     AbstractForwardModel,
     AbstractGoalSelector,
     AbstractInverseEstimator,
-    AbstractLocalGoalGenerator,
     AbstractNoiseGenerator,
+    AbstractSequenceGenerator,
     AbstractWeightGenerator,
 )
 from pygb.states import GenerateSequenceState
@@ -64,7 +64,7 @@ def test_generate_new_sequence_with_no_previous_sequence() -> None:
 
     dummy_sequence = [np.array([0.35]), np.array([0.75]), np.array([1.0])]
 
-    local_goal_generator_mock = MagicMock(spec=AbstractLocalGoalGenerator)
+    local_goal_generator_mock = MagicMock(spec=AbstractSequenceGenerator)
     local_goal_generator_mock.generate = MagicMock(return_value=dummy_sequence)
 
     context = generate_dummy_context(previous_sequence=None)
@@ -104,7 +104,7 @@ def test_generate_new_sequence_with_previous_sequence(sequence: SequenceType, st
 
     dummy_sequence = [np.array([0.35]), np.array([0.75]), np.array([1.0])]
 
-    local_goal_generator_mock = MagicMock(spec=AbstractLocalGoalGenerator)
+    local_goal_generator_mock = MagicMock(spec=AbstractSequenceGenerator)
     local_goal_generator_mock.generate = MagicMock(return_value=dummy_sequence)
 
     context = generate_dummy_context(previous_sequence=sequence)
@@ -127,9 +127,7 @@ def test_generate_new_sequence_with_previous_sequence(sequence: SequenceType, st
 
     # start goal from goal store (goal index 1)
     # stop goal from mocked goal selector
-    local_goal_generator_mock.generate.assert_called_once_with(
-        start_goal=start_goal, stop_goal=np.array([1.0]), len_sequence=3
-    )
+    local_goal_generator_mock.generate.assert_called_once_with(start=start_goal, stop=np.array([1.0]), len_sequence=3)
 
 
 @patch("pygb._impl._gb_states._generate_sequence_state.GenerateSequenceState._generate_new_sequence")
