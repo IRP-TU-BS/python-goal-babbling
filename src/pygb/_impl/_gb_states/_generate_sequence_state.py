@@ -3,8 +3,8 @@ import numpy as np
 from pygb._impl._core._abstract_state import AbstractState
 from pygb._impl._core._abstract_utils import (
     AbstractGoalSelector,
-    AbstractSequenceGenerator,
     AbstractNoiseGenerator,
+    AbstractSequenceGenerator,
     AbstractWeightGenerator,
 )
 from pygb._impl._core._context import GoalBabblingContext
@@ -19,7 +19,7 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
         self,
         context: GoalBabblingContext,
         goal_selector: AbstractGoalSelector,
-        local_goal_generator: AbstractSequenceGenerator,
+        goal_sequence_generator: AbstractSequenceGenerator,
         noise_generator: AbstractNoiseGenerator,
         weight_generator: AbstractWeightGenerator,
         event_system: EventSystem | None = None,
@@ -28,7 +28,7 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
         super().__init__(context, event_system, name)
 
         self.goal_selector = goal_selector
-        self.local_goal_selector = local_goal_generator
+        self.goal_sequence_generator = goal_sequence_generator
         self.weight_generator = weight_generator
         self.noise_generator = noise_generator
 
@@ -67,13 +67,16 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
             weight = self.weight_generator.generate(self.context)
             sequence.weights.append(weight)
 
-            self.context.inverse_estimate.fit(observation, action, weight)
+            rmse = self.context.inverse_estimate.fit(observation, action, weight)
 
         # add sequence to completed sequences:
         self.context.runtime_data.sequences.append(sequence)
 
         # increase stop goal's visit count:
         self.context.runtime_data.train_goal_visit_count[target_goal_index] += 1
+
+        # note down prediction error on last observation, which is the target global goal:
+        self.context.runtime_data.train_goal_error[target_goal_index] = rmse
 
         return GenerateSequenceState.sequence_finished
 
@@ -86,7 +89,7 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
         elif isinstance(context.runtime_data.previous_sequence, ActionSequence):
             start_goal = context.runtime_data.previous_sequence.observations[-1]
 
-        local_goal_sequence = self.local_goal_selector.generate(
+        local_goal_sequence = self.goal_sequence_generator.generate(
             start=start_goal, stop=target_goal, len_sequence=context.current_parameters.len_sequence
         )
 

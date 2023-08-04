@@ -71,7 +71,7 @@ def test_generate_new_sequence_with_no_previous_sequence() -> None:
     state = GenerateSequenceState(
         context=context,
         goal_selector=goal_selector_mock,
-        local_goal_generator=local_goal_generator_mock,
+        goal_sequence_generator=local_goal_generator_mock,
         weight_generator=None,
         noise_generator=None,
     )
@@ -112,7 +112,7 @@ def test_generate_new_sequence_with_previous_sequence(sequence: SequenceType, st
     state = GenerateSequenceState(
         context=context,
         goal_selector=goal_selector_mock,
-        local_goal_generator=local_goal_generator_mock,
+        goal_sequence_generator=local_goal_generator_mock,
         weight_generator=None,
         noise_generator=None,
     )
@@ -139,7 +139,7 @@ def test_execute_state(generate_sequence_mock: MagicMock, mock_event_system: Gen
 
     inverse_estimator_mock = MagicMock(spec=AbstractInverseEstimator)
     inverse_estimator_mock.predict = MagicMock(side_effect=[np.array([-1.0]), np.array([-1.5]), np.array([-2.0])])
-    inverse_estimator_mock.fit = MagicMock()
+    inverse_estimator_mock.fit = MagicMock(side_effect=[1.0, 2.0, 3.0])
 
     forward_model_mock = MagicMock(spec=AbstractForwardModel)
     forward_model_mock.clip = MagicMock(side_effect=lambda x: x)
@@ -155,7 +155,13 @@ def test_execute_state(generate_sequence_mock: MagicMock, mock_event_system: Gen
     # unimportant, as _generate_new_sequence is mocked anyways
     goal_selector_mock.select = MagicMock(return_value=(1, np.array([33.0])))
 
-    runtime_data = RuntimeData(train_goal_visit_count=[0, 0])
+    runtime_data = RuntimeData(
+        train_goal_visit_count=[0, 0],
+        train_goal_error=[
+            0.0,
+            0.0,
+        ],
+    )
 
     context = GoalBabblingContext(
         param_store=None,
@@ -168,7 +174,7 @@ def test_execute_state(generate_sequence_mock: MagicMock, mock_event_system: Gen
     state = GenerateSequenceState(
         context,
         goal_selector=goal_selector_mock,
-        local_goal_generator=None,
+        goal_sequence_generator=None,
         weight_generator=weight_generator_mock,
         event_system=EventSystem.instance(),
         noise_generator=noise_generator_mock,
@@ -192,7 +198,8 @@ def test_execute_state(generate_sequence_mock: MagicMock, mock_event_system: Gen
         np.array([-1.7]),
     ]  # inverse estimator mock output with added noise
     assert sequence.weights == [42.0, 41.0, 40.0]  # weight generator mock output
-    assert context.runtime_data.train_goal_visit_count == [0, 1]  # sequence's stop goal count increases
+    assert context.runtime_data.train_goal_visit_count == [0, 1]  # sequence's stop goal count increases#
+    assert context.runtime_data.train_goal_error == [0.0, 3.0]  # sequence's stop goal count error
 
     forward_model_mock.clip.assert_has_calls([call(np.array([-0.9])), call(np.array([-1.3])), call(np.array([-1.7]))])
     forward_model_mock.forward.assert_has_calls(
