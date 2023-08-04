@@ -30,7 +30,7 @@ def test_generate() -> None:
 
     noise = generator.generate(np.array([4.0, 2.0]))
 
-    assert noise.shape == (1, 3)
+    assert noise.shape == (3,)
 
 
 def test_update() -> None:

@@ -28,16 +28,16 @@ class GBNoiseGenerator(AbstractNoiseGenerator[GoalBabblingContext]):
         self.b = self.sigma.T * self._rng.standard_normal(size=(dim_act, 1))
 
     def generate(self, observation: np.ndarray, context: GoalBabblingContext | None = None) -> np.ndarray:
-        """Generates noise of shape (1, dim_act).
+        """Generates noise of shape (dim_act,).
 
         Args:
             observation: Observation vector of shape (1, dim_obs).
             context: Goal Babbling context. Defaults to None.
 
         Returns:
-            Noise vector of shape (1, dim_act).
+            Noise vector of shape (dim_act,).
         """
-        return self.A @ observation + self.b.T
+        return (self.A @ observation + self.b.T).squeeze()
 
     def update(self) -> None:
         """Updates the A matrix and b vector."""
