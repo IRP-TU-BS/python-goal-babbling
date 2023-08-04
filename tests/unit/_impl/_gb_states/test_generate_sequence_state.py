@@ -31,6 +31,7 @@ def generate_dummy_context(previous_sequence: bool = True) -> GoalBabblingContex
         len_sequence=3,
         len_epoch=None,
         epoch_sets=1,
+        len_epoch_set=10,
         home_action=np.array([0.0, 0.0]),
         home_observation=np.array([0.0]),
     )
