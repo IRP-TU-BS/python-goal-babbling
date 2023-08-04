@@ -11,7 +11,7 @@ from pygb import (
     GoalSet,
     GoalStore,
     RuntimeData,
-    SequenceData,
+    ObservationSequence,
 )
 from pygb.interfaces import (
     AbstractForwardModel,
@@ -40,7 +40,7 @@ def generate_dummy_context(previous_sequence: bool = True) -> GoalBabblingContex
     goal_store = GoalStore(GoalSet(train=np.array([[12.0], [13.0]]), test=None))
 
     if previous_sequence:
-        runtime_data = RuntimeData(previous_sequence=SequenceData(start_glob_goal_idx=0, stop_glob_goal_idx=1))
+        runtime_data = RuntimeData(previous_sequence=ObservationSequence(start_glob_goal_idx=0, stop_glob_goal_idx=1))
     else:
         runtime_data = RuntimeData()
 
@@ -117,7 +117,7 @@ def test_generate_new_sequence_with_previous_sequence() -> None:
 
 @patch("pygb._impl._gb_states._generate_sequence_state.GenerateSequenceState._generate_new_sequence")
 def test_execute_state(generate_sequence_mock: MagicMock, mock_event_system: Generator[None, None, None]) -> None:
-    sequence = SequenceData(0, 1, weights=[], local_goals=[np.array([0.0]), np.array([0.5]), np.array([1.0])])
+    sequence = ObservationSequence(0, 1, weights=[], local_goals=[np.array([0.0]), np.array([0.5]), np.array([1.0])])
     generate_sequence_mock.return_value = sequence
 
     inverse_estimator_mock = MagicMock(spec=AbstractInverseEstimator)

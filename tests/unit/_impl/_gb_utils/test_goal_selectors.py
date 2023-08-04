@@ -9,7 +9,7 @@ from pygb import (
     GoalStore,
     RandomGoalSelector,
     RuntimeData,
-    SequenceData,
+    ObservationSequence,
 )
 
 
@@ -23,8 +23,8 @@ def create_context_mock() -> GoalBabblingContext:
         forward_model=None,
         inverse_estimate=None,
         runtime_data=RuntimeData(
-            sequences=[SequenceData(start_glob_goal_idx=0, stop_glob_goal_idx=2)],
-            previous_sequence=SequenceData(start_glob_goal_idx=0, stop_glob_goal_idx=2),
+            sequences=[ObservationSequence(start_glob_goal_idx=0, stop_glob_goal_idx=2)],
+            previous_sequence=ObservationSequence(start_glob_goal_idx=0, stop_glob_goal_idx=2),
         ),
     )
 

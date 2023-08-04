@@ -7,7 +7,7 @@ from pygb._impl._core._abstract_utils import (
 )
 from pygb._impl._core._context import GoalBabblingContext
 from pygb._impl._core._events import EventSystem
-from pygb._impl._core._runtime_data import SequenceData
+from pygb._impl._core._runtime_data import ObservationSequence
 
 
 class GenerateSequenceState(AbstractState[GoalBabblingContext]):
@@ -74,7 +74,7 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
 
         return GenerateSequenceState.sequence_finished
 
-    def _generate_new_sequence(self, context: GoalBabblingContext) -> SequenceData:
+    def _generate_new_sequence(self, context: GoalBabblingContext) -> ObservationSequence:
         target_goal_index, target_goal = self.goal_selector.select(context)
 
         if context.runtime_data.previous_sequence is None:
@@ -89,6 +89,6 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
             start_goal=start_goal, stop_goal=target_goal, len_sequence=context.current_parameters.len_sequence
         )
 
-        return SequenceData(
+        return ObservationSequence(
             start_glob_goal_idx=start_index, stop_glob_goal_idx=target_goal_index, local_goals=local_goal_sequence
         )

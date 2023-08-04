@@ -9,7 +9,7 @@ from pygb import (
     GBWeightGenerator,
     GoalBabblingContext,
     RuntimeData,
-    SequenceData,
+    ObservationSequence,
 )
 
 param_store = GBParameterStore(
@@ -90,7 +90,7 @@ def test_gb_weight_generator_efficiency_weight() -> None:
     ("sequence", "previous_sequence", "observation_index", "calls"),
     [
         (  # start of sequence with no previous sequence
-            SequenceData(
+            ObservationSequence(
                 0, 1, local_goals=[np.array([1.0])], observations=[np.array([2.0])], predicted_actions=[np.array([3.0])]
             ),
             None,
@@ -105,7 +105,7 @@ def test_gb_weight_generator_efficiency_weight() -> None:
             },
         ),
         (  # start of sequence with previous sequence:
-            SequenceData(
+            ObservationSequence(
                 0,
                 1,
                 local_goals=[np.array([1.0])],
@@ -114,7 +114,7 @@ def test_gb_weight_generator_efficiency_weight() -> None:
                     np.array([3.0]),
                 ],
             ),
-            SequenceData(
+            ObservationSequence(
                 0,
                 1,
                 local_goals=[np.array([10.0])],
@@ -132,14 +132,14 @@ def test_gb_weight_generator_efficiency_weight() -> None:
             },
         ),
         (  # middle of sequence with previous sequence:
-            SequenceData(
+            ObservationSequence(
                 0,
                 1,
                 local_goals=[np.array([1.0]), np.array([1.5])],
                 observations=[np.array([2.0]), np.array([2.5])],
                 predicted_actions=[np.array([3.0]), np.array([3.5])],
             ),
-            SequenceData(
+            ObservationSequence(
                 0,
                 1,
                 local_goals=[np.array([10.0])],
@@ -157,7 +157,7 @@ def test_gb_weight_generator_efficiency_weight() -> None:
             },
         ),
         (  # middle of sequence, but no previous completed sequence:
-            SequenceData(
+            ObservationSequence(
                 0,
                 1,
                 local_goals=[np.array([1.0]), np.array([1.5])],
@@ -178,7 +178,10 @@ def test_gb_weight_generator_efficiency_weight() -> None:
     ],
 )
 def test_gb_weight_generator_no_previous_sequence(
-    sequence: SequenceData, previous_sequence: SequenceData | None, observation_index: int, calls: dict[str, np.ndarray]
+    sequence: ObservationSequence,
+    previous_sequence: ObservationSequence | None,
+    observation_index: int,
+    calls: dict[str, np.ndarray],
 ) -> None:
     runtime_data = RuntimeData(
         previous_sequence=previous_sequence, current_sequence=sequence, observation_index=observation_index

@@ -1,4 +1,4 @@
-from pygb import RuntimeData, SequenceData
+from pygb import RuntimeData, ObservationSequence
 
 
 def test_runtime_data_init() -> None:
@@ -13,7 +13,7 @@ def test_runtime_data_init() -> None:
 
 def test_runtime_data_update_current_sequence() -> None:
     runtime_data = RuntimeData()
-    sequence = SequenceData(0, 1)
+    sequence = ObservationSequence(0, 1)
 
     runtime_data.update_current_sequence(sequence)
 
@@ -21,7 +21,7 @@ def test_runtime_data_update_current_sequence() -> None:
     assert runtime_data.current_sequence == sequence
     assert runtime_data.sequences == []
 
-    sequence2 = SequenceData(1, 3)
+    sequence2 = ObservationSequence(1, 3)
     runtime_data.update_current_sequence(sequence2)
 
     assert runtime_data.previous_sequence == sequence
