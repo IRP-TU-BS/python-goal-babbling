@@ -1,13 +1,8 @@
 from typing import Generator
 from unittest.mock import MagicMock, PropertyMock
 
-from pygb import (
-    EventSystem,
-    GBParameters,
-    GoalBabblingContext,
-    RuntimeData,
-    SequenceFinishedState,
-)
+from pygb import EventSystem, GBParameters, GoalBabblingContext, RuntimeData
+from pygb.states import SequenceFinishedState
 
 
 def test_execute_state_emits_sequence_finished_event(mock_event_system: Generator[None, None, None]) -> None:

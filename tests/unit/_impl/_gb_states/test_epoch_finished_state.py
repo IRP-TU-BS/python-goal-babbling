@@ -3,19 +3,13 @@ from unittest.mock import MagicMock, PropertyMock, patch
 
 import numpy as np
 
-from pygb import (
-    EpochFinishedState,
-    EventSystem,
-    GBParameters,
-    GoalBabblingContext,
-    GoalSet,
-    RuntimeData,
-)
+from pygb import EventSystem, GBParameters, GoalBabblingContext, GoalSet, RuntimeData
 from pygb.interfaces import (
     AbstractForwardModel,
     AbstractInverseEstimator,
     AbstractStoppingCriteria,
 )
+from pygb.states import EpochFinishedState
 
 
 def get_context_mock() -> MagicMock:

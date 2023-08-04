@@ -1,13 +1,8 @@
 from typing import Generator
 from unittest.mock import MagicMock, PropertyMock
 
-from pygb import (
-    EpochSetFinishedState,
-    EventSystem,
-    GoalBabblingContext,
-    RuntimeData,
-    observes,
-)
+from pygb import EventSystem, GoalBabblingContext, RuntimeData, observes
+from pygb.states import EpochSetFinishedState
 
 
 def test_state_emits_epoch_set_complete_event(mock_event_system: Generator[None, None, None]) -> None:

@@ -7,7 +7,6 @@ from pygb import (
     EventSystem,
     GBParameters,
     GBParameterStore,
-    GenerateSequenceState,
     GoalBabblingContext,
     GoalSet,
     GoalStore,
@@ -22,6 +21,7 @@ from pygb.interfaces import (
     AbstractNoiseGenerator,
     AbstractWeightGenerator,
 )
+from pygb.states import GenerateSequenceState
 
 
 def generate_dummy_context(previous_sequence: bool = True) -> GoalBabblingContext:
