@@ -30,7 +30,7 @@ class EpochSetFinishedState(AbstractState[GoalBabblingContext]):
             3) If the target number of epoch sets has been reaches, return 'stop_training' transition
 
         Returns:
-            _description_
+            Transition name.
         """
         self.events.emit("epoch-set-complete", self.context)
 

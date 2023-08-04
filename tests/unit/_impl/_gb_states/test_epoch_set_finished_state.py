@@ -1,5 +1,5 @@
 from typing import Generator
-from unittest.mock import MagicMock, PropertyMock
+from unittest.mock import MagicMock
 
 from pygb import EventSystem, GoalBabblingContext, RuntimeData, observes
 from pygb.states import EpochSetFinishedState
@@ -10,7 +10,7 @@ def test_state_emits_epoch_set_complete_event(mock_event_system: Generator[None,
     context_mock = MagicMock(
         spec=GoalBabblingContext,
         runtime_data=MagicMock(spec=RuntimeData, epoch_set_index=1),
-        len_epoch_set=1,
+        num_epoch_sets=1,
     )
 
     called = False
@@ -31,23 +31,23 @@ def test_state_emits_epoch_set_complete_event(mock_event_system: Generator[None,
     assert called_with_context == context_mock
 
 
-def test_execute_state_continue_training() -> None:
+def test_execute_state_continue_training(mock_event_system: Generator[None, None, None]) -> None:
     context_mock = MagicMock(
-        spec=GoalBabblingContext, runtime_data=MagicMock(spec=RuntimeData, epoch_set_index=1), len_epoch_set=2
+        spec=GoalBabblingContext, runtime_data=MagicMock(spec=RuntimeData, epoch_set_index=0), num_epoch_sets=2
     )
 
-    state = EpochSetFinishedState(context_mock, event_system=MagicMock(spec=EventSystem))
+    state = EpochSetFinishedState(context_mock, event_system=EventSystem.instance())
 
     assert state() == EpochSetFinishedState.continue_training
-    assert context_mock.runtime_data.epoch_set_index == 2
+    assert context_mock.runtime_data.epoch_set_index == 1
 
 
-def test_execute_state_stop_training() -> None:
+def test_execute_state_stop_training(mock_event_system: Generator[None, None, None]) -> None:
     context_mock = MagicMock(
-        spec=GoalBabblingContext, runtime_data=MagicMock(spec=RuntimeData, epoch_set_index=1), len_epoch_set=2
+        spec=GoalBabblingContext, runtime_data=MagicMock(spec=RuntimeData, epoch_set_index=1), num_epoch_sets=2
     )
 
-    state = EpochSetFinishedState(context_mock, event_system=MagicMock())
+    state = EpochSetFinishedState(context_mock, event_system=EventSystem.instance())
 
     assert state() == EpochSetFinishedState.stop_training
     assert context_mock.runtime_data.epoch_set_index == 1
