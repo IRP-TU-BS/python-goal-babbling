@@ -1,8 +1,10 @@
+from typing import Generator
 from unittest.mock import MagicMock, call, patch
 
 import numpy as np
 
 from pygb import (
+    EventSystem,
     GBParameters,
     GBParameterStore,
     GenerateSequenceState,
@@ -114,7 +116,7 @@ def test_generate_new_sequence_with_previous_sequence() -> None:
 
 
 @patch("pygb._impl._gb_states._generate_sequence_state.GenerateSequenceState._generate_new_sequence")
-def test_execute_state(generate_sequence_mock: MagicMock) -> None:
+def test_execute_state(generate_sequence_mock: MagicMock, mock_event_system: Generator[None, None, None]) -> None:
     sequence = SequenceData(0, 1, weights=[], local_goals=[np.array([0.0]), np.array([0.5]), np.array([1.0])])
     generate_sequence_mock.return_value = sequence
 
@@ -147,7 +149,7 @@ def test_execute_state(generate_sequence_mock: MagicMock) -> None:
         goal_selector=None,
         local_goal_generator=None,
         weight_generator=weight_generator_mock,
-        event_system=None,
+        event_system=EventSystem.instance(),
         noise_generator=noise_generator_mock,
     )
 
