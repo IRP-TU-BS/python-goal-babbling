@@ -17,6 +17,7 @@ class GBParameters:
     len_sequence: int
     len_epoch: int
     len_epoch_set: int
+    go_home_chance: float
     home_action: np.ndarray
     home_observation: np.ndarray
     stopping_criteria: list[AbstractStoppingCriteria] = field(default_factory=list)
@@ -77,6 +78,7 @@ class GBParameterIncrement:
     len_sequence: int | None = None
     len_epoch: int | None = None
     len_epoch_set: int | None = None
+    go_home_chance: float | None = None
     home_action: np.ndarray | None = None
     home_observation: np.ndarray | None = None
     stopping_criteria: list[AbstractStoppingCriteria] | None = None
