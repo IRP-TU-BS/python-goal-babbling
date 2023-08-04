@@ -1,0 +1,3 @@
+class GoalBabblingContext:
+    def __init__(self) -> None:
+        ...
