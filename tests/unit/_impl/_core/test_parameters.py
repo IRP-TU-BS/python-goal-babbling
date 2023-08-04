@@ -4,15 +4,42 @@ import numpy as np
 import pytest
 from numpy.testing import assert_array_equal
 
-from pygb import GBParameterIncrement, GBParameters, GBParameterStore
+from pygb import (
+    GBParameterIncrement,
+    GBParameters,
+    GBParameterStore,
+    GoalBabblingContext,
+)
+from pygb.interfaces import AbstractStoppingCriteria
+
+
+class DummyStoppingCriteria(AbstractStoppingCriteria[GoalBabblingContext]):
+    def __init__(self, parameter: int) -> None:
+        self.parameter = parameter
+
+    def fulfilled(self, context: GoalBabblingContext) -> bool:
+        return super().fulfilled(context)
+
+    def __eq__(self, __o: object) -> bool:
+        if not isinstance(__o, type(self)):
+            return False
+
+        return self.parameter == __o.parameter
 
 
 def test_gb_parameters_eq() -> None:
-    assert GBParameters(1.0, 2.0, 3, 4, 5, 6, 7, 8, np.array([1.0]), np.array([20.0])) == GBParameters(
-        1.0, 2.0, 3, 4, 5, 6, 7, 8, np.array([1.0]), np.array([20.0])
+    assert GBParameters(
+        1.0, 2.0, 3, 4, 5, 6, 7, 8, np.array([1.0]), np.array([20.0]), [DummyStoppingCriteria(parameter=42)]
+    ) == GBParameters(
+        1.0, 2.0, 3, 4, 5, 6, 7, 8, np.array([1.0]), np.array([20.0]), [DummyStoppingCriteria(parameter=42)]
     )
     assert not GBParameters(1.0, 2.0, 3, 4, 5, 6, 7, 8, np.array([1.0]), np.array([20.0])) == GBParameters(
         1.0, 42.0, 3, 4, 5, 6, 7, 8, np.array([1.0]), np.array([30.0])
+    )
+    assert not GBParameters(
+        1.0, 2.0, 3, 4, 5, 6, 7, 8, np.array([1.0]), np.array([20.0]), [DummyStoppingCriteria(parameter=42)]
+    ) == GBParameters(
+        1.0, 2.0, 3, 4, 5, 6, 7, 8, np.array([1.0]), np.array([20.0]), [DummyStoppingCriteria(parameter=24)]
     )
 
 
@@ -123,6 +150,52 @@ def test_combine_parameters_with_increment_home_action_sequence() -> None:
                 GBParameters(0.1, 0.01, 1, 2, 10, 20, 1, 10, np.array([1.0]), np.array([10.0])),
                 GBParameters(42.0, 0.01, 1, 2, 10, 20, 1, 10, np.array([1.0]), np.array([10.0])),
                 GBParameters(42.0, 42.42, 1, 2, 10, 20, 1, 10, np.array([1.0]), np.array([10.0])),
+            ],
+        ),
+        (
+            [
+                GBParameters(
+                    0.1,
+                    0.01,
+                    1,
+                    2,
+                    10,
+                    20,
+                    1,
+                    10,
+                    np.array([1.0]),
+                    np.array([10.0]),
+                    [DummyStoppingCriteria(parameter=42)],
+                ),
+                GBParameterIncrement(stopping_criteria=[DummyStoppingCriteria(parameter=43)]),
+            ],
+            [
+                GBParameters(
+                    0.1,
+                    0.01,
+                    1,
+                    2,
+                    10,
+                    20,
+                    1,
+                    10,
+                    np.array([1.0]),
+                    np.array([10.0]),
+                    [DummyStoppingCriteria(parameter=42)],
+                ),
+                GBParameters(
+                    0.1,
+                    0.01,
+                    1,
+                    2,
+                    10,
+                    20,
+                    1,
+                    10,
+                    np.array([1.0]),
+                    np.array([10.0]),
+                    [DummyStoppingCriteria(parameter=43)],
+                ),
             ],
         ),
     ),

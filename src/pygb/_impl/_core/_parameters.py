@@ -3,10 +3,12 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
+from pygb._impl._core._abstract_stopping_criteria import AbstractStoppingCriteria
+
 
 @dataclass
 class GBParameters:
-    """Goal Babbling parameters."""
+    """Goal Babbling parameters which are valid for one Goal Babbling epoch set."""
 
     sigma: float
     sigma_delta: float
@@ -18,6 +20,7 @@ class GBParameters:
     epoch_sets: int
     home_action: np.ndarray
     home_observation: np.ndarray
+    stopping_criteria: list[AbstractStoppingCriteria] = field(default_factory=list)
 
     def __eq__(self, other: object) -> bool:
         """Checks two parameter sets for equality.
@@ -78,6 +81,7 @@ class GBParameterIncrement:
     len_epoch_set: int | None = None
     home_action: np.ndarray | None = None
     home_observation: np.ndarray | None = None
+    stopping_criteria: list[AbstractStoppingCriteria] | None = None
 
 
 class GBParameterStore:

@@ -19,7 +19,7 @@ class RuntimeData:
     current_sequence: SequenceData | None = None
     previous_sequence: SequenceData | None = None
     performance_error: float | None = None  # error on test goals after last completed epoch
-    opt_performance_errors: dict[str, list[float]] = field(
+    opt_performance_errors: dict[str, float] = field(
         default_factory=dict
     )  # error on optional test goals calculated after each epoch
     observation_index: int = 0  # how far are we within the sequence?

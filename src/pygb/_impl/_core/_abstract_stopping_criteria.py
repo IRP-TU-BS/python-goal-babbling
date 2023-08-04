@@ -15,3 +15,14 @@ class AbstractStoppingCriteria(ABC, Generic[ContextType]):
         Returns:
             Whether the stopping criteria is fulfilled.
         """
+
+    @abstractmethod
+    def __eq__(self, __o: object) -> bool:
+        """Equality check.
+
+        Args:
+            __o: Other object.
+
+        Returns:
+            True if both elements are equal.
+        """
