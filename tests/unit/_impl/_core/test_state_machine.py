@@ -16,6 +16,9 @@ class DummyContext(AbstractContext):
     def set_running(self) -> None:
         self.running = True
 
+    def set_stopped(self) -> None:
+        self.running = False
+
 
 class DummyState(AbstractState[DummyContext]):
     def __init__(self, context: DummyContext, event_system: EventSystem | None = None, name: str | None = None) -> None:
@@ -35,6 +38,7 @@ def test_init() -> None:
     sm = StateMachine(context, initial_state=state)
 
     assert sm._transition_table == {}
+    assert state.name == "DummyState"
 
 
 def test_set_initial_state() -> None:

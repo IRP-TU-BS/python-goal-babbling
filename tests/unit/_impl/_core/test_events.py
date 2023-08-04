@@ -17,6 +17,9 @@ class DummyContext(AbstractContext):
     def set_running(self) -> None:
         return super().set_running()
 
+    def set_stopped(self) -> None:
+        return super().set_stopped()
+
 
 def test_get_singleton_instance() -> None:
     events = EventSystem.instance()
