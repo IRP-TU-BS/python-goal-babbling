@@ -4,7 +4,7 @@ from pygb._impl._core._abstract_utils import AbstractLocalGoalGenerator
 from pygb._impl._core._context import GoalBabblingContext
 
 
-class LinearPathGenerator(AbstractLocalGoalGenerator[GoalBabblingContext]):
+class GBPathGenerator(AbstractLocalGoalGenerator[GoalBabblingContext]):
     """Linear path generator."""
 
     def __init__(self) -> None:

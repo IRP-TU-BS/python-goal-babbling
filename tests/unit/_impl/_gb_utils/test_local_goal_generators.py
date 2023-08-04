@@ -2,11 +2,11 @@ import numpy as np
 import pytest
 from numpy.testing import assert_array_almost_equal
 
-from pygb import LinearPathGenerator
+from pygb import GBPathGenerator
 
 
 def test_linear_path_generator() -> None:
-    generator = LinearPathGenerator()
+    generator = GBPathGenerator()
     local_goals = generator.generate(start_goal=np.array([1.0, 1.0]), stop_goal=np.array([10.0, 6.0]), len_sequence=5)
 
     assert_array_almost_equal(
@@ -16,6 +16,6 @@ def test_linear_path_generator() -> None:
 
 
 def test_linear_path_generator_raises() -> None:
-    generator = LinearPathGenerator()
+    generator = GBPathGenerator()
     with pytest.raises(RuntimeError):
         generator.generate(np.array([1.0, 0.0]), np.array([1.0, 0.0]), 42)
