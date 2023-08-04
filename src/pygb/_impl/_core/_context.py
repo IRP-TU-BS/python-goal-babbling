@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import TypeVar
 
 from pygb._impl._core._goals import GoalStore
 from pygb._impl._core._parameters import GBParameterStore
@@ -12,6 +13,9 @@ class AbstractContext(ABC):
     @abstractmethod
     def set_running(self) -> None:
         ...
+
+
+ContextType = TypeVar("ContextType", bound=AbstractContext)
 
 
 class GoalBabblingContext(AbstractContext):
