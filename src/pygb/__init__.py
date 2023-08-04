@@ -1,4 +1,5 @@
 from pygb._impl._core._abstract_state import AbstractState
+from pygb._impl._core._abstract_stopping_criteria import AbstractStoppingCriteria
 from pygb._impl._core._context import AbstractContext
 from pygb._impl._core._events import EventSystem, observes
 from pygb._impl._core._goals import GoalSet, GoalStore
