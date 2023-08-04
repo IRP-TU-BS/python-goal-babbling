@@ -29,6 +29,23 @@ class GBWeightGenerator(AbstractWeightGenerator[GoalBabblingContext]):
         Returns:
             The calculated weight.
         """
+        prev_local_goal, prev_local_pred, prev_action = self._choose_previous_data(context)
+
+        seq = context.runtime_data.current_sequence
+        observation_idx = context.runtime_data.observation_index
+
+        w_dir, w_eff = self._calc_weights(
+            local_goal=seq.local_goals[observation_idx],
+            prev_local=prev_local_goal,
+            local_goal_pred=seq.observations[observation_idx],
+            prev_local_pred=prev_local_pred,
+            action=seq.predicted_actions[observation_idx],
+            prev_action=prev_action,
+        )
+
+        return w_dir * w_eff
+
+    def _choose_previous_data(self, context: GoalBabblingContext) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         seq = context.runtime_data.current_sequence
         observation_idx = context.runtime_data.observation_index
 
@@ -50,16 +67,7 @@ class GBWeightGenerator(AbstractWeightGenerator[GoalBabblingContext]):
             prev_local_pred = seq.observations[observation_idx - 1]
             prev_action = seq.predicted_actions[observation_idx - 1]
 
-        w_dir, w_eff = self._calc_weights(
-            local_goal=seq.local_goals[observation_idx],
-            prev_local=prev_local_goal,
-            local_goal_pred=seq.observations[observation_idx],
-            prev_local_pred=prev_local_pred,
-            action=seq.predicted_actions[observation_idx],
-            prev_action=prev_action,
-        )
-
-        return w_dir * w_eff
+        return prev_local_goal, prev_local_pred, prev_action
 
     def _calc_weights(
         self,
