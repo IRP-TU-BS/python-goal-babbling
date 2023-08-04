@@ -1,6 +1,7 @@
 import pytest
 
-from pygb import AbstractContext, AbstractState, EventSystem, StateMachine
+from pygb import EventSystem, StateMachine
+from pygb.interfaces import AbstractContext, AbstractState
 
 
 class DummyContext(AbstractContext):

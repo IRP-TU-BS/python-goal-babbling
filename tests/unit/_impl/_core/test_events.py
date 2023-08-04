@@ -2,7 +2,8 @@ from typing import Generator
 
 import pytest
 
-from pygb import AbstractContext, EventSystem, observes
+from pygb import EventSystem, observes
+from pygb.interfaces import AbstractContext
 
 
 class DummyContext(AbstractContext):

@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, call
 
 import numpy as np
 from numpy.testing import assert_array_equal

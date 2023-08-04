@@ -3,11 +3,6 @@ from unittest.mock import MagicMock, call, patch
 import numpy as np
 
 from pygb import (
-    AbstractForwardModel,
-    AbstractGoalSelector,
-    AbstractInverseEstimator,
-    AbstractLocalGoalGenerator,
-    AbstractWeightGenerator,
     GBParameters,
     GBParameterStore,
     GenerateSequenceState,
@@ -16,6 +11,13 @@ from pygb import (
     GoalStore,
     RuntimeData,
     SequenceData,
+)
+from pygb.interfaces import (
+    AbstractForwardModel,
+    AbstractGoalSelector,
+    AbstractInverseEstimator,
+    AbstractLocalGoalGenerator,
+    AbstractWeightGenerator,
 )
 
 
