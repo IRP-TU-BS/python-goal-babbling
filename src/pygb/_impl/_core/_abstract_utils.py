@@ -8,14 +8,14 @@ from pygb._impl._core._context import ContextType
 
 class AbstractGoalSelector(ABC, Generic[ContextType]):
     @abstractmethod
-    def select(self, context: ContextType) -> np.ndarray:
+    def select(self, context: ContextType) -> tuple[int, np.ndarray]:
         """Select the target global goal for the next training sequence.
 
         Args:
             context: Goal Babbling context.
 
         Returns:
-            Target global goal.
+            Target global goal as a tuple (index, goal).
         """
 
 

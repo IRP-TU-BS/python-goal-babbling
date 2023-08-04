@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar
 
-from pygb._impl._core._goals import GoalStore
+from pygb._impl._core._goals import GoalSet, GoalStore
 from pygb._impl._core._model import AbstractForwardModel, AbstractInverseEstimator
 from pygb._impl._core._parameters import GBParameterStore
 from pygb._impl._core._runtime_data import RuntimeData
@@ -44,6 +44,15 @@ class GoalBabblingContext(AbstractContext):
         self.runtime_data = runtime_data
         self.forward_model = forward_model
         self.inverse_estimate = inverse_estimate
+
+    @property
+    def current_goal_set(self) -> GoalSet:
+        """Return the current epoch set's goal set.
+
+        Returns:
+            Current epoch set's goal set.
+        """
+        return self.goal_store[self.runtime_data.epoch_set_index]
 
     def is_running(self) -> bool:
         # TODO
