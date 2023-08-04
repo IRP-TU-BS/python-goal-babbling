@@ -28,6 +28,17 @@ class AbstractForwardModel(ABC):
             2D batch of observations.
         """
 
+    @abstractmethod
+    def clip(self, action: np.ndarray) -> np.ndarray:
+        """Clips the specified action, e.g. to stay in range of the model's limits.
+
+        Args:
+            action: The unclipped action.
+
+        Returns:
+            Clipped action.
+        """
+
 
 class AbstractInverseEstimator(ABC):
     """Inverse model, which wraps an estimator (e.g. a neural network) for the reverse calculation
