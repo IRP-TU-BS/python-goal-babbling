@@ -85,6 +85,18 @@ def test_combine_parameters_with_increment_home_action_sequence() -> None:
             GBParameters(0.1, 0.01, 1, 2, 10, 20, 1, np.array([1.0])),
             [GBParameters(0.1, 0.01, 1, 2, 10, 20, 1, np.array([1.0]))],
         ),
+        (
+            [
+                GBParameters(0.1, 0.01, 1, 2, 10, 20, 1, np.array([1.0])),
+                GBParameterIncrement(sigma=42.0),
+                GBParameterIncrement(sigma_delta=42.42),
+            ],
+            [
+                GBParameters(0.1, 0.01, 1, 2, 10, 20, 1, np.array([1.0])),
+                GBParameters(42.0, 0.01, 1, 2, 10, 20, 1, np.array([1.0])),
+                GBParameters(42.0, 42.42, 1, 2, 10, 20, 1, np.array([1.0])),
+            ],
+        ),
     ),
 )
 def test_parameter_store_combine_parameter_sets(

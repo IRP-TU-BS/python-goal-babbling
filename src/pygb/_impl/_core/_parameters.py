@@ -6,6 +6,8 @@ import numpy as np
 
 @dataclass
 class GBParameters:
+    """Goal Babbling parameters."""
+
     sigma: float
     sigma_delta: float
     dim_act: int
@@ -16,6 +18,14 @@ class GBParameters:
     home_action_set: np.ndarray
 
     def __eq__(self, other: object) -> bool:
+        """Checks two parameter sets for equality.
+
+        Args:
+            other: Other object.
+
+        Returns:
+            Whether or not the two ojects are equal.
+        """
         if not isinstance(other, type(self)):
             return False
 
@@ -33,6 +43,17 @@ class GBParameters:
         return True
 
     def combine(self, increment: "GBParameterIncrement") -> "GBParameters":
+        """Combine this parameter set with the specified increment.
+
+        This parameter set's parameters are updated with values from the increment. Increment values which are set to
+        None are kept.
+
+        Args:
+            increment: Parameter increment.
+
+        Returns:
+            The combination of the current parameter set and the specified increment.
+        """
         combined = deepcopy(self)
         for attribute_name in increment.__match_args__:
             if (increment_value := increment.__getattribute__(attribute_name)) is not None:
@@ -43,6 +64,8 @@ class GBParameters:
 
 @dataclass
 class GBParameterIncrement:
+    """Goal Babbling Parameter increment."""
+
     sigma: float | None = None
     sigma_delta: float | None = None
     dim_act: int | None = None
@@ -54,24 +77,41 @@ class GBParameterIncrement:
 
 
 class GBParameterStore:
+    """Goal Babbling parameter store. Contains parameter sets indexed by epoch set indices."""
+
     def __init__(self, gb_parameters: GBParameters | list[GBParameters | GBParameterIncrement]) -> None:
+        """Constructor.
+
+        If a list is provided as an argument and the list contains increment instances, they are combined with the
+        parameter set from the previous epoch set.
+
+        Args:
+            gb_parameters: One ore multiple parameter sets or increments.
+        """
         if isinstance(gb_parameters, list):
             self.gb_parameters = self._combine_parameter_sets(gb_parameters)
         else:
             self.gb_parameters = [gb_parameters]
 
     def __getitem__(self, epoch_index: int) -> GBParameters:
+        """Returns the epoch sets's paramter set.
+
+        Args:
+            epoch_index: Epoch set index.
+
+        Returns:
+            Goal Babbling parameters.
+        """
         return self.gb_parameters[epoch_index]
 
     def _combine_parameter_sets(self, gb_parameters: list[GBParameters | GBParameterIncrement]) -> list[GBParameters]:
-        previous_default = gb_parameters[0]
-        if not isinstance(previous_default, GBParameters):
+        if not isinstance(gb_parameters[0], GBParameters):
             raise ValueError(
                 f"""Failed to extract GB parameter list: First entry must be of type {GBParameters.__name__} """
-                f"""but is of type {type(previous_default)}"""
+                f"""but is of type {type(gb_parameters[0])}"""
             )
 
-        params = [previous_default]
+        params = [gb_parameters[0]]
         if len(gb_parameters) == 1:
             return params
 
@@ -80,9 +120,8 @@ class GBParameterStore:
                 continue
 
             if isinstance(p, GBParameterIncrement):
-                params.append(previous_default.combine(p))
+                params.append(params[-1].combine(p))
             else:
                 params.append(p)
-                previous_default = p
 
         return params
