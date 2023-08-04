@@ -7,7 +7,7 @@ from pygb import GBPathGenerator
 
 def test_linear_path_generator() -> None:
     generator = GBPathGenerator()
-    local_goals = generator.generate(start_goal=np.array([1.0, 1.0]), stop_goal=np.array([10.0, 6.0]), len_sequence=5)
+    local_goals = generator.generate(start=np.array([1.0, 1.0]), stop=np.array([10.0, 6.0]), len_sequence=5)
 
     assert_array_almost_equal(
         local_goals,

@@ -52,7 +52,7 @@ class RuntimeData:
     )  # training goal error, calculated pre goal after a completed sequence
     train_goal_visit_count: list[int] = field(default_factory=list)  # visit count per goal
 
-    def update_current_sequence(self, sequence: ObservationSequence) -> None:
+    def update_current_sequence(self, sequence: SequenceType) -> None:
         if self.current_sequence is not None:
             self.previous_sequence = self.current_sequence
 

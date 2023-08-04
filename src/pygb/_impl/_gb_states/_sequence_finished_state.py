@@ -20,7 +20,7 @@ class SequenceFinishedState(AbstractState[GoalBabblingContext]):
         """
         super().__init__(context, event_system, name)
 
-    def __call__(self) -> str:
+    def __call__(self) -> str | None:
         """Execute the state.
 
         - Steps:

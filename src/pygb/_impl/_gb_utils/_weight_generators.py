@@ -36,7 +36,7 @@ class GBWeightGenerator(AbstractWeightGenerator[GoalBabblingContext]):
             if context.runtime_data.previous_sequence is None:
                 # training has just started -> use home action and observation as previous steps
                 prev_local_goal = context.current_parameters.home_observation
-                prev_local_pred = prev_local_goal
+                prev_local_pred = context.current_parameters.home_observation
                 prev_action = context.current_parameters.home_action
             else:
                 # start of the sequence, so there is no previous observation
