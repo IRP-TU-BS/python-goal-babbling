@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, patch
+from typing import Generator
 
 import pytest
 
@@ -27,11 +27,7 @@ def test_get_singleton_instance() -> None:
     assert id(events) == id(events2)
 
 
-@patch("pygb._impl._core._events.EventSystem.instance")
-def test_emit(instance_mock: MagicMock) -> None:
-    patch_event = EventSystem()
-    instance_mock.return_value = patch_event
-
+def test_emit(mock_event_system: Generator[None, None, None]) -> None:
     events = EventSystem.instance()
     context_value = None
     called = False
@@ -52,22 +48,14 @@ def test_emit(instance_mock: MagicMock) -> None:
     assert not called
 
 
-@patch("pygb._impl._core._events.EventSystem.instance")
-def test_register_observer(instance_mock: MagicMock) -> None:
-    patch_event = EventSystem()
-    instance_mock.return_value = patch_event
-
+def test_register_observer(mock_event_system: Generator[None, None, None]) -> None:
     events = EventSystem.instance()
 
     events.register_observer("test-event", lambda context: None)
     assert len(events.event_observers["test-event"]) == 1
 
 
-@patch("pygb._impl._core._events.EventSystem.instance")
-def test_remove_observer(instance_mock: MagicMock) -> None:
-    patch_event = EventSystem()
-    instance_mock.return_value = patch_event
-
+def test_remove_observer(mock_event_system: Generator[None, None, None]) -> None:
     events = EventSystem.instance()
 
     def observer1(context: AbstractContext) -> None:
@@ -93,10 +81,8 @@ def test_remove_observer(instance_mock: MagicMock) -> None:
     assert dict(events.event_observers) == {"test-event-1": [observer2], "test-event-2": []}
 
 
-@patch("pygb._impl._core._events.EventSystem.instance")
-def test_observes_decorator(instance_mock: MagicMock) -> None:
-    patch_event = EventSystem()
-    instance_mock.return_value = patch_event
+def test_observes_decorator(mock_event_system: Generator[None, None, None]) -> None:
+    events = EventSystem.instance()
 
     called = False
 
@@ -105,4 +91,4 @@ def test_observes_decorator(instance_mock: MagicMock) -> None:
         nonlocal called
         called = True
 
-    assert dict(patch_event.event_observers) == {"test-event": [observes("test-event")(observer)]}
+    assert dict(events.event_observers) == {"test-event": [observes("test-event")(observer)]}
