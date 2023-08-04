@@ -37,6 +37,24 @@ class AbstractLocalGoalGenerator(ABC, Generic[ContextType]):
         """
 
 
+class AbstractNoiseGenerator(ABC, Generic[ContextType]):
+    @abstractmethod
+    def generate(self, observation: np.ndarray, context: ContextType | None = None) -> np.ndarray:
+        """Generate noise.
+
+        Args:
+            observation: Observation, e.g. a local goal.
+            context: Goal Babbling context. Defaults to None.
+
+        Returns:
+            Noise vector, which must match the action shape.
+        """
+
+    @abstractmethod
+    def update(self) -> None:
+        """Update the noise generator."""
+
+
 class AbstractWeightGenerator(ABC, Generic[ContextType]):
     @abstractmethod
     def generate(self, context: ContextType) -> float:

@@ -17,6 +17,7 @@ from pygb.interfaces import (
     AbstractGoalSelector,
     AbstractInverseEstimator,
     AbstractLocalGoalGenerator,
+    AbstractNoiseGenerator,
     AbstractWeightGenerator,
 )
 
@@ -125,6 +126,9 @@ def test_execute_state(generate_sequence_mock: MagicMock) -> None:
     weight_generator_mock = MagicMock(spec=AbstractWeightGenerator)
     weight_generator_mock.generate = MagicMock(side_effect=[42.0, 41.0, 40.0])
 
+    noise_generator_mock = MagicMock(spec=AbstractNoiseGenerator)
+    noise_generator_mock.generate = MagicMock(side_effect=[0.1, 0.2, 0.3])
+
     runtime_data = RuntimeData(train_goal_visit_count=[0, 0])
 
     context = GoalBabblingContext(
@@ -141,6 +145,7 @@ def test_execute_state(generate_sequence_mock: MagicMock) -> None:
         local_goal_generator=None,
         weight_generator=weight_generator_mock,
         event_system=None,
+        noise_generator=noise_generator_mock,
     )
 
     transition_name = state()
@@ -156,22 +161,26 @@ def test_execute_state(generate_sequence_mock: MagicMock) -> None:
         np.array([200.0]),
     ]  # forward model mock output
     assert sequence.predicted_actions == [
-        np.array([-1.0]),
-        np.array([-1.5]),
-        np.array([-2.0]),
-    ]  # inverse estimator mock output
+        np.array([-0.9]),
+        np.array([-1.3]),
+        np.array([-1.7]),
+    ]  # inverse estimator mock output with added noise
     assert sequence.weights == [42.0, 41.0, 40.0]  # weight generator mock output
     assert context.runtime_data.train_goal_visit_count == [0, 1]  # sequence's stop goal count increases
 
-    forward_model_mock.clip.assert_has_calls([call(np.array([-1.0])), call(np.array([-1.5])), call(np.array([-2.0]))])
+    forward_model_mock.clip.assert_has_calls([call(np.array([-0.9])), call(np.array([-1.3])), call(np.array([-1.7]))])
     forward_model_mock.forward.assert_has_calls(
-        [call(np.array([-1.0])), call(np.array([-1.5])), call(np.array([-2.0]))]
+        [call(np.array([-0.9])), call(np.array([-1.3])), call(np.array([-1.7]))]
     )
 
     inverse_estimator_mock.fit.assert_has_calls(
         [
-            call(np.array([100.0]), np.array([-1.0]), 42.0),
-            call(np.array([150.0]), np.array([-1.5]), 41.0),
-            call(np.array([200.0]), np.array([-2.0]), 40.0),
+            call(np.array([100.0]), np.array([-0.9]), 42.0),
+            call(np.array([150.0]), np.array([-1.3]), 41.0),
+            call(np.array([200.0]), np.array([-1.7]), 40.0),
         ]
+    )
+
+    noise_generator_mock.generate.assert_has_calls(
+        [call(np.array([0.0])), call(np.array([0.5])), call(np.array([1.0]))]  # local goals from sequence
     )

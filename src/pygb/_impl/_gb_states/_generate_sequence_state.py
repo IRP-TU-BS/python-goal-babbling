@@ -2,6 +2,7 @@ from pygb._impl._core._abstract_state import AbstractState
 from pygb._impl._core._abstract_utils import (
     AbstractGoalSelector,
     AbstractLocalGoalGenerator,
+    AbstractNoiseGenerator,
     AbstractWeightGenerator,
 )
 from pygb._impl._core._context import GoalBabblingContext
@@ -17,6 +18,7 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
         context: GoalBabblingContext,
         goal_selector: AbstractGoalSelector,
         local_goal_generator: AbstractLocalGoalGenerator,
+        noise_generator: AbstractNoiseGenerator,
         weight_generator: AbstractWeightGenerator,
         event_system: EventSystem | None = None,
         name: str | None = None,
@@ -26,6 +28,7 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
         self.goal_selector = goal_selector
         self.local_goal_selector = local_goal_generator
         self.weight_generator = weight_generator
+        self.noise_generator = noise_generator
 
     def __call__(self) -> str:
         """Trains the inverse estimate on a sequence of observations between two global goals.
@@ -50,6 +53,7 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
             self.context.runtime_data.observation_index = observation_index
 
             action = self.context.inverse_estimate.predict(local_goal)
+            action += self.noise_generator.generate(local_goal)
             action = self.context.forward_model.clip(action)
             observation = self.context.forward_model.forward(action)
 
