@@ -21,3 +21,4 @@ class RuntimeData:
     epoch_set_index: int = 0
     sequences: list[SequenceData] = field(default_factory=list)
     train_goal_error: list[float] = field(default_factory=list)
+    train_goal_visit_count: list[int] = field(default_factory=list)
