@@ -1,3 +1,5 @@
+import numpy as np
+
 from pygb._impl._core._abstract_state import AbstractState
 from pygb._impl._core._abstract_utils import (
     AbstractGoalSelector,
@@ -7,7 +9,7 @@ from pygb._impl._core._abstract_utils import (
 )
 from pygb._impl._core._context import GoalBabblingContext
 from pygb._impl._core._events import EventSystem
-from pygb._impl._core._runtime_data import ObservationSequence
+from pygb._impl._core._runtime_data import ActionSequence, ObservationSequence
 
 
 class GenerateSequenceState(AbstractState[GoalBabblingContext]):
@@ -43,7 +45,8 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
             Transition name once the sequence has been finished.
         """
         # generate sequence between previous stop goal and new target goal:
-        sequence = self._generate_new_sequence(self.context)
+        target_goal_index, target_goal = self.goal_selector.select(self.context)
+        sequence = self._generate_new_sequence(target_goal, self.context)
 
         # update current sequence and previous sequence:
         self.context.runtime_data.update_current_sequence(sequence)
@@ -70,25 +73,21 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
         self.context.runtime_data.sequences.append(sequence)
 
         # increase stop goal's visit count:
-        self.context.runtime_data.train_goal_visit_count[sequence.stop_glob_goal_idx] += 1
+        self.context.runtime_data.train_goal_visit_count[target_goal_index] += 1
 
         return GenerateSequenceState.sequence_finished
 
-    def _generate_new_sequence(self, context: GoalBabblingContext) -> ObservationSequence:
-        target_goal_index, target_goal = self.goal_selector.select(context)
-
+    def _generate_new_sequence(self, target_goal: np.ndarray, context: GoalBabblingContext) -> ObservationSequence:
         if context.runtime_data.previous_sequence is None:
             # start of epoch set -> no previous sequence, so we start at the home observation
             start_goal = context.current_parameters.home_observation
-            start_index = -1
-        else:
-            start_index = context.runtime_data.previous_sequence.stop_glob_goal_idx
-            start_goal = context.current_goal_set.train[start_index]
+        elif isinstance(context.runtime_data.previous_sequence, ObservationSequence):
+            start_goal = context.runtime_data.previous_sequence.stop_goal
+        elif isinstance(context.runtime_data.previous_sequence, ActionSequence):
+            start_goal = context.runtime_data.previous_sequence.observations[-1]
 
         local_goal_sequence = self.local_goal_selector.generate(
             start_goal=start_goal, stop_goal=target_goal, len_sequence=context.current_parameters.len_sequence
         )
 
-        return ObservationSequence(
-            start_glob_goal_idx=start_index, stop_glob_goal_idx=target_goal_index, local_goals=local_goal_sequence
-        )
+        return ObservationSequence(start_goal=start_goal, stop_goal=target_goal, local_goals=local_goal_sequence)

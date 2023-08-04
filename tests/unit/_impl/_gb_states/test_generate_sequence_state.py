@@ -2,16 +2,19 @@ from typing import Generator
 from unittest.mock import MagicMock, call, patch
 
 import numpy as np
+import pytest
 
 from pygb import (
+    ActionSequence,
     EventSystem,
     GBParameters,
     GBParameterStore,
     GoalBabblingContext,
     GoalSet,
     GoalStore,
-    RuntimeData,
     ObservationSequence,
+    RuntimeData,
+    SequenceType,
 )
 from pygb.interfaces import (
     AbstractForwardModel,
@@ -24,7 +27,7 @@ from pygb.interfaces import (
 from pygb.states import GenerateSequenceState
 
 
-def generate_dummy_context(previous_sequence: bool = True) -> GoalBabblingContext:
+def generate_dummy_context(previous_sequence: SequenceType | None = None) -> GoalBabblingContext:
     gb_params = GBParameters(
         sigma=0.1,
         sigma_delta=0.01,
@@ -39,8 +42,8 @@ def generate_dummy_context(previous_sequence: bool = True) -> GoalBabblingContex
     )
     goal_store = GoalStore(GoalSet(train=np.array([[12.0], [13.0]]), test=None))
 
-    if previous_sequence:
-        runtime_data = RuntimeData(previous_sequence=ObservationSequence(start_glob_goal_idx=0, stop_glob_goal_idx=1))
+    if previous_sequence is not None:
+        runtime_data = RuntimeData(previous_sequence=previous_sequence)
     else:
         runtime_data = RuntimeData()
 
@@ -64,7 +67,7 @@ def test_generate_new_sequence_with_no_previous_sequence() -> None:
     local_goal_generator_mock = MagicMock(spec=AbstractLocalGoalGenerator)
     local_goal_generator_mock.generate = MagicMock(return_value=dummy_sequence)
 
-    context = generate_dummy_context(previous_sequence=False)
+    context = generate_dummy_context(previous_sequence=None)
     state = GenerateSequenceState(
         context=context,
         goal_selector=goal_selector_mock,
@@ -73,16 +76,29 @@ def test_generate_new_sequence_with_no_previous_sequence() -> None:
         noise_generator=None,
     )
 
-    sequence = state._generate_new_sequence(context)
+    sequence = state._generate_new_sequence(np.array([1.0]), context)
 
-    assert sequence.start_glob_goal_idx == -1  # home observation
-    assert sequence.stop_glob_goal_idx == 42  # mocked goal selector output
+    assert sequence.start_goal == np.array([0.0])  # home observation
+    assert sequence.stop_goal == np.array([1.0])  # target goal
     assert sequence.observations == []
     assert sequence.predicted_actions == []
     assert sequence.local_goals == dummy_sequence
 
 
-def test_generate_new_sequence_with_previous_sequence() -> None:
+@pytest.mark.parametrize(
+    ("sequence", "start_goal"),
+    [
+        (
+            ObservationSequence(start_goal=np.array([100.0]), stop_goal=np.array([200.0])),
+            np.array([200.0]),
+        ),
+        (
+            ActionSequence(None, None, actions=[np.array([1.0, 2.0])], observations=[np.array([300.0])]),
+            np.array([300.0]),
+        ),
+    ],
+)
+def test_generate_new_sequence_with_previous_sequence(sequence: SequenceType, start_goal: np.ndarray) -> None:
     goal_selector_mock = MagicMock(spec=AbstractGoalSelector)
     goal_selector_mock.select = MagicMock(return_value=(42, np.array([1.0])))
 
@@ -91,7 +107,8 @@ def test_generate_new_sequence_with_previous_sequence() -> None:
     local_goal_generator_mock = MagicMock(spec=AbstractLocalGoalGenerator)
     local_goal_generator_mock.generate = MagicMock(return_value=dummy_sequence)
 
-    context = generate_dummy_context(previous_sequence=True)
+    context = generate_dummy_context(previous_sequence=sequence)
+
     state = GenerateSequenceState(
         context=context,
         goal_selector=goal_selector_mock,
@@ -100,10 +117,10 @@ def test_generate_new_sequence_with_previous_sequence() -> None:
         noise_generator=None,
     )
 
-    sequence = state._generate_new_sequence(context)
+    sequence = state._generate_new_sequence(np.array([1.0]), context)
 
-    assert sequence.start_glob_goal_idx == 1  # previous sequence
-    assert sequence.stop_glob_goal_idx == 42  # mocked goal selector output
+    assert sequence.start_goal == start_goal  # previous sequence stop goal
+    assert sequence.stop_goal == np.array([1.0])  # mocked goal selector output
     assert sequence.observations == []
     assert sequence.predicted_actions == []
     assert sequence.local_goals == dummy_sequence
@@ -111,13 +128,15 @@ def test_generate_new_sequence_with_previous_sequence() -> None:
     # start goal from goal store (goal index 1)
     # stop goal from mocked goal selector
     local_goal_generator_mock.generate.assert_called_once_with(
-        start_goal=np.array([13.0]), stop_goal=np.array([1.0]), len_sequence=3
+        start_goal=start_goal, stop_goal=np.array([1.0]), len_sequence=3
     )
 
 
 @patch("pygb._impl._gb_states._generate_sequence_state.GenerateSequenceState._generate_new_sequence")
 def test_execute_state(generate_sequence_mock: MagicMock, mock_event_system: Generator[None, None, None]) -> None:
-    sequence = ObservationSequence(0, 1, weights=[], local_goals=[np.array([0.0]), np.array([0.5]), np.array([1.0])])
+    sequence = ObservationSequence(
+        np.array([0.1]), np.array([1.0]), weights=[], local_goals=[np.array([0.0]), np.array([0.5]), np.array([1.0])]
+    )
     generate_sequence_mock.return_value = sequence
 
     inverse_estimator_mock = MagicMock(spec=AbstractInverseEstimator)
@@ -134,6 +153,10 @@ def test_execute_state(generate_sequence_mock: MagicMock, mock_event_system: Gen
     noise_generator_mock = MagicMock(spec=AbstractNoiseGenerator)
     noise_generator_mock.generate = MagicMock(side_effect=[0.1, 0.2, 0.3])
 
+    goal_selector_mock = MagicMock(spec=AbstractGoalSelector)
+    # unimportant, as _generate_new_sequence is mocked anyways
+    goal_selector_mock.select = MagicMock(return_value=(1, np.array([33.0])))
+
     runtime_data = RuntimeData(train_goal_visit_count=[0, 0])
 
     context = GoalBabblingContext(
@@ -146,7 +169,7 @@ def test_execute_state(generate_sequence_mock: MagicMock, mock_event_system: Gen
 
     state = GenerateSequenceState(
         context,
-        goal_selector=None,
+        goal_selector=goal_selector_mock,
         local_goal_generator=None,
         weight_generator=weight_generator_mock,
         event_system=EventSystem.instance(),
@@ -189,3 +212,5 @@ def test_execute_state(generate_sequence_mock: MagicMock, mock_event_system: Gen
     noise_generator_mock.generate.assert_has_calls(
         [call(np.array([0.0])), call(np.array([0.5])), call(np.array([1.0]))]  # local goals from sequence
     )
+
+    goal_selector_mock.select.assert_called_once_with(context)

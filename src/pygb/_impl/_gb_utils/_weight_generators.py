@@ -5,7 +5,8 @@ from pygb._impl._core._context import GoalBabblingContext
 
 
 class GBWeightGenerator(AbstractWeightGenerator[GoalBabblingContext]):
-    """Weight generator which implemenst the original Goal Babbling weight from Rolf et. al (2010)."""
+    """Weight generator which implemenst the original Goal Babbling weight from Rolf et. al (2010) for normal sequences,
+    i.e. sequences between global goals in observation space."""
 
     def __init__(self, norm: int | None = None) -> None:
         """Constructor.

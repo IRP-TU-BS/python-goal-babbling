@@ -2,6 +2,7 @@ import numpy as np
 
 from pygb._impl._core._abstract_utils import AbstractGoalSelector
 from pygb._impl._core._context import GoalBabblingContext
+from pygb._impl._core._runtime_data import ActionSequence, ObservationSequence
 
 
 class RandomGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
@@ -24,15 +25,18 @@ class RandomGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
         Returns:
             Randomly selected goal index and the goal itself.
         """
-        if context.runtime_data.previous_sequence is None:
+        if context.runtime_data.previous_sequence is None or isinstance(
+            context.runtime_data.previous_sequence, ActionSequence
+        ):
             # start of epoch set, choose any goal randomly
             random_idx = self._rng.integers(0, context.current_goal_set.train.shape[0], size=None)
 
-        else:
-            previous_goal_idx = context.runtime_data.previous_sequence.stop_glob_goal_idx
-            while (
-                random_idx := self._rng.integers(0, context.current_goal_set.train.shape[0], size=None)
-            ) == previous_goal_idx:
-                continue
+        elif isinstance(context.runtime_data.previous_sequence, ObservationSequence):
+            previous_goal = context.runtime_data.previous_sequence.stop_goal
+            selected_goal = None
+
+            while selected_goal is None or np.all(previous_goal == selected_goal):
+                random_idx = self._rng.integers(0, context.current_goal_set.train.shape[0], size=None)
+                selected_goal = context.current_goal_set.train[random_idx]
 
         return random_idx, context.current_goal_set.train[random_idx]
