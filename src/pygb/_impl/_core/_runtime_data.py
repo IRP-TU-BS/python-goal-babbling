@@ -17,6 +17,7 @@ class SequenceData:
 class RuntimeData:
     current_sequence: SequenceData | None = None
     performance_error: float | None = None  # error on test goals after last completed epoch
+    observation_index: int = 1  # how far are we within the sequence?
     sequence_index: int = 0  # current sequence index (i.e. how far into the epoch are we?)
     epoch_index: int = 0  # current epoch index (i.e. how far into the epoch set are we?)
     epoch_set_index: int = 0  # current epoch set (i.e. how far into the training are we?)
