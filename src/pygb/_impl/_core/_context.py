@@ -20,6 +20,8 @@ class GoalBabblingContext(AbstractContext):
         self.forward_model = forward_model
         self.inverse_estimate = inverse_estimate
 
+        self.running = False
+
     @property
     def num_epoch_sets(self) -> int:
         return len(self.goal_store)
@@ -43,13 +45,10 @@ class GoalBabblingContext(AbstractContext):
         return self.gb_param_store[self.runtime_data.epoch_set_index]
 
     def is_running(self) -> bool:
-        # TODO
-        ...
+        return self.running
 
     def set_running(self) -> None:
-        # TODO
-        ...
+        self.running = True
 
     def set_stopped(self) -> None:
-        # TODO
-        ...
+        self.running = False
