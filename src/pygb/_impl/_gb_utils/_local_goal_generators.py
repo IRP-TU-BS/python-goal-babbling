@@ -29,8 +29,8 @@ class GBPathGenerator(AbstractLocalGoalGenerator[GoalBabblingContext]):
             )
         local_goals = []
 
-        # ignore start goal but include stop goal:
-        for observation_index in range(1, len_sequence + 1):
+        # include start and stop goal:
+        for observation_index in range(0, len_sequence + 1):
             rel_progress = observation_index / len_sequence
             local_goals.append(rel_progress * stop_goal + (1.0 - rel_progress) * start_goal)
 
