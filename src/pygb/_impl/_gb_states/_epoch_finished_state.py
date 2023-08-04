@@ -30,6 +30,7 @@ class EpochFinishedState(AbstractState[GoalBabblingContext]):
             1) Calculate the RMSE on the test goal set
             2) Calculate the RMSE on optional test goal sets
             3) Emit an 'epoch-complete' event
+            4) Reset epoch-specific data such as recorded sequences and current sequence
             4) If any of the defined stopping criteria is fulfilled or the maximum number of epochs in the current epoch
                 set is reached: Return an 'epoch_set_complete' transition
             5) Otherwise return an 'epoch_set_not_complete' transition
@@ -50,6 +51,10 @@ class EpochFinishedState(AbstractState[GoalBabblingContext]):
                 )
 
         self.events.emit("epoch-complete", self.context)
+
+        # reset epoch specific runtime data
+        self.context.runtime_data.current_sequence = None
+        self.context.runtime_data.sequences = []
 
         # check if any of the stopping criteria is met or the number of epochs per epoch set is reached:
         if (

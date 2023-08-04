@@ -35,7 +35,7 @@ def test_evaluate() -> None:
 
     forward_model_mock = MagicMock(spec=AbstractForwardModel)
     forward_model_mock.forward_batch = lambda *_, **__: np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
-    forward_model_mock.clip = MagicMock(side_effect=lambda x: x)
+    forward_model_mock.clip_batch = MagicMock(side_effect=lambda x: x)
 
     inverse_estimate_mock = MagicMock(spec=AbstractInverseEstimator)
     inverse_estimate_mock.predict_batch = lambda x: x
@@ -43,7 +43,7 @@ def test_evaluate() -> None:
     rmse = state._evaluate(forward_model_mock, inverse_estimate_mock, np.array([[0.0, 1.0], [2.0, 3.0], [4.0, 5.0]]))
     assert rmse == 1.0
 
-    forward_model_mock.clip.assert_called_once()
+    forward_model_mock.clip_batch.assert_called_once()
 
 
 @patch("pygb._impl._gb_states._epoch_finished_state.EpochFinishedState._evaluate")
