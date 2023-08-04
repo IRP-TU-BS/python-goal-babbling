@@ -5,11 +5,29 @@ from pygb._impl._core._context import GoalBabblingContext
 
 
 class GBWeightGenerator(AbstractWeightGenerator[GoalBabblingContext]):
+    """Weight generator which implemenst the original Goal Babbling weight from Rolf et. al (2010)."""
+
     def __init__(self, norm: int | None = None) -> None:
+        """Constructor.
+
+        Args:
+            norm: Sets the norm type used. See numpy.norm documentation for details. Defaults to None.
+        """
         super().__init__()
         self.norm = norm
 
     def generate(self, context: GoalBabblingContext) -> float:
+        """Generates a sample weight based on the current Goal Babbling context.
+
+        Args:
+            context: Goal Babbling context.
+
+        Raises:
+            RuntimeError: In case the current observation index read from the context is less than 1.
+
+        Returns:
+            The calculated weight.
+        """
         seq = context.runtime_data.current_sequence
         observation_idx = context.runtime_data.observation_index
 
@@ -38,6 +56,20 @@ class GBWeightGenerator(AbstractWeightGenerator[GoalBabblingContext]):
         action: np.ndarray,
         prev_action: np.ndarray,
     ) -> tuple[float, float]:
+        """Calculate directional and efficiency weights.
+
+        Args:
+            local_goal: Target local goal (ground truth).
+            prev_local: Previous local goal (ground truth).
+            local_goal_pred: Observation which is reached after the predicted action has been executed by the forward
+                model.
+            prev_local_pred: Previous observation prediction (similar to local_goal_pred).
+            action: Predicted action.
+            prev_action: Previous predicted action.
+
+        Returns:
+            Tuple (w_dir, w_eff).
+        """
         prediction_diff = local_goal_pred - prev_local_pred
         action_diff = action - prev_action
         local_goal_diff = local_goal - prev_local
