@@ -1,5 +1,3 @@
-"""Module which contains the state machine."""
-
 from typing import Any
 
 from pygb._impl._core._context import AbstractContext

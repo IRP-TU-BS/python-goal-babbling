@@ -6,12 +6,20 @@ from pygb._impl._core._parameters import GBParameterStore
 
 
 class AbstractContext(ABC):
+    """Abstract (state machine) context class."""
+
     @abstractmethod
     def is_running(self) -> bool:
+        """Checks if the state machine which uses the context is running.
+
+        Returns:
+            Whether or not the state machine is running.
+        """
         ...
 
     @abstractmethod
     def set_running(self) -> None:
+        """Setter for the state machine (which uses the context) is running."""
         ...
 
 
