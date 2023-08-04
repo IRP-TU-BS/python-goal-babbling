@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import Callable, Optional
 
-from pygb._impl._core._context import AbstractContext
+from pygb._impl._core._abstract_context import AbstractContext
 
 
 class EventSystem:

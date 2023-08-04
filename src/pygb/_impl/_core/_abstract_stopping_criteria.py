@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Generic
 
-from pygb._impl._core._context import ContextType
+from pygb._impl._core._abstract_context import ContextType
 
 
 class AbstractStoppingCriteria(ABC, Generic[ContextType]):

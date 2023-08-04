@@ -3,7 +3,7 @@ from typing import Generic
 
 import numpy as np
 
-from pygb._impl._core._context import ContextType
+from pygb._impl._core._abstract_context import ContextType
 
 
 class AbstractGoalSelector(ABC, Generic[ContextType]):
