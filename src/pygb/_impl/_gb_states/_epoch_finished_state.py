@@ -87,7 +87,7 @@ class EpochFinishedState(AbstractState[GoalBabblingContext]):
             Root mean squared error on the specified observation set.
         """
         predicted_actions = inverse_estimate.predict_batch(observations)
-        predicted_actions = forward_model.clip(predicted_actions)
+        predicted_actions = forward_model.clip_batch(predicted_actions)
         predicted_observations = forward_model.forward_batch(predicted_actions)
 
         return np.sqrt(np.mean((predicted_observations - observations) ** 2))

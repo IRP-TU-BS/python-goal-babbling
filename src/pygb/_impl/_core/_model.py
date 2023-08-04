@@ -39,6 +39,17 @@ class AbstractForwardModel(ABC):
             Clipped action.
         """
 
+    @abstractmethod
+    def clip_batch(self, action_batch: np.ndarray) -> np.ndarray:
+        """Clips a batch of actions.
+
+        Args:
+            action_batch: Batch of actions with shape (#batch_size, #action_dimension).
+
+        Returns:
+            Clipped actions of shape (#batch_size, #action_dimension).
+        """
+
 
 class AbstractInverseEstimator(ABC):
     """Inverse model, which wraps an estimator (e.g. a neural network) for the reverse calculation
