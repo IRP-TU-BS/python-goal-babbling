@@ -67,6 +67,7 @@ def test_generate_new_sequence_with_no_previous_sequence() -> None:
         goal_selector=goal_selector_mock,
         local_goal_generator=local_goal_generator_mock,
         weight_generator=None,
+        noise_generator=None,
     )
 
     sequence = state._generate_new_sequence(context)
@@ -93,6 +94,7 @@ def test_generate_new_sequence_with_previous_sequence() -> None:
         goal_selector=goal_selector_mock,
         local_goal_generator=local_goal_generator_mock,
         weight_generator=None,
+        noise_generator=None,
     )
 
     sequence = state._generate_new_sequence(context)
