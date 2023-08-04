@@ -21,8 +21,11 @@ class AbstractState(ABC, Generic[ContextType]):
         self.events = event_system
 
     @abstractmethod
-    def __call__(self) -> str:
-        """Execute the state. Must return a state transition string."""
+    def __call__(self) -> str | None:
+        """Execute the state. Must return a state transition string or None.
+
+        Note: Returning None marks this state as the final state. The state machine stops after receiving None as a
+        transition."""
         ...
 
     def __eq__(self, __o: object) -> bool:

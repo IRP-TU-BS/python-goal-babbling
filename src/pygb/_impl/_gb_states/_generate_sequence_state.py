@@ -32,7 +32,7 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
         self.weight_generator = weight_generator
         self.noise_generator = noise_generator
 
-    def __call__(self) -> str:
+    def __call__(self) -> str | None:
         """Trains the inverse estimate on a sequence of observations between two global goals.
 
         Steps:

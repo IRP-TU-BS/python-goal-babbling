@@ -60,11 +60,23 @@ class StateMachine:
         self._initial_state = state
 
     def run(self) -> None:
-        """Starts the state machine. The state machine can be stopped by setting the running flag inside the context."""
+        """Starts the state machine. The state machine can be stopped by setting the running flag inside the context.
+
+        Raises:
+            RuntimeError: If no initial state is set.
+            RuntimeError: If a state returns an unknown (i.e. unregistered) transition.
+        """
+        if self._initial_state is None:
+            raise RuntimeError("Failed to start state machine: No initial state set.")
+
         self.context.set_running()
 
         while self.context.is_running():
             transition = self.current_state()
+
+            if transition is None:
+                break
+
             if transition not in self._transition_table:
                 raise RuntimeError(
                     f"""State Machine failure: State '{self._current_state.name}' returned unknown transition """

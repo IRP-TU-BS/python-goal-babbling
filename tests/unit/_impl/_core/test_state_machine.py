@@ -29,12 +29,20 @@ class DummyState(AbstractState[DummyContext]):
     def __init__(self, context: DummyContext, event_system: EventSystem | None = None, name: str | None = None) -> None:
         super().__init__(context, event_system, name)
 
-    def __call__(self) -> str:
+    def __call__(self) -> str | None:
         self.context.state_calls.append(self.name)
         if len(self.context.state_calls) >= 3:
             self.context.running = False
 
         return self.name
+
+
+class DummyFinalState(AbstractState[DummyContext]):
+    def __init__(self, context: DummyContext, event_system: EventSystem | None = None, name: str | None = None) -> None:
+        super().__init__(context, event_system, name)
+
+    def __call__(self) -> str | None:
+        return None
 
 
 def test_init() -> None:
@@ -127,3 +135,24 @@ def test_run() -> None:
 
     assert not sm.context.is_running()
     assert context.state_calls == ["state1", "state2", "state1"]
+
+
+def test_run_raises_if_initial_state_not_set() -> None:
+    context = DummyContext()
+
+    sm = StateMachine(context)
+
+    with pytest.raises(RuntimeError, match="Failed to start state machine: No initial state set."):
+        sm.run()
+
+
+def test_state_machine_stops_after_receiving_none_as_transition() -> None:
+    context = DummyContext()
+    init_state = DummyState(context, name="init_state")
+    final_state = DummyFinalState(context, name="final_state")
+
+    sm = StateMachine(context, initial_state=init_state)
+
+    sm.add(init_state.name, final_state)
+
+    sm.run()

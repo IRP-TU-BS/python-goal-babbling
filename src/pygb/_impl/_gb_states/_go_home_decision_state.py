@@ -31,7 +31,7 @@ class GoHomeDecisionState(AbstractState[GoalBabblingContext]):
 
         self._rng = np.random.default_rng(seed=random_seed)
 
-    def __call__(self) -> str:
+    def __call__(self) -> str | None:
         """Execute the state.
 
         Steps:
