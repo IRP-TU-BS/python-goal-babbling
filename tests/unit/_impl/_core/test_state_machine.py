@@ -11,6 +11,10 @@ class DummyContext(AbstractContext):
         self.running = False
         self.state_calls: list[str] = []
 
+    @property
+    def num_epoch_sets(self) -> int:
+        return 42
+
     def is_running(self) -> bool:
         return self.running
 

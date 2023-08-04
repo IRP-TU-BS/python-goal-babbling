@@ -14,7 +14,7 @@ from pygb import (
 
 param_store = GBParameterStore(
     GBParameters(
-        None, None, None, None, None, None, None, None, home_action=np.array([42.0]), home_observation=np.array([24.0])
+        None, None, None, None, None, None, None, home_action=np.array([42.0]), home_observation=np.array([24.0])
     )
 )
 

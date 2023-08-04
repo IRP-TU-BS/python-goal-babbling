@@ -12,6 +12,9 @@ class DummyContext(AbstractContext):
 
         self.value = 42
 
+    def num_epoch_sets(self) -> int:
+        return 24
+
     def is_running(self) -> bool:
         return super().is_running()
 

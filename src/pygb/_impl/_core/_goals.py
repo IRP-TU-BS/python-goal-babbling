@@ -72,3 +72,11 @@ class GoalStore:
             The epoch set's goal set.
         """
         return self.goal_sets[epoch_set_index]
+
+    def __len__(self) -> int:
+        """Implements the builtin 'len' functionality.
+
+        Returns:
+            Number of parameter sets.
+        """
+        return len(self.goal_sets)

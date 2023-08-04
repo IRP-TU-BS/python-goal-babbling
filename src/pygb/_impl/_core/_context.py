@@ -21,6 +21,10 @@ class GoalBabblingContext(AbstractContext):
         self.inverse_estimate = inverse_estimate
 
     @property
+    def num_epoch_sets(self) -> int:
+        return len(self.goal_store)
+
+    @property
     def current_goal_set(self) -> GoalSet:
         """Return the current epoch set's goal set.
 

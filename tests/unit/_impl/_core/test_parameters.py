@@ -29,18 +29,14 @@ class DummyStoppingCriteria(AbstractStoppingCriteria[GoalBabblingContext]):
 
 def test_gb_parameters_eq() -> None:
     assert GBParameters(
-        1.0, 2.0, 3, 4, 5, 6, 7, 8, np.array([1.0]), np.array([20.0]), [DummyStoppingCriteria(parameter=42)]
-    ) == GBParameters(
-        1.0, 2.0, 3, 4, 5, 6, 7, 8, np.array([1.0]), np.array([20.0]), [DummyStoppingCriteria(parameter=42)]
-    )
+        1.0, 2.0, 3, 4, 5, 6, 7, np.array([1.0]), np.array([20.0]), [DummyStoppingCriteria(parameter=42)]
+    ) == GBParameters(1.0, 2.0, 3, 4, 5, 6, 7, np.array([1.0]), np.array([20.0]), [DummyStoppingCriteria(parameter=42)])
     assert not GBParameters(1.0, 2.0, 3, 4, 5, 6, 7, 8, np.array([1.0]), np.array([20.0])) == GBParameters(
-        1.0, 42.0, 3, 4, 5, 6, 7, 8, np.array([1.0]), np.array([30.0])
+        1.0, 42.0, 3, 4, 5, 6, 7, np.array([1.0]), np.array([30.0])
     )
     assert not GBParameters(
-        1.0, 2.0, 3, 4, 5, 6, 7, 8, np.array([1.0]), np.array([20.0]), [DummyStoppingCriteria(parameter=42)]
-    ) == GBParameters(
-        1.0, 2.0, 3, 4, 5, 6, 7, 8, np.array([1.0]), np.array([20.0]), [DummyStoppingCriteria(parameter=24)]
-    )
+        1.0, 2.0, 3, 4, 5, 6, 7, np.array([1.0]), np.array([20.0]), [DummyStoppingCriteria(parameter=42)]
+    ) == GBParameters(1.0, 2.0, 3, 4, 5, 6, 7, np.array([1.0]), np.array([20.0]), [DummyStoppingCriteria(parameter=24)])
 
 
 @pytest.mark.parametrize(
@@ -53,11 +49,10 @@ def test_gb_parameters_eq() -> None:
         ("len_sequence", 42),
         ("len_epoch", 42),
         ("len_epoch_set", 42),
-        ("epoch_sets", 42),
     ],
 )
 def test_combine_parameters_with_increment_default_types(name: str, value: Any) -> None:
-    parameters = GBParameters(0.1, 0.01, 3, 2, 10, 20, 1, 10, np.array([1.0, 2.0, 3.0]), np.array([10.0]))
+    parameters = GBParameters(0.1, 0.01, 3, 2, 10, 20, 10, np.array([1.0, 2.0, 3.0]), np.array([10.0]))
     increment = GBParameterIncrement()
     increment.__setattr__(name, value)
 
@@ -73,7 +68,7 @@ def test_combine_parameters_with_increment_default_types(name: str, value: Any) 
 
 
 def test_combine_parameters_with_increment_home_action_sequence() -> None:
-    parameters = GBParameters(0.1, 0.01, 3, 2, 10, 20, 1, 10, np.array([1.0, 2.0, 3.0]), np.array([10.0]))
+    parameters = GBParameters(0.1, 0.01, 3, 2, 10, 20, 10, np.array([1.0, 2.0, 3.0]), np.array([10.0]))
     increment_action = GBParameterIncrement(home_action=np.array([42.0, 43.0, 44.0]))
 
     combined = parameters.combine(increment_action)
@@ -85,7 +80,6 @@ def test_combine_parameters_with_increment_home_action_sequence() -> None:
         "dim_obs",
         "len_sequence",
         "len_epoch",
-        "epoch_sets",
         "home_observation",
     ):
         assert combined.__getattribute__(attribute_name) is not None
@@ -103,7 +97,6 @@ def test_combine_parameters_with_increment_home_action_sequence() -> None:
         "dim_obs",
         "len_sequence",
         "len_epoch",
-        "epoch_sets",
         "home_action",
     ):
         assert combined.__getattribute__(attribute_name) is not None
@@ -116,40 +109,40 @@ def test_combine_parameters_with_increment_home_action_sequence() -> None:
     (
         (
             [
-                GBParameters(0.1, 0.01, 1, 2, 10, 20, 1, 10, np.array([1.0]), np.array([10.0])),
-                GBParameters(10.0, 20.0, 30, 20, 100, 200, 10, 10, np.array([1.0]), np.array([10.0])),
+                GBParameters(0.1, 0.01, 1, 2, 10, 20, 10, np.array([1.0]), np.array([10.0])),
+                GBParameters(10.0, 20.0, 30, 20, 100, 200, 10, np.array([1.0]), np.array([10.0])),
             ],
             [
-                GBParameters(0.1, 0.01, 1, 2, 10, 20, 1, 10, np.array([1.0]), np.array([10.0])),
-                GBParameters(10.0, 20.0, 30, 20, 100, 200, 10, 10, np.array([1.0]), np.array([10.0])),
+                GBParameters(0.1, 0.01, 1, 2, 10, 20, 10, np.array([1.0]), np.array([10.0])),
+                GBParameters(10.0, 20.0, 30, 20, 100, 200, 10, np.array([1.0]), np.array([10.0])),
             ],
         ),
         (
             [
-                GBParameters(0.1, 0.01, 1, 2, 10, 20, 1, 10, np.array([1.0]), np.array([10.0])),
-                GBParameters(10.0, 20.0, 30, 20, 100, 200, 10, 10, np.array([1.0]), np.array([10.0])),
+                GBParameters(0.1, 0.01, 1, 2, 10, 20, 10, np.array([1.0]), np.array([10.0])),
+                GBParameters(10.0, 20.0, 30, 20, 100, 200, 10, np.array([1.0]), np.array([10.0])),
                 GBParameterIncrement(sigma=42.0),
             ],
             [
-                GBParameters(0.1, 0.01, 1, 2, 10, 20, 1, 10, np.array([1.0]), np.array([10.0])),
-                GBParameters(10.0, 20.0, 30, 20, 100, 200, 10, 10, np.array([1.0]), np.array([10.0])),
-                GBParameters(42.0, 20.0, 30, 20, 100, 200, 10, 10, np.array([1.0]), np.array([10.0])),
+                GBParameters(0.1, 0.01, 1, 2, 10, 20, 10, np.array([1.0]), np.array([10.0])),
+                GBParameters(10.0, 20.0, 30, 20, 100, 200, 10, np.array([1.0]), np.array([10.0])),
+                GBParameters(42.0, 20.0, 30, 20, 100, 200, 10, np.array([1.0]), np.array([10.0])),
             ],
         ),
         (
-            GBParameters(0.1, 0.01, 1, 2, 10, 20, 1, 10, np.array([1.0]), np.array([10.0])),
-            [GBParameters(0.1, 0.01, 1, 2, 10, 20, 1, 10, np.array([1.0]), np.array([10.0]))],
+            GBParameters(0.1, 0.01, 1, 2, 10, 20, 10, np.array([1.0]), np.array([10.0])),
+            [GBParameters(0.1, 0.01, 1, 2, 10, 20, 10, np.array([1.0]), np.array([10.0]))],
         ),
         (
             [
-                GBParameters(0.1, 0.01, 1, 2, 10, 20, 1, 10, np.array([1.0]), np.array([10.0])),
+                GBParameters(0.1, 0.01, 1, 2, 10, 20, 10, np.array([1.0]), np.array([10.0])),
                 GBParameterIncrement(sigma=42.0),
                 GBParameterIncrement(sigma_delta=42.42),
             ],
             [
-                GBParameters(0.1, 0.01, 1, 2, 10, 20, 1, 10, np.array([1.0]), np.array([10.0])),
-                GBParameters(42.0, 0.01, 1, 2, 10, 20, 1, 10, np.array([1.0]), np.array([10.0])),
-                GBParameters(42.0, 42.42, 1, 2, 10, 20, 1, 10, np.array([1.0]), np.array([10.0])),
+                GBParameters(0.1, 0.01, 1, 2, 10, 20, 10, np.array([1.0]), np.array([10.0])),
+                GBParameters(42.0, 0.01, 1, 2, 10, 20, 10, np.array([1.0]), np.array([10.0])),
+                GBParameters(42.0, 42.42, 1, 2, 10, 20, 10, np.array([1.0]), np.array([10.0])),
             ],
         ),
         (
@@ -161,7 +154,6 @@ def test_combine_parameters_with_increment_home_action_sequence() -> None:
                     2,
                     10,
                     20,
-                    1,
                     10,
                     np.array([1.0]),
                     np.array([10.0]),
@@ -177,7 +169,6 @@ def test_combine_parameters_with_increment_home_action_sequence() -> None:
                     2,
                     10,
                     20,
-                    1,
                     10,
                     np.array([1.0]),
                     np.array([10.0]),
@@ -190,7 +181,6 @@ def test_combine_parameters_with_increment_home_action_sequence() -> None:
                     2,
                     10,
                     20,
-                    1,
                     10,
                     np.array([1.0]),
                     np.array([10.0]),

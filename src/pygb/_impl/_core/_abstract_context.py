@@ -1,9 +1,17 @@
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 from typing import TypeVar
 
 
 class AbstractContext(ABC):
     """Abstract (state machine) context class."""
+
+    @abstractproperty
+    def num_epoch_sets(self) -> int:
+        """Returns the number of epoch sets per training
+
+        Returns:
+            Number of epoch sets.
+        """
 
     @abstractmethod
     def is_running(self) -> bool:
