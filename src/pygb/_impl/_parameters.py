@@ -1,4 +1,7 @@
+from copy import deepcopy
 from dataclasses import dataclass
+
+import numpy as np
 
 
 @dataclass
@@ -10,11 +13,15 @@ class GBParameters:
     len_sequence: int
     len_epoch: int
     epoch_sets: int
+    home_action_set: np.ndarray
 
-    def update(self, increment: "GBParameterIncrement") -> None:
-        for attribute_name, _ in increment.__dataclass_fields__.items():
+    def combine(self, increment: "GBParameterIncrement") -> "GBParameters":
+        combined = deepcopy(self)
+        for attribute_name in increment.__match_args__:
             if (increment_value := increment.__getattribute__(attribute_name)) is not None:
-                self.__setattr__(attribute_name, increment_value)
+                combined.__setattr__(attribute_name, increment_value)
+
+        return combined
 
 
 @dataclass
@@ -26,3 +33,4 @@ class GBParameterIncrement:
     len_sequence: int | None = None
     len_epoch: int | None = None
     epoch_sets: int | None = None
+    home_action_set: np.ndarray | None = None

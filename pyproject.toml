@@ -6,6 +6,9 @@ build-backend = "setuptools.build_meta"
 name = "python-goal-babbling"
 version = "0.1.0"
 readme = "README.md"
+dependencies = [
+    "numpy~=1.25",
+]
 
 [project.optional-dependencies]
 dev = [
