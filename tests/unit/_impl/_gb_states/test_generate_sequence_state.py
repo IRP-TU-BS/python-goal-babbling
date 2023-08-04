@@ -125,7 +125,7 @@ def test_execute_state(generate_sequence_mock: MagicMock) -> None:
     weight_generator_mock = MagicMock(spec=AbstractWeightGenerator)
     weight_generator_mock.generate = MagicMock(side_effect=[42.0, 41.0, 40.0])
 
-    runtime_data = RuntimeData()
+    runtime_data = RuntimeData(train_goal_visit_count=[0, 0])
 
     context = GoalBabblingContext(
         param_store=None,
@@ -161,6 +161,7 @@ def test_execute_state(generate_sequence_mock: MagicMock) -> None:
         np.array([-2.0]),
     ]  # inverse estimator mock output
     assert sequence.weights == [42.0, 41.0, 40.0]  # weight generator mock output
+    assert context.runtime_data.train_goal_visit_count == [0, 1]  # sequence's stop goal count increases
 
     forward_model_mock.clip.assert_has_calls([call(np.array([-1.0])), call(np.array([-1.5])), call(np.array([-2.0]))])
     forward_model_mock.forward.assert_has_calls(

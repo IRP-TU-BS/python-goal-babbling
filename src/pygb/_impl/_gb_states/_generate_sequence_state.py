@@ -65,6 +65,9 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
         # add sequence to completed sequences:
         self.context.runtime_data.sequences.append(sequence)
 
+        # increase stop goal's visit count:
+        self.context.runtime_data.train_goal_visit_count[sequence.stop_glob_goal_idx] += 1
+
         return GenerateSequenceState.sequence_finished
 
     def _generate_new_sequence(self, context: GoalBabblingContext) -> SequenceData:
