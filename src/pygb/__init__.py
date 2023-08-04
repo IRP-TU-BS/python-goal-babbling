@@ -6,5 +6,6 @@ from pygb._impl._core._parameters import (
     GBParameters,
     GBParameterStore,
 )
+from pygb._impl._core._runtime_data import RuntimeData, SequenceData
 from pygb._impl._core._state_machine import StateMachine
 from pygb._impl._core._states import AbstractState
