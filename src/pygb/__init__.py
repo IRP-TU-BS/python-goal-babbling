@@ -1,1 +1,1 @@
-from pygb._impl._parameters import GBParameterIncrement, GBParameters
+from pygb._impl._parameters import GBParameterIncrement, GBParameters, GBParameterStore
