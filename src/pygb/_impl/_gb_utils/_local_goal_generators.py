@@ -13,6 +13,9 @@ class GBPathGenerator(AbstractLocalGoalGenerator[GoalBabblingContext]):
     def generate(self, start_goal: np.ndarray, stop_goal: np.ndarray, len_sequence: int) -> list[np.ndarray]:
         """Generates a linear sequence of local observations between two global goals.
 
+        The generated sequence excludes the start goal (assumption: start goal has just been visited in the previous
+        sequence) but does include the stop goal.
+
         Args:
             context: Goal Babbling context.
 
@@ -29,8 +32,8 @@ class GBPathGenerator(AbstractLocalGoalGenerator[GoalBabblingContext]):
             )
         local_goals = []
 
-        # include start and stop goal:
-        for observation_index in range(0, len_sequence + 1):
+        # exclude start and include stop goal:
+        for observation_index in range(1, len_sequence + 1):
             rel_progress = observation_index / len_sequence
             local_goals.append(rel_progress * stop_goal + (1.0 - rel_progress) * start_goal)
 

@@ -3,7 +3,20 @@ from unittest.mock import MagicMock
 import numpy as np
 import pytest
 
-from pygb import GBWeightGenerator, GoalBabblingContext
+from pygb import (
+    GBParameters,
+    GBParameterStore,
+    GBWeightGenerator,
+    GoalBabblingContext,
+    RuntimeData,
+    SequenceData,
+)
+
+param_store = GBParameterStore(
+    GBParameters(
+        None, None, None, None, None, None, None, home_action=np.array([42.0]), home_observation=np.array([24.0])
+    )
+)
 
 
 @pytest.mark.parametrize(
@@ -73,12 +86,112 @@ def test_gb_weight_generator_efficiency_weight() -> None:
     assert w_eff_low < w_eff_high
 
 
-def test_gb_weight_generator_raises() -> None:
+@pytest.mark.parametrize(
+    ("sequence", "previous_sequence", "observation_index", "calls"),
+    [
+        (  # start of sequence with no previous sequence
+            SequenceData(
+                0, 1, local_goals=[np.array([1.0])], observations=[np.array([2.0])], predicted_actions=[np.array([3.0])]
+            ),
+            None,
+            0,
+            {
+                "local_goal": np.array([1.0]),  # from sequence
+                "prev_local": np.array([24.0]),  # home observation
+                "local_goal_pred": np.array([2.0]),  # from sequence
+                "prev_local_pred": np.array([24.0]),  # home observation
+                "action": np.array([3.0]),  # from sequence
+                "prev_action": np.array([42.0]),  # home action
+            },
+        ),
+        (  # start of sequence with previous sequence:
+            SequenceData(
+                0,
+                1,
+                local_goals=[np.array([1.0])],
+                observations=[np.array([2.0])],
+                predicted_actions=[
+                    np.array([3.0]),
+                ],
+            ),
+            SequenceData(
+                0,
+                1,
+                local_goals=[np.array([10.0])],
+                observations=[np.array([20.0])],
+                predicted_actions=[np.array([30.0])],
+            ),
+            0,
+            {
+                "local_goal": np.array([1.0]),  # from sequence
+                "prev_local": np.array([10.0]),  # previous sequence's goal
+                "local_goal_pred": np.array([2.0]),  # from sequence
+                "prev_local_pred": np.array([20.0]),  # previous sequence's observation
+                "action": np.array([3.0]),  # from sequence
+                "prev_action": np.array([30.0]),  # previous sequence's action
+            },
+        ),
+        (  # middle of sequence with previous sequence:
+            SequenceData(
+                0,
+                1,
+                local_goals=[np.array([1.0]), np.array([1.5])],
+                observations=[np.array([2.0]), np.array([2.5])],
+                predicted_actions=[np.array([3.0]), np.array([3.5])],
+            ),
+            SequenceData(
+                0,
+                1,
+                local_goals=[np.array([10.0])],
+                observations=[np.array([20.0])],
+                predicted_actions=[np.array([30.0])],
+            ),
+            1,
+            {
+                "local_goal": np.array([1.5]),  # from sequence
+                "prev_local": np.array([1.0]),  # current sequence, but previous observation index
+                "local_goal_pred": np.array([2.5]),  # from sequence
+                "prev_local_pred": np.array([2.0]),  # current sequence, but previous observation index
+                "action": np.array([3.5]),  # from sequence
+                "prev_action": np.array([3.0]),  # current sequence, but previous observation index
+            },
+        ),
+        (  # middle of sequence, but no previous completed sequence:
+            SequenceData(
+                0,
+                1,
+                local_goals=[np.array([1.0]), np.array([1.5])],
+                observations=[np.array([2.0]), np.array([2.5])],
+                predicted_actions=[np.array([3.0]), np.array([3.5])],
+            ),
+            None,
+            1,
+            {
+                "local_goal": np.array([1.5]),  # from sequence
+                "prev_local": np.array([1.0]),  # current sequence, but previous observation index
+                "local_goal_pred": np.array([2.5]),  # from sequence
+                "prev_local_pred": np.array([2.0]),  # current sequence, but previous observation index
+                "action": np.array([3.5]),  # from sequence
+                "prev_action": np.array([3.0]),  # current sequence, but previous observation index
+            },
+        ),
+    ],
+)
+def test_gb_weight_generator_no_previous_sequence(
+    sequence: SequenceData, previous_sequence: SequenceData | None, observation_index: int, calls: dict[str, np.ndarray]
+) -> None:
+    runtime_data = RuntimeData(
+        previous_sequence=previous_sequence, current_sequence=sequence, observation_index=observation_index
+    )
+
+    context = GoalBabblingContext(
+        param_store=param_store, goal_store=None, forward_model=None, inverse_estimate=None, runtime_data=runtime_data
+    )
+
     generator = GBWeightGenerator()
+    generator._calc_weights = MagicMock(return_value=(0.5, 0.5))
 
-    context_mock = MagicMock(spec=GoalBabblingContext)
-    context_mock.runtime_data = MagicMock()
-    context_mock.runtime_data.observation_index = 0
+    weight = generator.generate(context)
+    assert weight == 0.5 * 0.5
 
-    with pytest.raises(RuntimeError):
-        generator.generate(context_mock)
+    generator._calc_weights.assert_called_once_with(**calls)

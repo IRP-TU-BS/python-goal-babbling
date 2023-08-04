@@ -24,10 +24,15 @@ class RandomGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
         Returns:
             Randomly selected goal index and the goal itself.
         """
-        previous_goal_idx = context.runtime_data.sequences[-1].stop_glob_goal_idx
-        while (
-            random_idx := self._rng.integers(0, context.current_goal_set.train.shape[0], size=None)
-        ) == previous_goal_idx:
-            continue
+        if context.runtime_data.previous_sequence is None:
+            # start of epoch set, choose any goal randomly
+            random_idx = self._rng.integers(0, context.current_goal_set.train.shape[0], size=None)
+
+        else:
+            previous_goal_idx = context.runtime_data.previous_sequence.stop_glob_goal_idx
+            while (
+                random_idx := self._rng.integers(0, context.current_goal_set.train.shape[0], size=None)
+            ) == previous_goal_idx:
+                continue
 
         return random_idx, context.current_goal_set.train[random_idx]

@@ -32,17 +32,30 @@ class GBWeightGenerator(AbstractWeightGenerator[GoalBabblingContext]):
         observation_idx = context.runtime_data.observation_index
 
         if observation_idx < 1:
-            raise RuntimeError(
-                f"Failed to generate GB weight: Observation index must not be smaller than 1 (is {observation_idx})."
-            )
+            if context.runtime_data.previous_sequence is None:
+                # training has just started -> use home action and observation as previous steps
+                prev_local_goal = context.current_parameters.home_observation
+                prev_local_pred = prev_local_goal
+                prev_action = context.current_parameters.home_action
+            else:
+                # start of the sequence, so there is no previous observation
+                # -> use last sequence's observation
+                prev_local_goal = context.runtime_data.previous_sequence.local_goals[-1]
+                prev_local_pred = context.runtime_data.previous_sequence.observations[-1]
+                prev_action = context.runtime_data.previous_sequence.predicted_actions[-1]
+        else:
+            # somewhere in the middle of a sequence, simply use the previous observation:
+            prev_local_goal = seq.local_goals[observation_idx - 1]
+            prev_local_pred = seq.observations[observation_idx - 1]
+            prev_action = seq.predicted_actions[observation_idx - 1]
 
         w_dir, w_eff = self._calc_weights(
             local_goal=seq.local_goals[observation_idx],
-            prev_local=seq.local_goals[observation_idx - 1],
-            local_goal_pred=seq.predicted_local_goals[observation_idx],
-            prev_local_pred=seq.predicted_local_goals[observation_idx - 1],
+            prev_local=prev_local_goal,
+            local_goal_pred=seq.observations[observation_idx],
+            prev_local_pred=prev_local_pred,
             action=seq.predicted_actions[observation_idx],
-            prev_action=seq.predicted_actions[observation_idx - 1],
+            prev_action=prev_action,
         )
 
         return w_dir * w_eff

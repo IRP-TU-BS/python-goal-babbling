@@ -22,7 +22,10 @@ def create_context_mock() -> GoalBabblingContext:
         goal_store=goal_store,
         forward_model=None,
         inverse_estimate=None,
-        runtime_data=RuntimeData(sequences=[SequenceData(start_glob_goal_idx=0, stop_glob_goal_idx=2)]),
+        runtime_data=RuntimeData(
+            sequences=[SequenceData(start_glob_goal_idx=0, stop_glob_goal_idx=2)],
+            previous_sequence=SequenceData(start_glob_goal_idx=0, stop_glob_goal_idx=2),
+        ),
     )
 
     return context

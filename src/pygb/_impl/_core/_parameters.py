@@ -1,5 +1,5 @@
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 
@@ -15,7 +15,8 @@ class GBParameters:
     len_sequence: int
     len_epoch: int
     epoch_sets: int
-    home_action_set: np.ndarray
+    home_action: np.ndarray
+    home_observation: np.ndarray
 
     def __eq__(self, other: object) -> bool:
         """Checks two parameter sets for equality.
@@ -73,7 +74,8 @@ class GBParameterIncrement:
     len_sequence: int | None = None
     len_epoch: int | None = None
     epoch_sets: int | None = None
-    home_action_set: np.ndarray | None = None
+    home_action: np.ndarray | None = None
+    home_observation: np.ndarray | None = None
 
 
 class GBParameterStore:

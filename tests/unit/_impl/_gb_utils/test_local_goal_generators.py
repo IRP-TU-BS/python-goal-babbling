@@ -12,7 +12,6 @@ def test_linear_path_generator() -> None:
     assert_array_almost_equal(
         local_goals,
         [
-            np.array([1.0, 1.0]),
             np.array([2.8, 2.0]),
             np.array([4.6, 3.0]),
             np.array([6.4, 4.0]),
