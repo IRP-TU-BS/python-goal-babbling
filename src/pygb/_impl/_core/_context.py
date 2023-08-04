@@ -3,7 +3,7 @@ from typing import TypeVar
 
 from pygb._impl._core._goals import GoalSet, GoalStore
 from pygb._impl._core._model import AbstractForwardModel, AbstractInverseEstimator
-from pygb._impl._core._parameters import GBParameterStore
+from pygb._impl._core._parameters import GBParameters, GBParameterStore
 from pygb._impl._core._runtime_data import RuntimeData
 
 
@@ -53,6 +53,15 @@ class GoalBabblingContext(AbstractContext):
             Current epoch set's goal set.
         """
         return self.goal_store[self.runtime_data.epoch_set_index]
+
+    @property
+    def current_parameters(self) -> GBParameters:
+        """Returns the current epoch set's goal babbling paramters.
+
+        Returns:
+            Current epoch set's goal babbling paramters.
+        """
+        return self.gb_param_store[self.runtime_data.epoch_set_index]
 
     def is_running(self) -> bool:
         # TODO
