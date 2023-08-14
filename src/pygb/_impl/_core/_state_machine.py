@@ -1,7 +1,10 @@
+import logging
 from typing import Any
 
 from pygb._impl._core._abstract_context import AbstractContext
 from pygb._impl._core._abstract_state import AbstractState
+
+_logger = logging.getLogger(__name__)
 
 
 class StateMachine:
@@ -66,12 +69,16 @@ class StateMachine:
             RuntimeError: If no initial state is set.
             RuntimeError: If a state returns an unknown (i.e. unregistered) transition.
         """
+        _logger.info("Starting")
+
         if self._initial_state is None:
             raise RuntimeError("Failed to start state machine: No initial state set.")
 
         self.context.set_running()
+        transition = None
 
         while self.context.is_running():
+            _logger.debug(f"{transition or '-'} -> {self.current_state.name}")
             transition = self.current_state()
 
             if transition is None:
