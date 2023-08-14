@@ -35,8 +35,11 @@ class EpochSetFinishedState(AbstractState[GoalBabblingContext]):
         self.events.emit("epoch-set-complete", self.context)
 
         # reset epoch-set-specific runtime data:
-        self.context.runtime_data.train_goal_error = []
-        self.context.runtime_data.train_goal_visit_count = []
+        train_goal_count = self.context.current_goal_set.train.shape[0]
+
+        self.context.runtime_data.train_goal_error = [0.0] * train_goal_count
+        self.context.runtime_data.train_goal_visit_count = [0] * train_goal_count
+        self.context.runtime_data.epoch_index = 0
 
         if self.context.runtime_data.epoch_set_index < self.context.num_epoch_sets - 1:
             self.context.runtime_data.epoch_set_index += 1

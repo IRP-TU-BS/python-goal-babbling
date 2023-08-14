@@ -3,7 +3,14 @@ from unittest.mock import MagicMock, PropertyMock, patch
 
 import numpy as np
 
-from pygb import EventSystem, GBParameters, GoalBabblingContext, GoalSet, RuntimeData
+from pygb import (
+    EventSystem,
+    GBParameters,
+    GoalBabblingContext,
+    GoalSet,
+    ObservationSequence,
+    RuntimeData,
+)
 from pygb.interfaces import (
     AbstractForwardModel,
     AbstractInverseEstimator,
@@ -93,3 +100,23 @@ def test_execute_state_proceeds_and_stops_epoch_set(
 
     assert state() == EpochFinishedState.epoch_set_complete
     assert context_mock.runtime_data.epoch_index == 2
+
+
+@patch("pygb._impl._gb_states._epoch_finished_state.EpochFinishedState._evaluate")
+def test_execute_state_resets_epoch_runtime_data(
+    evaluate_mock: MagicMock, mock_event_system: Generator[None, None, None]
+) -> None:
+    evaluate_mock.return_value = 42.0
+    context_mock = get_context_mock()
+
+    context_mock.runtime_data.current_sequence = ObservationSequence(None, None)
+    context_mock.runtime_data.sequences = [ObservationSequence(None, None)]
+    context_mock.runtime_data.sequence_index = 20
+
+    state = EpochFinishedState(context_mock, event_system=EventSystem.instance())
+
+    state()
+
+    assert context_mock.runtime_data.current_sequence == None
+    assert context_mock.runtime_data.sequences == []
+    assert context_mock.runtime_data.sequence_index == 0

@@ -55,6 +55,7 @@ class EpochFinishedState(AbstractState[GoalBabblingContext]):
         # reset epoch specific runtime data
         self.context.runtime_data.current_sequence = None
         self.context.runtime_data.sequences = []
+        self.context.runtime_data.sequence_index = 0
 
         # check if any of the stopping criteria is met or the number of epochs per epoch set is reached:
         if (

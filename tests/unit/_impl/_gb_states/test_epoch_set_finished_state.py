@@ -1,7 +1,9 @@
 from typing import Generator
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, PropertyMock
 
-from pygb import EventSystem, GoalBabblingContext, RuntimeData, observes
+import numpy as np
+
+from pygb import EventSystem, GoalBabblingContext, GoalSet, RuntimeData, observes
 from pygb.states import EpochSetFinishedState
 
 
@@ -51,3 +53,25 @@ def test_execute_state_stop_training(mock_event_system: Generator[None, None, No
 
     assert state() == EpochSetFinishedState.stop_training
     assert context_mock.runtime_data.epoch_set_index == 1
+
+
+def test_execute_state_resets_epoch_data() -> None:
+    context_mock = MagicMock(
+        spec=GoalBabblingContext,
+        runtime_data=MagicMock(
+            spec=RuntimeData,
+            epoch_set_index=1,
+            epoch_index=10,
+            train_goal_error=[0.5, 0.4],
+            train_goal_visit_count=[2, 4],
+        ),
+        current_goal_set=PropertyMock(spec=GoalSet, train=np.ones((2, 3)), test=np.ones((1, 3))),
+        num_epoch_sets=2,
+    )
+
+    state = EpochSetFinishedState(context_mock, event_system=EventSystem.instance())
+    state()
+
+    assert context_mock.runtime_data.train_goal_error == [0.0, 0.0]
+    assert context_mock.runtime_data.train_goal_visit_count == [0, 0]
+    assert context_mock.runtime_data.epoch_index == 0
