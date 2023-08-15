@@ -60,7 +60,7 @@ class EpochFinishedState(AbstractState[GoalBabblingContext]):
         # check if any of the stopping criteria is met or the number of epochs per epoch set is reached:
         if (
             any([criteria.fulfilled(self.context) for criteria in self.context.current_parameters.stopping_criteria])
-            or self.context.runtime_data.epoch_index >= self.context.current_parameters.len_epoch_set
+            or self.context.runtime_data.epoch_index >= self.context.current_parameters.len_epoch_set - 1
         ):
             return EpochFinishedState.epoch_set_complete
 

@@ -22,7 +22,7 @@ from pygb.states import EpochFinishedState
 def get_context_mock() -> MagicMock:
     current_goal_set_mock = PropertyMock(spec=GoalSet, test=np.array([1.0]), optional_test={"foobar": np.array([2.0])})
     runtime_data_mock = MagicMock(
-        spec=RuntimeData, performance_error=0.0, opt_performance_errors={"foobar": 0.0}, epoch_index=1
+        spec=RuntimeData, performance_error=0.0, opt_performance_errors={"foobar": 0.0}, epoch_index=0
     )
     current_parameters_mock = PropertyMock(spec=GBParameters, stopping_criteria=[], len_epoch_set=2)
     context_mock = MagicMock(
@@ -82,7 +82,7 @@ def test_execute_state_returns_early_if_stopping_criteria_fulfilled(
     state = EpochFinishedState(context_mock, EventSystem.instance())
 
     assert state() == EpochFinishedState.epoch_set_complete
-    assert context_mock.runtime_data.epoch_index == 1  # unchanged
+    assert context_mock.runtime_data.epoch_index == 0  # unchanged
 
 
 @patch("pygb._impl._gb_states._epoch_finished_state.EpochFinishedState._evaluate")
@@ -93,13 +93,13 @@ def test_execute_state_proceeds_and_stops_epoch_set(
     context_mock = get_context_mock()
 
     state = EpochFinishedState(context_mock, EventSystem.instance())
-    assert context_mock.runtime_data.epoch_index == 1
+    assert context_mock.runtime_data.epoch_index == 0
 
     assert state() == EpochFinishedState.epoch_set_not_complete
-    assert context_mock.runtime_data.epoch_index == 2
+    assert context_mock.runtime_data.epoch_index == 1
 
     assert state() == EpochFinishedState.epoch_set_complete
-    assert context_mock.runtime_data.epoch_index == 2
+    assert context_mock.runtime_data.epoch_index == 1
 
 
 @patch("pygb._impl._gb_states._epoch_finished_state.EpochFinishedState._evaluate")
