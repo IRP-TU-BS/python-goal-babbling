@@ -25,14 +25,18 @@ class SequenceFinishedState(AbstractState[GoalBabblingContext]):
 
         - Steps:
             1) Emit 'sequence-finished' event
-            2) If the current epoch is not completed, increase the context's sequence index
-            3) Return an 'epoch_finished' transition if the epoch is completed, else return an 'epoch_not_finished'
+            2) Update the previous sequence
+            3) If the current epoch is not completed, increase the context's sequence index
+            4) Return an 'epoch_finished' transition if the epoch is completed, else return an 'epoch_not_finished'
                 tranisition
 
         Returns:
             Transition. Either 'epoch_finished' or 'epoch_not_finished'.
         """
         self.events.emit("sequence-finished", self.context)
+
+        self.context.runtime_data.sequences.append(self.context.runtime_data.current_sequence)
+        self.context.runtime_data.previous_sequence = self.context.runtime_data.current_sequence
 
         if self.context.runtime_data.sequence_index < self.context.current_parameters.len_epoch - 1:
             self.context.runtime_data.sequence_index += 1
