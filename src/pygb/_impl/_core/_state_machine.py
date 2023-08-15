@@ -69,7 +69,7 @@ class StateMachine:
             RuntimeError: If no initial state is set.
             RuntimeError: If a state returns an unknown (i.e. unregistered) transition.
         """
-        _logger.info("Starting")
+        _logger.info("Starting state machine")
 
         if self._initial_state is None:
             raise RuntimeError("Failed to start state machine: No initial state set.")
@@ -92,6 +92,8 @@ class StateMachine:
 
             self._current_state = self._transition_table[transition]
 
+        _logger.info("State machine stopped")
+
     def add(self, transition_name: str, state: AbstractState, no_raise: bool = False) -> None:
         """Add a state transition.
 
@@ -111,6 +113,7 @@ class StateMachine:
             )
 
         self._transition_table[transition_name] = state
+        _logger.info(f"Added transition: {transition_name}->{state.name}")
 
     def pop(self, transition_name: str, no_raise: bool = True) -> AbstractState | None:
         """Removes a transition from the transition table.
@@ -126,7 +129,9 @@ class StateMachine:
             The target state of the removed transition or None if the transition is unknown.
         """
         if transition_name in self._transition_table:
-            return self._transition_table.pop(transition_name)
+            state = self._transition_table.pop(transition_name)
+            _logger.info(f"Removed transition: {transition_name}->{state.name}")
+            return state
 
         if no_raise:
             return None
