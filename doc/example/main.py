@@ -32,9 +32,6 @@ from pygb.states import (
 
 setup_logging(log_level=logging.INFO)
 
-_logger = logging.getLogger(__name__)
-_logger.debug("foobar")
-
 X_TRAIN_M = X_TRAIN_MM / 1000
 X_TEST_M = X_TEST_MM / 1000
 
