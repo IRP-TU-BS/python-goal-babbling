@@ -150,6 +150,7 @@ def test_execute_state(generate_sequence_mock: MagicMock, mock_event_system: Gen
 
     noise_generator_mock = MagicMock(spec=AbstractNoiseGenerator)
     noise_generator_mock.generate = MagicMock(side_effect=[0.1, 0.2, 0.3])
+    noise_generator_mock.update = MagicMock()
 
     goal_selector_mock = MagicMock(spec=AbstractGoalSelector)
     # unimportant, as _generate_new_sequence is mocked anyways
@@ -183,8 +184,6 @@ def test_execute_state(generate_sequence_mock: MagicMock, mock_event_system: Gen
     transition_name = state()
 
     assert transition_name == GenerateSequenceState.sequence_finished
-    assert context.runtime_data.current_sequence == sequence
-    assert context.runtime_data.sequences == [sequence]
 
     assert sequence.local_goals == [np.array([0.0]), np.array([0.5]), np.array([1.0])]
     assert sequence.observations == [
@@ -217,5 +216,6 @@ def test_execute_state(generate_sequence_mock: MagicMock, mock_event_system: Gen
     noise_generator_mock.generate.assert_has_calls(
         [call(np.array([0.0])), call(np.array([0.5])), call(np.array([1.0]))]  # local goals from sequence
     )
+    noise_generator_mock.update.assert_called()
 
     goal_selector_mock.select.assert_called_once_with(context)

@@ -53,7 +53,7 @@ class GenerateHomeSequenceState(AbstractState[GoalBabblingContext]):
         """
         sequence = self._generate_sequence(target_action=self.context.current_parameters.home_action)
 
-        self.context.runtime_data.update_current_sequence(sequence)
+        self.context.runtime_data.current_sequence = sequence
 
         for index, action in enumerate(sequence.actions):
             self.context.runtime_data.observation_index = index
@@ -64,8 +64,6 @@ class GenerateHomeSequenceState(AbstractState[GoalBabblingContext]):
             sequence.weights.append(weight)
 
             self.context.inverse_estimate.fit(observation, action, weight)
-
-        self.context.runtime_data.sequences.append(sequence)
 
         return GenerateHomeSequenceState.sequence_finished
 

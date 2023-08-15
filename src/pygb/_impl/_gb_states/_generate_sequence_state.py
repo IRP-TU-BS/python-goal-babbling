@@ -46,10 +46,11 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
         """
         # generate sequence between previous stop goal and new target goal:
         target_goal_index, target_goal = self.goal_selector.select(self.context)
+
         sequence = self._generate_new_sequence(target_goal, self.context)
 
         # update current sequence and previous sequence:
-        self.context.runtime_data.update_current_sequence(sequence)
+        self.context.runtime_data.current_sequence = sequence
 
         # traverse local goals and fit them using the generated samples + weights:
         for observation_index, local_goal in enumerate(sequence.local_goals):
@@ -60,6 +61,8 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
             action = self.context.forward_model.clip(action)
             observation = self.context.forward_model.forward(action)
 
+            self.noise_generator.update()
+
             # important: WeightGenerator uses the Goal Babbling context, so update it here
             sequence.predicted_actions.append(action)
             sequence.observations.append(observation)
@@ -68,9 +71,6 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
             sequence.weights.append(weight)
 
             rmse = self.context.inverse_estimate.fit(observation, action, weight)
-
-        # add sequence to completed sequences:
-        self.context.runtime_data.sequences.append(sequence)
 
         # increase stop goal's visit count:
         self.context.runtime_data.train_goal_visit_count[target_goal_index] += 1

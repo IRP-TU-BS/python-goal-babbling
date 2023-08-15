@@ -97,8 +97,6 @@ def test_execute_state(generate_sequence_mock: MagicMock, mock_event_system: Gen
 
     assert state() == GenerateHomeSequenceState.sequence_finished
 
-    assert context_mock.runtime_data.current_sequence == dummy_sequence
-    assert context_mock.runtime_data.sequences == [dummy_sequence]
     assert dummy_sequence.weights == [0.1, 0.2, 0.3]
     assert dummy_sequence.observations == [np.array([-1.0]), np.array([-2.0]), np.array([-3.0])]
 
