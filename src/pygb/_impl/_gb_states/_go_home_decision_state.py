@@ -3,6 +3,7 @@ import numpy as np
 from pygb._impl._core._abstract_state import AbstractState
 from pygb._impl._core._context import GoalBabblingContext
 from pygb._impl._core._events import EventSystem
+from pygb._impl._core._runtime_data import ActionSequence
 
 
 class GoHomeDecisionState(AbstractState[GoalBabblingContext]):
@@ -41,6 +42,9 @@ class GoHomeDecisionState(AbstractState[GoalBabblingContext]):
         Returns:
             Transition name.
         """
+        if isinstance(self.context.runtime_data.previous_sequence, ActionSequence):
+            return GoHomeDecisionState.generate_sequence
+
         if self._rng.random() <= self.context.current_parameters.go_home_chance:
             return GoHomeDecisionState.go_home
 
