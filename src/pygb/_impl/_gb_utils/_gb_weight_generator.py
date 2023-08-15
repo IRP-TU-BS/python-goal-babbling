@@ -2,6 +2,7 @@ import numpy as np
 
 from pygb._impl._core._abstract_utils import AbstractWeightGenerator
 from pygb._impl._core._context import GoalBabblingContext
+from pygb._impl._core._runtime_data import ActionSequence, ObservationSequence
 
 
 class GBWeightGenerator(AbstractWeightGenerator[GoalBabblingContext]):
@@ -47,11 +48,23 @@ class GBWeightGenerator(AbstractWeightGenerator[GoalBabblingContext]):
 
     def _choose_previous_data(self, context: GoalBabblingContext) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         seq = context.runtime_data.current_sequence
+
+        if isinstance(seq, ActionSequence):
+            raise NotImplementedError(
+                """Failed to choose previous data for weight calculation: Current sequence is an """
+                f"""{ActionSequence.__qualname__} instance, but weights are calculated for an """
+                f"""{ObservationSequence.__qualname__}."""
+            )
+
         observation_idx = context.runtime_data.observation_index
 
         if observation_idx < 1:
-            if context.runtime_data.previous_sequence is None:
-                # training has just started -> use home action and observation as previous steps
+            # start of a new sequence
+            if context.runtime_data.previous_sequence is None or isinstance(
+                context.runtime_data.previous_sequence, ActionSequence
+            ):
+                # training has just started/last sequence returned to home
+                # -> use home action and observation as previous steps
                 prev_local_goal = context.current_parameters.home_observation
                 prev_local_pred = context.current_parameters.home_observation
                 prev_action = context.current_parameters.home_action
