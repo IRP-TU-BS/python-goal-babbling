@@ -10,6 +10,7 @@ def setup_logging(
     log_file: Path | None = None,
 ) -> None:
     logging.basicConfig(level=log_level, format=log_format)
+    logging.getLogger().setLevel(log_level)
 
     if log_file is not None:
         file_handler = logging.FileHandler(filename=log_file)
