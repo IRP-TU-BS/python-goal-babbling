@@ -71,7 +71,7 @@ def test_execute_state_resets_epoch_data(mock_event_system: Generator[None, None
         num_epoch_sets=2,
     )
 
-    state = EpochSetFinishedState(context_mock, event_system=EventSystem.instance())
+    state = EpochSetFinishedState(context_mock, event_system=EventSystem.instance(), load_previous_best=False)
     state()
 
     assert context_mock.runtime_data.train_goal_error == [0.0, 0.0]
