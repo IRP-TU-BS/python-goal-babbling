@@ -1,8 +1,9 @@
 import logging
+from pathlib import Path
 
 import numpy as np
 from goals import X_TEST_MM, X_TRAIN_MM
-from utils import ForwardModel, InverseEstimator
+from utils import FileLLMStore, ForwardModel, InverseEstimator
 
 from pygb import (
     EventSystem,
@@ -58,7 +59,7 @@ gb_parameters = GBParameters(
     dim_obs=3,
     len_sequence=15,
     len_epoch=15,
-    len_epoch_set=40,
+    len_epoch_set=20,
     go_home_chance=0.1,
     home_action=HOME_JOINTS,
     home_observation=forward_model.forward(HOME_JOINTS),
@@ -66,11 +67,15 @@ gb_parameters = GBParameters(
 
 goal_set = GoalSet(train=X_TRAIN_M, test=X_TEST_M)
 
+model_path = Path().cwd().joinpath(".models")
+model_path.mkdir(exist_ok=True)
+
 gb_context = GoalBabblingContext(
     param_store=GBParameterStore(gb_parameters),  # or list of parameters per epoch set
     goal_store=GoalStore(goal_set),  # or list of goal sets per epoch set
     forward_model=forward_model,
     inverse_estimate=inverse_estimator,
+    model_store=FileLLMStore(model_path),
 )
 
 setup_state = SetupState(gb_context)

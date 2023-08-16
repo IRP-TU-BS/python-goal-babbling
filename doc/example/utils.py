@@ -1,10 +1,18 @@
+import pickle
+from pathlib import Path
+
 import numpy as np
 from master_utils.learner.llm import LLM
 from pydctr.discrete_shape_estimation.PrintedTube import PrintedTube
 from pydctr.discrete_shape_estimation.TorsionallyRigidCTRNew import TorsionalRigidCTR
 from spatialmath import SE3
 
-from pygb.interfaces import AbstractForwardModel, AbstractInverseEstimator
+from pygb import GoalBabblingContext
+from pygb.interfaces import (
+    AbstractForwardModel,
+    AbstractInverseEstimator,
+    AbstractModelStore,
+)
 
 
 class ForwardModel(AbstractForwardModel):
@@ -100,3 +108,32 @@ class InverseEstimator(AbstractInverseEstimator):
         batch = [self.predict(observation) for observation in observation_batch]
 
         return np.asarray(batch)
+
+
+class FileLLMStore(AbstractModelStore):
+    def __init__(self, target: Path) -> None:
+        self.target_dir = target
+        self.previous_best: float | None = None
+
+        self.map: dict[str, Path] = dict()
+
+    def conditional_save(self, estimate: InverseEstimator, epoch_set_index: int, context: GoalBabblingContext) -> bool:
+        if self.previous_best is not None and context.runtime_data.performance_error >= self.previous_best:
+            return False
+
+        self.previous_best = context.runtime_data.performance_error
+        path = self.target_dir / f"llm_{epoch_set_index}_pickle"
+        with open(path, mode="bw") as file:
+            pickle.dump(estimate, file)
+
+        self.map[epoch_set_index] = path
+        return True
+
+    def load(self, epoch_set_index: int) -> AbstractInverseEstimator:
+        if epoch_set_index not in self.map:
+            raise KeyError(
+                f"Failed to load trained inverse estimate from epoch set {epoch_set_index}: No saved file found."
+            )
+
+        with open(self.map[epoch_set_index], encoding="rb") as file:
+            return pickle.load(file)
