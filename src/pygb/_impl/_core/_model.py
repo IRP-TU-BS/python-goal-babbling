@@ -53,7 +53,7 @@ class AbstractForwardModel(ABC):
 
 class AbstractInverseEstimator(ABC):
     """Inverse model, which wraps an estimator (e.g. a neural network) for the reverse calculation
-    g(observation) = action."""
+    g(observation) = action or g(o) = a."""
 
     @abstractmethod
     def predict(self, observation: np.ndarray) -> np.ndarray:

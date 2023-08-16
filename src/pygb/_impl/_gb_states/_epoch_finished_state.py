@@ -1,9 +1,13 @@
+import logging
+
 import numpy as np
 
 from pygb._impl._core._abstract_state import AbstractState
 from pygb._impl._core._context import GoalBabblingContext
 from pygb._impl._core._events import EventSystem
 from pygb._impl._core._model import AbstractForwardModel, AbstractInverseEstimator
+
+_logger = logging.getLogger(__name__)
 
 
 class EpochFinishedState(AbstractState[GoalBabblingContext]):
@@ -30,10 +34,11 @@ class EpochFinishedState(AbstractState[GoalBabblingContext]):
             1) Calculate the RMSE on the test goal set
             2) Calculate the RMSE on optional test goal sets
             3) Emit an 'epoch-complete' event
-            4) Reset epoch-specific data such as recorded sequences and current sequence
-            5) If any of the defined stopping criteria is fulfilled or the maximum number of epochs in the current epoch
+            4) Store the current inverse estimate
+            5) Reset epoch-specific data such as recorded sequences and current sequence
+            6) If any of the defined stopping criteria is fulfilled or the maximum number of epochs in the current epoch
                 set is reached: Return an 'epoch_set_complete' transition
-            6) Otherwise return an 'epoch_set_not_complete' transition
+            7) Otherwise return an 'epoch_set_not_complete' transition
 
         Returns:
             Transition name.
@@ -51,6 +56,12 @@ class EpochFinishedState(AbstractState[GoalBabblingContext]):
                 )
 
         self.events.emit("epoch-complete", self.context)
+
+        if self.context.model_store is not None:
+            if self.context.model_store.conditional_save(
+                self.context.inverse_estimate, self.context.runtime_data.epoch_set_index, self.context
+            ):
+                _logger.info("Stored new best inverse estimate")
 
         # reset epoch specific runtime data
         self.context.runtime_data.current_sequence = None
