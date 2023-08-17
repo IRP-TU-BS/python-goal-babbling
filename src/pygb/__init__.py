@@ -13,6 +13,11 @@ from pygb._impl._core._runtime_data import (
     SequenceType,
 )
 from pygb._impl._core._state_machine import StateMachine
+from pygb._impl._core._stopping_criteria import (
+    PerformanceSlopeStop,
+    TargetPerformanceStop,
+    TimeBudgetStop,
+)
 from pygb._impl._gb_utils._gb_home_weight_generator import GBHomeWeightGenerator
 from pygb._impl._gb_utils._gb_weight_generator import GBWeightGenerator
 from pygb._impl._gb_utils._goal_selectors import RandomGoalSelector
