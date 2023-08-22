@@ -21,6 +21,9 @@ from pygb._impl._core._stopping_criteria import (
 from pygb._impl._gb_utils._error_based_goal_selector import ErrorBasedGoalSelector
 from pygb._impl._gb_utils._gb_home_weight_generator import GBHomeWeightGenerator
 from pygb._impl._gb_utils._gb_weight_generator import GBWeightGenerator
+from pygb._impl._gb_utils._intrinsic_motivation_goal_selector import (
+    IntrinsicMotivationGoalSelector,
+)
 from pygb._impl._gb_utils._local_goal_generators import GBPathGenerator
 from pygb._impl._gb_utils._noise_generators import GBNoiseGenerator
 from pygb._impl._gb_utils._random_goal_selector import RandomGoalSelector
