@@ -73,14 +73,14 @@ class IntrinsicMotivationGoalSelector(AbstractGoalSelector[GoalBabblingContext])
             goal_index = context.runtime_data.current_sequence.stop_goal_index
             self._update_goal_error(goal_index, context.runtime_data.train_goal_error[goal_index])
 
-    def _update_goal_error(self, goal_index, train_goal_error: list[float]) -> None:
+    def _update_goal_error(self, goal_index, goal_error: float) -> None:
         # make room for newest goal error at index 0:
         self._goal_error_matrix[goal_index] = np.roll(self._goal_error_matrix[goal_index], 1)
         # insert newest error:
-        self._goal_error_matrix[goal_index, 0] = train_goal_error[goal_index]
+        self._goal_error_matrix[goal_index, 0] = goal_error
 
-        self._goals_e_min[goal_index] = min(train_goal_error[goal_index], self._goals_e_min[goal_index])
-        self._goals_e_max[goal_index] = max(train_goal_error[goal_index], self._goals_e_max[goal_index])
+        self._goals_e_min[goal_index] = min(goal_error, self._goals_e_min[goal_index])
+        self._goals_e_max[goal_index] = max(goal_error, self._goals_e_max[goal_index])
 
     def _relative_errors(self, goal_error_matrix: np.ndarray, delta: float = 1e-9) -> np.ndarray:
         e_min = np.min(goal_error_matrix[:, 0])

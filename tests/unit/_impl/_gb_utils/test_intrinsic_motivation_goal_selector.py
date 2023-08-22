@@ -35,23 +35,17 @@ def test_update_goal_error(mock_event_system: Generator[None, None, None]) -> No
     selector._goals_e_max = np.zeros(shape=(4,))
     selector._goals_e_min = np.inf * np.ones(shape=(4,))
 
-    train_goal_error = [1.0, 4.0, 3.0, 2.0]
-
-    selector._update_goal_error(goal_index=2, train_goal_error=train_goal_error)
+    selector._update_goal_error(goal_index=2, goal_error=3.0)
     assert np.all(selector._goal_error_matrix == np.array([[0.0, 0.0], [0.0, 0.0], [3.0, 0.0], [0.0, 0.0]]))
     assert np.all(selector._goals_e_max == np.array([0.0, 0.0, 3.0, 0.0]))
     assert np.all(selector._goals_e_min == np.array([np.inf, np.inf, 3.0, np.inf]))
 
-    train_goal_error = [1.0, 4.0, 3.5, 2.0]
-
-    selector._update_goal_error(goal_index=2, train_goal_error=train_goal_error)
+    selector._update_goal_error(goal_index=2, goal_error=3.5)
     assert np.all(selector._goal_error_matrix == np.array([[0.0, 0.0], [0.0, 0.0], [3.5, 3.0], [0.0, 0.0]]))
     assert np.all(selector._goals_e_max == np.array([0.0, 0.0, 3.5, 0.0]))
     assert np.all(selector._goals_e_min == np.array([np.inf, np.inf, 3.0, np.inf]))
 
-    train_goal_error = [1.0, 4.0, 2.5, 2.0]
-
-    selector._update_goal_error(goal_index=2, train_goal_error=train_goal_error)
+    selector._update_goal_error(goal_index=2, goal_error=2.5)
     assert np.all(selector._goal_error_matrix == np.array([[0.0, 0.0], [0.0, 0.0], [2.5, 3.5], [0.0, 0.0]]))
     assert np.all(selector._goals_e_max == np.array([0.0, 0.0, 3.5, 0.0]))
     assert np.all(selector._goals_e_min == np.array([np.inf, np.inf, 2.5, np.inf]))
