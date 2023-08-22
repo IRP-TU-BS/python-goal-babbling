@@ -33,6 +33,7 @@ from pygb import (
             ObservationSequence(
                 None,
                 None,
+                None,
                 observations=[np.array([0.0]), np.array([1.0])],
                 predicted_actions=[np.array([-1.0]), np.array([-2.0])],
             ),

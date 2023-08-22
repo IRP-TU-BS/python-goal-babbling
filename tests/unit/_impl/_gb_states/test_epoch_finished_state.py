@@ -111,8 +111,8 @@ def test_execute_state_resets_epoch_runtime_data(
     evaluate_mock.return_value = 42.0
     context_mock = get_context_mock()
 
-    context_mock.runtime_data.current_sequence = ObservationSequence(None, None)
-    context_mock.runtime_data.sequences = [ObservationSequence(None, None)]
+    context_mock.runtime_data.current_sequence = ObservationSequence(None, None, None)
+    context_mock.runtime_data.sequences = [ObservationSequence(None, None, None)]
     context_mock.runtime_data.sequence_index = 20
 
     state = EpochFinishedState(context_mock, event_system=EventSystem.instance())

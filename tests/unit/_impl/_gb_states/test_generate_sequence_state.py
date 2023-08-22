@@ -76,7 +76,7 @@ def test_generate_new_sequence_with_no_previous_sequence() -> None:
         noise_generator=None,
     )
 
-    sequence = state._generate_new_sequence(np.array([1.0]), context)
+    sequence = state._generate_new_sequence(np.array([1.0]), 1, context)
 
     assert sequence.start_goal == np.array([0.0])  # home observation
     assert sequence.stop_goal == np.array([1.0])  # target goal
@@ -89,7 +89,7 @@ def test_generate_new_sequence_with_no_previous_sequence() -> None:
     ("sequence", "start_goal"),
     [
         (
-            ObservationSequence(start_goal=np.array([100.0]), stop_goal=np.array([200.0])),
+            ObservationSequence(start_goal=np.array([100.0]), stop_goal=np.array([200.0]), stop_goal_index=None),
             np.array([200.0]),
         ),
         (
@@ -117,7 +117,7 @@ def test_generate_new_sequence_with_previous_sequence(sequence: SequenceType, st
         noise_generator=None,
     )
 
-    sequence = state._generate_new_sequence(np.array([1.0]), context)
+    sequence = state._generate_new_sequence(np.array([1.0]), 1, context)
 
     assert sequence.start_goal == start_goal  # previous sequence stop goal
     assert sequence.stop_goal == np.array([1.0])  # mocked goal selector output
@@ -133,7 +133,11 @@ def test_generate_new_sequence_with_previous_sequence(sequence: SequenceType, st
 @patch("pygb._impl._gb_states._generate_sequence_state.GenerateSequenceState._generate_new_sequence")
 def test_execute_state(generate_sequence_mock: MagicMock, mock_event_system: Generator[None, None, None]) -> None:
     sequence = ObservationSequence(
-        np.array([0.1]), np.array([1.0]), weights=[], local_goals=[np.array([0.0]), np.array([0.5]), np.array([1.0])]
+        np.array([0.1]),
+        np.array([1.0]),
+        None,
+        weights=[],
+        local_goals=[np.array([0.0]), np.array([0.5]), np.array([1.0])],
     )
     generate_sequence_mock.return_value = sequence
 

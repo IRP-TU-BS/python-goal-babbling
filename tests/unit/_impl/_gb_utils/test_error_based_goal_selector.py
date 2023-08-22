@@ -68,7 +68,7 @@ def test_error_based_goal_selector_select_with_goal_unvisited() -> None:
     context_mock = MagicMock(
         spec=GoalBabblingContext,
         runtime_data=MagicMock(
-            spec=RuntimeData, previous_sequence=ObservationSequence(None, None), train_goal_visit_count=[0, 1, 1]
+            spec=RuntimeData, previous_sequence=ObservationSequence(None, None, None), train_goal_visit_count=[0, 1, 1]
         ),
         current_goal_set=PropertyMock(train=train_goals),
     )
@@ -90,7 +90,7 @@ def test_error_based_goal_selector_select_with_all_goals_visited() -> None:
     context_mock = MagicMock(
         spec=GoalBabblingContext,
         runtime_data=MagicMock(
-            spec=RuntimeData, previous_sequence=ObservationSequence(None, None), train_goal_visit_count=[0, 1, 1]
+            spec=RuntimeData, previous_sequence=ObservationSequence(None, None, None), train_goal_visit_count=[0, 1, 1]
         ),
         current_goal_set=PropertyMock(train=train_goals),
     )

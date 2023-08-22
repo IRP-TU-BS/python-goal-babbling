@@ -36,7 +36,7 @@ def test_generate_sequence_raises_if_no_previous_sequence() -> None:
     [
         (
             np.array([-2.0]),
-            ObservationSequence(None, None, None, None, predicted_actions=[np.array([-1.0]), np.array([-2.0])]),
+            ObservationSequence(None, None, None, None, None, predicted_actions=[np.array([-1.0]), np.array([-2.0])]),
         ),
         (
             np.array([-1.0]),

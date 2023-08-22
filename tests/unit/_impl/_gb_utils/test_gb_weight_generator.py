@@ -108,6 +108,7 @@ def test_gb_weight_generator_efficiency_weight() -> None:
                 None,
                 None,
                 None,
+                None,
                 local_goals=[np.array([6.0])],
                 predicted_actions=[np.array([7.0])],
                 observations=[np.array([8.0])],
@@ -133,6 +134,7 @@ def test_choose_previous_data(
     expected_action: np.ndarray,
 ) -> None:
     current_sequence = ObservationSequence(
+        None,
         None,
         None,
         None,

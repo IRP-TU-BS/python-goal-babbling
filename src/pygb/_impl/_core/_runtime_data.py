@@ -12,6 +12,7 @@ class ObservationSequence:
 
     start_goal: np.ndarray
     stop_goal: np.ndarray
+    stop_goal_index: int
     weights: list[float] = field(default_factory=list)
     local_goals: list[np.ndarray] = field(default_factory=list)
     predicted_actions: list[np.ndarray] = field(default_factory=list)

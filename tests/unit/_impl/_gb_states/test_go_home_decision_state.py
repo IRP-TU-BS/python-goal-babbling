@@ -27,7 +27,7 @@ def test_go_home(rng_return: float, expected_transition: str) -> None:
             spec=GBParameters,
             go_home_chance=0.1,
         ),
-        runtime_data=MagicMock(spec=RuntimeData, previous_sequence=ObservationSequence(None, None)),
+        runtime_data=MagicMock(spec=RuntimeData, previous_sequence=ObservationSequence(None, None, None)),
     )
 
     state = GoHomeDecisionState(context_mock)

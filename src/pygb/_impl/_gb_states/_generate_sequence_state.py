@@ -47,7 +47,7 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
         # generate sequence between previous stop goal and new target goal:
         target_goal_index, target_goal = self.goal_selector.select(self.context)
 
-        sequence = self._generate_new_sequence(target_goal, self.context)
+        sequence = self._generate_new_sequence(target_goal, target_goal_index, self.context)
 
         # update current sequence and previous sequence:
         self.context.runtime_data.current_sequence = sequence
@@ -80,7 +80,9 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
 
         return GenerateSequenceState.sequence_finished
 
-    def _generate_new_sequence(self, target_goal: np.ndarray, context: GoalBabblingContext) -> ObservationSequence:
+    def _generate_new_sequence(
+        self, target_goal: np.ndarray, target_goal_index: int, context: GoalBabblingContext
+    ) -> ObservationSequence:
         if context.runtime_data.previous_sequence is None:
             # start of epoch set -> no previous sequence, so we start at the home observation
             start_goal = context.current_parameters.home_observation
@@ -93,4 +95,9 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
             start=start_goal, stop=target_goal, len_sequence=context.current_parameters.len_sequence
         )
 
-        return ObservationSequence(start_goal=start_goal, stop_goal=target_goal, local_goals=local_goal_sequence)
+        return ObservationSequence(
+            start_goal=start_goal,
+            stop_goal=target_goal,
+            stop_goal_index=target_goal_index,
+            local_goals=local_goal_sequence,
+        )

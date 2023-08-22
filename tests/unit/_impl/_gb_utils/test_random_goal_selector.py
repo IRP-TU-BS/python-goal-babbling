@@ -26,7 +26,11 @@ def create_context_mock(previous_sequence: SequenceType | None = None) -> GoalBa
         forward_model=None,
         inverse_estimate=None,
         runtime_data=RuntimeData(
-            sequences=[ObservationSequence(start_goal=np.array([1.0, 2.0]), stop_goal=np.array([3.0, 4.0]))],
+            sequences=[
+                ObservationSequence(
+                    start_goal=np.array([1.0, 2.0]), stop_goal=np.array([3.0, 4.0]), stop_goal_index=None
+                )
+            ],
             previous_sequence=previous_sequence,
         ),
     )
@@ -37,7 +41,11 @@ def create_context_mock(previous_sequence: SequenceType | None = None) -> GoalBa
 @pytest.mark.parametrize(
     ("previous_sequence", "expected_index", "expected_goal"),
     [
-        (ObservationSequence(start_goal=np.array([3.0, 4.0]), stop_goal=np.array([5.0, 6.0])), 1, np.array([3.0, 4.0])),
+        (
+            ObservationSequence(start_goal=np.array([3.0, 4.0]), stop_goal=np.array([5.0, 6.0]), stop_goal_index=None),
+            1,
+            np.array([3.0, 4.0]),
+        ),
         (ActionSequence(start_action=None, stop_action=None), 1, np.array([3.0, 4.0])),
         (None, 1, np.array([3.0, 4.0])),
     ],
@@ -65,7 +73,9 @@ def test_random_goal_selector_does_not_choose_previous_stop_goal() -> None:
     rng_mock.integers = MagicMock()
     rng_mock.integers.side_effect = [2, 0]
     selector._rng = rng_mock
-    context = create_context_mock(ObservationSequence(start_goal=np.array([3.0, 4.0]), stop_goal=np.array([5.0, 6.0])))
+    context = create_context_mock(
+        ObservationSequence(start_goal=np.array([3.0, 4.0]), stop_goal=np.array([5.0, 6.0]), stop_goal_index=2)
+    )
 
     index, goal = selector.select(context)
 

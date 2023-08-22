@@ -41,7 +41,7 @@ def test_execute_state_emits_sequence_finished_event(mock_event_system: Generato
 
 
 def test_execute_state(mock_event_system: Generator[None, None, None]) -> None:
-    dummy_sequence = ObservationSequence(None, None)
+    dummy_sequence = ObservationSequence(None, None, None)
     runtime_data_mock = PropertyMock(
         spec=RuntimeData,
         sequence_index=0,

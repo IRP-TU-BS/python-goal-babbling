@@ -29,15 +29,13 @@ class RandomGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
             context.runtime_data.previous_sequence, ActionSequence
         ):
             # start of epoch set or we've just been at home -> choose any goal randomly
-            random_idx = self._rng.integers(0, context.current_goal_set.train.shape[0], size=None)
-            selected_goal = context.current_goal_set.train[random_idx]
+            selected_index = self._rng.integers(0, context.current_goal_set.train.shape[0], size=None)
 
         elif isinstance(context.runtime_data.previous_sequence, ObservationSequence):
-            previous_goal = context.runtime_data.previous_sequence.stop_goal
-            selected_goal = None
+            previous_index = context.runtime_data.previous_sequence.stop_goal_index
+            selected_index = None
 
-            while selected_goal is None or np.all(previous_goal == selected_goal):
-                random_idx = self._rng.integers(0, context.current_goal_set.train.shape[0], size=None)
-                selected_goal = context.current_goal_set.train[random_idx]
+            while selected_index is None or selected_index == previous_index:
+                selected_index = self._rng.integers(0, context.current_goal_set.train.shape[0], size=None)
 
-        return random_idx, selected_goal
+        return selected_index, context.current_goal_set.train[selected_index]
