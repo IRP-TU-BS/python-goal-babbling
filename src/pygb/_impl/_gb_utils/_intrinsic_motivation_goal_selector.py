@@ -7,16 +7,69 @@ from pygb._impl._core._runtime_data import ObservationSequence
 
 
 class IntrinsicMotivationGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
+    """Goal selector which implements intrinsically motivated goal selection (Rayyes et al., 2020).
+
+    Goals are selected using an interest score composed of a relative error RE(g_i) and a forgetting factor FF(g_i):
+
+        interest(g_i) = l * RE(g_i) + (1 - l) * FF(g_i)
+
+    where g_i is the i-th training goal and l (lambda_) is between 0 and 1 and weights the influence of RE(g_i) over
+    FF(g_i). The relative error is defined as
+
+        RE(g_i) = (E(g_i) - E_min) / (E_max - E_min)
+
+    where E(g_i) is the most recent prediction error on g_i, and E_min/E_max are the minimum and maximum prediction
+    errors across all training goals.
+
+    FF(g_i) is composed of the current progress PROG(g_i) and the general progress overview REG(g_i):
+
+        FF(g_i) = g * PROG(g_i) + (1 - g) * REG(g_i)
+
+    where g (gamma) is between 0 and 1 and weights the influence of PROG(g_i) over REG(g_i). PROG(g_i) measures the
+    performance on g_i over a sliding window with width n and is normalized relative to maximum and minimum progress
+    values across all training goals:
+
+        PROG(g_i) = ( sum_{j=n/2 -> j=n}(E_j(g_i)) - sum_{j=1 -> j=n/2}(E_j(g_i)) ) / n
+        PROG(g_i) = (PROG(g_i) - Prog_min) / (Prog_max - Prog_min)
+
+    The general progress overview REG(g_i) is defined as
+
+        REG(g_i) = ( E(g_i) - E_min(g_i) ) / ( E_max(g_i) - E_min(g_i) )
+
+    Goals are chosen by finding the highest interest score. Exceptions to this rule are:
+
+        1) Not every goal has been visited n times, i.e. the defined sliding window is not fully filled. In this case a
+            random goal is selected from the subset of goals with 'open' sliding windows.
+        2) The most interesting goal has been visited in the previous sequence. In this case the goal with the second
+            highest goal is selected.
+
+    Instances of this class register for 'sequence-finished' events by default. All necessary data is collected and
+    stored for the duration of one epoch set. Training goals may change between epoch sets, which is why the collected
+    data is reset after each epoch set.
+    """
+
     def __init__(
         self, window_size: int, gamma: float, lambda_: float, event_system: EventSystem, random_seed: int | None = None
     ) -> None:
+        """Constructor.
+
+        Args:
+            window_size: Widht of the sliding window. Must be an even number.
+            gamma: Weighting factor between 0 and 1. Weights PROG(g_i) over REG(g_i).
+            lambda_: Weighting factor between 0 and 1. Weights RE(g_i) over FF(g_i).
+            event_system: Event system singleton instance.
+            random_seed: Random seed used to initialize a numpy random number generator. Defaults to None.
+
+        Raises:
+            ValueError: If the window size is uneven.
+        """
         if window_size % 2 != 0:
             raise ValueError(
                 f"Failed to initialize {self.__class__.__qualname__}: Window size '{window_size}' is no even number."
             )
 
-        self.gamma = gamma  # weighs current progress vs. general progress overview
-        self.lambda_ = lambda_  # weighs relative error vs. forgetting factor
+        self.gamma = gamma
+        self.lambda_ = lambda_
         self.window_size = window_size
 
         # matrix keeping track of errors per train goal (column === goal index, row === past prediction errors)
@@ -31,6 +84,16 @@ class IntrinsicMotivationGoalSelector(AbstractGoalSelector[GoalBabblingContext])
         event_system.register_observer("sequence-finished", self._update_data_callback)
 
     def select(self, context: GoalBabblingContext) -> tuple[int, np.ndarray]:
+        """Selects a new target goal.
+
+        See the class docstring for details on the selection process.
+
+        Args:
+            context: Goal Babbling context.
+
+        Returns:
+            The selected goal index and goal.
+        """
         if self._goal_error_matrix is None or context.runtime_data.epoch_set_index != self._valid_for_epoch_set:
             self._init(context)
 
