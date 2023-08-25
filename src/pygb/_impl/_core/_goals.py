@@ -1,12 +1,22 @@
+from typing import Any
+
 import numpy as np
 
+from pygb._impl._core._abstract_loggable import AbstractLoggable
 
-class GoalSet:
+
+class GoalSet(AbstractLoggable):
     """Class which represents one goal set. A goal set represents all global goals which are necessary for one epoch
     set.
     """
 
-    def __init__(self, train: np.ndarray, test: np.ndarray, optional_test: dict[str, np.ndarray] | None = None) -> None:
+    def __init__(
+        self,
+        train: np.ndarray,
+        test: np.ndarray,
+        optional_test: dict[str, np.ndarray] | None = None,
+        name: str | None = None,
+    ) -> None:
         """Constructor.
 
         Args:
@@ -14,10 +24,12 @@ class GoalSet:
             test: Test goals. The estimate's performance is measured against these.
             optional_test: Dictionary of optional test sets. While the estimate's performance is measured on these
                 goals, they are not used internally, e.g. for goal selection. Defaults to None.
+            name: Optional goal set name. Defaults to None.
         """
         self.train = train
         self.test = test
         self.optional_test = optional_test
+        self.name = name
 
     def __eq__(self, __o: object) -> bool:
         """Checks two objects for equality.
@@ -49,6 +61,19 @@ class GoalSet:
                     return False
 
         return True
+
+    def parameters(self) -> dict[str, Any]:
+        """Returns the goal set sizes (train, test and optional) as a dictionary.
+
+        Returns:
+            Goal set sizes.
+        """
+        params = {"dataset_name": self.name or "-", "train_size": self.train.shape[0], "test_size": self.test.shape[0]}
+
+        if self.optional_test is not None:
+            params.update({f"{key}_size": goal_set.shape[0] for key, goal_set in self.optional_test.items()})
+
+        return params
 
 
 class GoalStore:

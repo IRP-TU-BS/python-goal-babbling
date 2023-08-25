@@ -2,8 +2,10 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
+from pygb._impl._core._abstract_loggable import AbstractLoggable
 
-class AbstractForwardModel(ABC):
+
+class AbstractForwardModel(AbstractLoggable, ABC):
     """Forward model, which implements the forward calculation f(action) = observation."""
 
     @abstractmethod
@@ -51,7 +53,7 @@ class AbstractForwardModel(ABC):
         """
 
 
-class AbstractInverseEstimator(ABC):
+class AbstractInverseEstimator(AbstractLoggable, ABC):
     """Inverse model, which wraps an estimator (e.g. a neural network) for the reverse calculation
     g(observation) = action or g(o) = a."""
 

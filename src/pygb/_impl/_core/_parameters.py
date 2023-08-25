@@ -1,13 +1,15 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
+from typing import Any
 
 import numpy as np
 
+from pygb._impl._core._abstract_loggable import AbstractLoggable
 from pygb._impl._core._abstract_stopping_criteria import AbstractStoppingCriteria
 
 
 @dataclass
-class GBParameters:
+class GBParameters(AbstractLoggable):
     """Goal Babbling parameters which are valid for one Goal Babbling epoch set."""
 
     sigma: float
@@ -65,6 +67,14 @@ class GBParameters:
                 combined.__setattr__(attribute_name, increment_value)
 
         return combined
+
+    def parameters(self) -> dict[str, Any]:
+        """Retuns the Goal Babbling parameters in form of a dictionary.
+
+        Returns:
+            Goal Babbling parameters.
+        """
+        return self.__dict__
 
 
 @dataclass

@@ -1,7 +1,9 @@
 from dataclasses import dataclass, field
-from typing import TypeVar
+from typing import Any, TypeVar
 
 import numpy as np
+
+from pygb._impl._core._abstract_loggable import AbstractLoggable
 
 
 @dataclass
@@ -36,7 +38,7 @@ SequenceType = TypeVar("SequenceType", ActionSequence, ObservationSequence)
 
 
 @dataclass
-class RuntimeData:
+class RuntimeData(AbstractLoggable):
     current_sequence: ObservationSequence | None = None
     previous_sequence: SequenceType | None = None
     performance_error: float | None = None  # error on test goals after last completed epoch
@@ -52,3 +54,18 @@ class RuntimeData:
         default_factory=list
     )  # training goal error, calculated pre goal after a completed sequence
     train_goal_visit_count: list[int] = field(default_factory=list)  # visit count per goal
+
+    def metrics(self) -> dict[str, Any]:
+        """Returns the performance errors formatted as a dictionary.
+
+        Returns:
+            Performance errors.
+        """
+        _metrics = {"performance_error": self.performance_error}
+
+        if self.opt_performance_errors is not None:
+            _metrics.update(
+                {f"{key}_performance_error": performance for key, performance in self.opt_performance_errors.items()}
+            )
+
+        return _metrics
