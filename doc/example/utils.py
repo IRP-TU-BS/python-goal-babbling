@@ -1,5 +1,6 @@
 import pickle
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 from master_utils.learner.llm import LLM
@@ -87,6 +88,9 @@ class ForwardModel(AbstractForwardModel):
         batch = [self.clip(action) for action in action_batch]
         return np.asarray(batch)
 
+    def parameters(self) -> dict[str, Any]:
+        return {"joint_limits": self.joint_limit, "tubes": [str(tube) for tube in self.ctcr._tubes]}
+
 
 class InverseEstimator(AbstractInverseEstimator):
     def __init__(self, observation0: np.ndarray, action0: np.ndarray, radius: float, learning_rate=float) -> None:
@@ -108,6 +112,12 @@ class InverseEstimator(AbstractInverseEstimator):
         batch = [self.predict(observation) for observation in observation_batch]
 
         return np.asarray(batch)
+
+    def parameters(self) -> dict[str, Any]:
+        return {"x0": self.llm.x0, "y0": self.llm.y0, "radius": self.llm.radius, "lrate": self.llm.lrate}
+
+    def metrics(self) -> dict[str, Any]:
+        return {"prototypes": self.llm.num_prototypes}
 
 
 class FileLLMStore(AbstractModelStore):
@@ -135,5 +145,5 @@ class FileLLMStore(AbstractModelStore):
                 f"Failed to load trained inverse estimate from epoch set {epoch_set_index}: No saved file found."
             )
 
-        with open(self.map[epoch_set_index], encoding="rb") as file:
+        with open(self.map[epoch_set_index], mode="br") as file:
             return pickle.load(file)
