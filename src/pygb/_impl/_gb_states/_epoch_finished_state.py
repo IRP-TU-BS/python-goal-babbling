@@ -79,6 +79,9 @@ class EpochFinishedState(AbstractState[GoalBabblingContext]):
         self.context.runtime_data.epoch_index += 1
         return EpochFinishedState.epoch_set_not_complete
 
+    def transitions(self) -> list[str]:
+        return [EpochFinishedState.epoch_set_complete, EpochFinishedState.epoch_set_not_complete]
+
     def _evaluate(
         self, forward_model: AbstractForwardModel, inverse_estimate: AbstractInverseEstimator, observations: np.ndarray
     ) -> float:

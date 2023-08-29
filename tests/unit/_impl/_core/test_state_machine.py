@@ -1,7 +1,16 @@
+from pathlib import Path
+
 import pytest
 
 from pygb import EventSystem, StateMachine
 from pygb.interfaces import AbstractContext, AbstractState
+
+try:
+    import pydot
+
+    HAS_PYDOT = True
+except ImportError:
+    HAS_PYDOT = False
 
 
 class DummyContext(AbstractContext):
@@ -36,6 +45,9 @@ class DummyState(AbstractState[DummyContext]):
 
         return self.name
 
+    def transitions(self) -> list[str]:
+        return [self.name]
+
 
 class DummyFinalState(AbstractState[DummyContext]):
     def __init__(self, context: DummyContext, event_system: EventSystem | None = None, name: str | None = None) -> None:
@@ -43,6 +55,20 @@ class DummyFinalState(AbstractState[DummyContext]):
 
     def __call__(self) -> str | None:
         return None
+
+    def transitions(self) -> list[str]:
+        return []
+
+
+class MultipleTransitionState(AbstractState[DummyContext]):
+    def __init__(self, context: DummyContext, event_system: EventSystem | None = None, name: str | None = None) -> None:
+        super().__init__(context, event_system, name)
+
+    def __call__(self) -> None:
+        return None
+
+    def transitions(self) -> list[str]:
+        return ["transition1", "transition2"]
 
 
 def test_init() -> None:
@@ -156,3 +182,57 @@ def test_state_machine_stops_after_receiving_none_as_transition() -> None:
     sm.add(init_state.name, final_state)
 
     sm.run()
+
+
+@pytest.mark.skipif(not HAS_PYDOT, reason="Python package 'pydot' not installed.")
+def test_generate_graph() -> None:
+    context = DummyContext()
+    initial_state = DummyState(context, name="initial_state")
+    state1 = DummyState(context, name="state1")
+    state2 = MultipleTransitionState(context, name="state2")
+    final_state = DummyFinalState(context, name="final_state")
+
+    sm = StateMachine(context, initial_state=initial_state)
+
+    sm.add("state1", state2)
+    sm.add("transition1", state1)
+    sm.add("transition2", final_state)
+
+    expected_graph = pydot.Dot("test-graph", graph_type="graph")
+    expected_graph.add_node(pydot.Node(state1.name, shape="circle"))
+    expected_graph.add_node(pydot.Node(final_state.name, shape="circle"))
+    expected_graph.add_node(pydot.Node(state2.name, shape="circle"))
+    expected_graph.add_node(pydot.Node(initial_state.name, shape="circle"))
+
+    expected_graph.add_edge(pydot.Edge(state1.name, state2.name))
+    expected_graph.add_edge(pydot.Edge(state2.name, state1.name))
+    expected_graph.add_edge(pydot.Edge(state2.name, final_state.name))
+
+    graph = sm._generate_graph("test-graph")
+
+    assert graph.obj_dict["nodes"].keys() == expected_graph.obj_dict["nodes"].keys()
+    assert graph.obj_dict["edges"].keys() == expected_graph.obj_dict["edges"].keys()
+
+    assert graph.obj_dict["edges"][("initial_state", "state1")]["attributes"]["label"] == "initial_state"
+    assert graph.obj_dict["edges"][("state1", "state2")][0]["attributes"]["label"] == "state1"
+    assert graph.obj_dict["edges"][("state2", "state1")][0]["attributes"]["label"] == "transition1"
+    assert graph.obj_dict["edges"][("state2", "final_state")][0]["attributes"]["label"] == "transition2"
+
+
+@pytest.mark.skipif(not HAS_PYDOT, reason="Python package 'pydot' not installed.")
+@pytest.mark.parametrize(("type_", "expected_file"), [("png", "test.png"), ("svg", "test.svg")])
+def test_graph(tmp_path: Path, type_: str, expected_file: str) -> None:
+    context = DummyContext()
+    state1 = DummyState(context, name="state1")
+    state2 = MultipleTransitionState(context, name="state2")
+    final_state = DummyFinalState(context, name="final_state")
+
+    sm = StateMachine(context, initial_state=state1)
+
+    sm.add("state1", state2)
+    sm.add("transition1", state1)
+    sm.add("transition2", final_state)
+
+    sm.graph(tmp_path, type_, "test")
+
+    assert tmp_path.joinpath(expected_file).is_file()

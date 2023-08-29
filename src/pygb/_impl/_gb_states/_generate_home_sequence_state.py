@@ -67,6 +67,9 @@ class GenerateHomeSequenceState(AbstractState[GoalBabblingContext]):
 
         return GenerateHomeSequenceState.sequence_finished
 
+    def transitions(self) -> list[str]:
+        return [GenerateHomeSequenceState.sequence_finished]
+
     def _generate_sequence(self, target_action: np.ndarray) -> ActionSequence:
         """Generates an action sequence towards a target action.
 

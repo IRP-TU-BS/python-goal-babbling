@@ -1,8 +1,16 @@
 import logging
-from typing import Any
+from pathlib import Path
+from typing import Any, Literal
 
 from pygb._impl._core._abstract_context import AbstractContext
 from pygb._impl._core._abstract_state import AbstractState
+
+try:
+    import pydot
+
+    HAS_PYDOT = True
+except ImportError:
+    HAS_PYDOT = False
 
 _logger = logging.getLogger(__name__)
 
@@ -140,3 +148,73 @@ class StateMachine:
             f"""Failed to remove transition: '{transition_name}' does not exist. Use the 'no_raise' flag """
             """to suppress this exception."""
         )
+
+    def graph(
+        self,
+        directory: Path,
+        type_: Literal["svg", "png"] = "png",
+        name: str = "goal-babbling-state-machine",
+        no_raise: bool = False,
+    ) -> None:
+        """Plots the current state machine graph and saves it to the specified directory.
+
+        Note: This method requires the 'pydot' Python package ('pip install pydot') as well as the 'graphviz' tool
+        installed on your system.
+
+        Args:
+            directory: Target directory.
+            type_: File type (either "png" or "svg"). Defaults to "png".
+            name: File name (excluding file ending). Defaults to "goal-babbling-state-machine".
+            no_raise: Wether or not to raise an exception if 'pydot' is not installed. Defaults to False.
+
+        Raises:
+            RuntimeError: If no initial state is specified.
+            ImportError: If the 'pydot' package is missing.
+        """
+        if self.initial_state is None:
+            raise RuntimeError("Failed to plot graph: No initial state set.")
+
+        if HAS_PYDOT:
+            graph = self._generate_graph(name)
+
+            if type_ == "png":
+                graph.write_png(directory.joinpath(f"{name}.png"))
+            else:
+                graph.write_svg(directory.joinpath(f"{name}.svg"))
+
+            return
+
+        msg = (
+            "Failed to plot state machine graph: Python package 'pydot' not found. Install it via 'pip install pydot'."
+        )
+
+        if no_raise:
+            _logger.warning(msg)
+            return
+
+        raise ImportError(msg)
+
+    def _generate_graph(self, name: str) -> pydot.Dot:
+        graph = pydot.Dot(name, graph_type="digraph")
+        states = list(self._transition_table.values())
+
+        if self.initial_state not in states:  # we assert that initial_state is set in the calling method
+            states.append(self.initial_state)
+
+        for state in states:
+            node = (
+                pydot.Node(state.name, shape="rectangle", color="green", style="filled, rounded")
+                if state == self.initial_state
+                else pydot.Node(state.name, shape="rectangle", style="rounded")
+            )
+            graph.add_node(node)
+
+        transitions = set()
+        for transition, target_state in self._transition_table.items():
+            for source_name in [s.name for s in states if transition in s.transitions()]:
+                transitions.add((source_name, target_state.name, transition))
+
+        for transition in transitions:
+            graph.add_edge(pydot.Edge(transition[0], transition[1], label=transition[2]))
+
+        return graph

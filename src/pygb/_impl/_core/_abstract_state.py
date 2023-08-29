@@ -28,6 +28,16 @@ class AbstractState(ABC, Generic[ContextType]):
         transition."""
         ...
 
+    def transitions(self) -> list[str]:
+        """Return all tranistion names that can be returned by this state's __call__() method.
+
+        This is required for plotting the state machine graph.
+
+        Returns:
+            List of transition names. Empty list as a default value.
+        """
+        return []
+
     def __eq__(self, __o: object) -> bool:
         """Checks two objects for equality. Note that two states are considered equal if their names are equal.
 

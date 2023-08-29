@@ -80,6 +80,9 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
 
         return GenerateSequenceState.sequence_finished
 
+    def transitions(self) -> list[str]:
+        return [GenerateSequenceState.sequence_finished]
+
     def _generate_new_sequence(
         self, target_goal: np.ndarray, target_goal_index: int, context: GoalBabblingContext
     ) -> ObservationSequence:

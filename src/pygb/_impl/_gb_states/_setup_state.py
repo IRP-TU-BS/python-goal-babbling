@@ -18,3 +18,6 @@ class SetupState(AbstractState[GoalBabblingContext]):
         self.context.runtime_data.train_goal_visit_count = [0] * train_goal_count
 
         return SetupState.setup_complete
+
+    def transitions(self) -> list[str]:
+        return [SetupState.setup_complete]

@@ -72,3 +72,6 @@ class EpochSetFinishedState(AbstractState[GoalBabblingContext]):
             return EpochSetFinishedState.continue_training
 
         return EpochSetFinishedState.stop_training
+
+    def transitions(self) -> list[str]:
+        return [EpochSetFinishedState.continue_training, EpochSetFinishedState.stop_training]

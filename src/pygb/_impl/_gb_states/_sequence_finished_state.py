@@ -44,3 +44,6 @@ class SequenceFinishedState(AbstractState[GoalBabblingContext]):
             return SequenceFinishedState.epoch_not_finished
 
         return SequenceFinishedState.epoch_finished
+
+    def transitions(self) -> list[str]:
+        return [SequenceFinishedState.epoch_finished, SequenceFinishedState.epoch_not_finished]

@@ -49,3 +49,6 @@ class GoHomeDecisionState(AbstractState[GoalBabblingContext]):
             return GoHomeDecisionState.go_home
 
         return GoHomeDecisionState.generate_sequence
+
+    def transitions(self) -> list[str]:
+        return [GoHomeDecisionState.generate_sequence, GoHomeDecisionState.go_home]
