@@ -194,7 +194,7 @@ class StateMachine:
 
         raise ImportError(msg)
 
-    def _generate_graph(self, name: str) -> pydot.Dot:
+    def _generate_graph(self, name: str) -> "pydot.Dot":
         graph = pydot.Dot(name, graph_type="digraph")
         states = list(self._transition_table.values())
 
