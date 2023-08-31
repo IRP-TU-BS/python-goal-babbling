@@ -1,5 +1,7 @@
+import pickle
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from typing import Any
 
 import mlflow
 import numpy as np
@@ -28,7 +30,6 @@ class MLFlowWrapper:
         if directory is None:
             mlflow.set_tracking_uri(directory)
 
-        self._current_epoch_set: int | None = None
         self._active_run: mlflow.ActiveRun | None = None
         self._parent_run: mlflow.ActiveRun | None = None
 
@@ -50,8 +51,8 @@ class MLFlowWrapper:
 
         return _experiment_id
 
-    def log(self, context: GoalBabblingContext) -> None:
-        """Callback which logs parameters (fixed, e.g. hyper-parameters) and training metrics.
+    def epoch_complete_callback(self, context: GoalBabblingContext) -> None:
+        """Callback which logs parameters (fixed, e.g. hyper-parameters) and training metrics at the end of an epoch.
 
         Logging is structured in the following way:
 
@@ -65,25 +66,41 @@ class MLFlowWrapper:
         Args:
             context: Goal Babbling context.
         """
-        if self._active_run is None or self._current_epoch_set != context.runtime_data.epoch_set_index:
-            if self._active_run is not None and self._current_epoch_set != context.runtime_data.epoch_set_index:
-                mlflow.end_run()
-
-            self._current_epoch_set = context.runtime_data.epoch_set_index
+        if self._active_run is None:
             self._active_run = mlflow.start_run(
-                run_name=f"epochSet{self._current_epoch_set}", experiment_id=self.experiment_id, nested=True
+                run_name=f"epochSet{context.runtime_data.epoch_set_index}",
+                experiment_id=self.experiment_id,
+                nested=True,
             )
-
-            self.log_numpy_array(context.current_goal_set.train, name="train_goals")
-            self.log_numpy_array(context.current_goal_set.test, name="test_goals")
-            mlflow.log_params(context.current_parameters.parameters())
-            mlflow.log_params(context.current_goal_set.parameters())
-            mlflow.log_params(context.forward_model.parameters())
-            mlflow.log_params(context.inverse_estimate.parameters())
+            self._log_epoch_set_statics(context, epoch_set_index=0)
 
         mlflow.log_metrics(context.runtime_data.metrics(), step=context.runtime_data.epoch_index)
         mlflow.log_metrics(context.forward_model.metrics(), step=context.runtime_data.epoch_index)
         mlflow.log_metrics(context.inverse_estimate.metrics(), step=context.runtime_data.epoch_index)
+
+    def epoch_set_complete_callback(self, context: GoalBabblingContext) -> None:
+        """Ends the currently active run (for an epoch set) and starts a new run. Logs the best model from the epoch set
+        and logs static data of the upcoming epoch set.
+
+        Args:
+            context: Goal Babbling context.
+        """
+        model = context.model_store.load(epoch_set_index=context.runtime_data.epoch_set_index)
+        self.log_pickle(model, name=f"best_llm_es{context.runtime_data.epoch_set_index}_pickle")
+
+        if self._active_run is not None:
+            mlflow.end_run()
+
+        if context.num_epoch_sets - 1 > context.runtime_data.epoch_set_index:
+            next_epoch_set = context.runtime_data.epoch_set_index + 1
+
+            self._active_run = mlflow.start_run(
+                run_name=f"epochSet{next_epoch_set}",
+                experiment_id=self.experiment_id,
+                nested=True,
+            )
+
+            self._log_epoch_set_statics(context, next_epoch_set)
 
     def log_numpy_array(self, data: np.ndarray, name: str) -> None:
         with NamedTemporaryFile(prefix=name, suffix=".csv") as named_file:
@@ -93,3 +110,20 @@ class MLFlowWrapper:
                 np.savetxt(file, data, delimiter=",")
 
             mlflow.log_artifact(path)
+
+    def log_pickle(self, obj: Any, name: str) -> None:
+        with NamedTemporaryFile(prefix=name) as named_file:
+            path = Path(named_file.name)
+
+            with open(path, mode="wb") as file:
+                pickle.dump(obj, file)
+
+            mlflow.log_artifact(path)
+
+    def _log_epoch_set_statics(self, context: GoalBabblingContext, epoch_set_index: int) -> None:
+        self.log_numpy_array(context.goal_store[epoch_set_index].train, name="train_goals")
+        self.log_numpy_array(context.goal_store[epoch_set_index].test, name="test_goals")
+        mlflow.log_params(context.gb_param_store[epoch_set_index].parameters())
+        mlflow.log_params(context.gb_param_store[epoch_set_index].parameters())
+        mlflow.log_params(context.forward_model.parameters())
+        mlflow.log_params(context.inverse_estimate.parameters())
