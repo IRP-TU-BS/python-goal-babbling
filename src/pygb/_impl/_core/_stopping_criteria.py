@@ -37,6 +37,9 @@ class TargetPerformanceStop(AbstractStoppingCriteria[GoalBabblingContext]):
 
         return True
 
+    def __repr__(self) -> str:
+        return f"{self.__class__.__qualname__}(performance = {self.performance}, start_epoch = {self.start_epoch})"
+
 
 @dataclass
 class TimeBudgetStop(AbstractStoppingCriteria[GoalBabblingContext]):
@@ -73,6 +76,9 @@ class TimeBudgetStop(AbstractStoppingCriteria[GoalBabblingContext]):
             return False
 
         return datetime.now() - self._start >= self.budget
+
+    def __str__(self) -> str:
+        return f"{self.__class__.__qualname__}(budget = {self.budget}, start_epoch = {self.start_epoch})"
 
 
 @dataclass
@@ -121,3 +127,6 @@ class PerformanceSlopeStop(AbstractStoppingCriteria[GoalBabblingContext]):
             return True
 
         return False
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__qualname__}(grace_period = {self.grace_period}, start_epoch = {self.start_epoch})"
