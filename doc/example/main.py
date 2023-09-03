@@ -129,12 +129,12 @@ state_machine.add(EpochSetFinishedState.stop_training, stopped_state)
 # alternatively use a pre-configured state machine (example shows using multiple epoch sets):
 
 # state_machine = vanilla_goal_babbling(
-#    [gb_parameters, GBParameterIncrement(len_epoch_set=5)],
-#    [goal_set, goal_set],
-#    forward_model,
-#    inverse_estimator,
-#    FileLLMStore(model_path),
-#    IntrinsicMotivationGoalSelector(window_size=10, gamma=0.5, lambda_=0.5, event_system=EventSystem.instance()),
+#     [gb_parameters, GBParameterIncrement(len_epoch_set=5)],
+#     [goal_set, goal_set],
+#     forward_model,
+#     inverse_estimator,
+#     FileLLMStore(model_path),
+#     IntrinsicMotivationGoalSelector(window_size=10, gamma=0.5, lambda_=0.5, event_system=EventSystem.instance()),
 # )
 
 
@@ -146,7 +146,8 @@ def log_progress(context: GoalBabblingContext) -> None:
 
 
 mlflow_wrapper = MLFlowWrapper(experiment_name="dummy_experiment", parent_run=datetime.now().strftime("%y%m%d-%H%M%S"))
-EventSystem.instance().register_observer("epoch-complete", mlflow_wrapper.log)
+EventSystem.instance().register_observer("epoch-complete", mlflow_wrapper.epoch_complete_callback)
+EventSystem.instance().register_observer("epoch-set-complete", mlflow_wrapper.epoch_set_complete_callback)
 
 with mlflow_wrapper:
     state_machine.run()
