@@ -23,9 +23,12 @@ class MLFlowWrapper:
     This way the parent run is properly initialized.
     """
 
-    def __init__(self, experiment_name: str, parent_run: str, directory: Path | None = None) -> None:
+    def __init__(
+        self, experiment_name: str, parent_run: str, directory: Path | None = None, parent_run_description: str = "-"
+    ) -> None:
         self.experiment_name = experiment_name
         self.parent_run = parent_run
+        self.parent_run_description = parent_run_description
 
         if directory is None:
             mlflow.set_tracking_uri(directory)
@@ -34,7 +37,9 @@ class MLFlowWrapper:
         self._parent_run: mlflow.ActiveRun | None = None
 
     def __enter__(self) -> None:
-        self._parent_run = mlflow.start_run(experiment_id=self.experiment_id, run_name=self.parent_run)
+        self._parent_run = mlflow.start_run(
+            experiment_id=self.experiment_id, run_name=self.parent_run, description=self.parent_run_description
+        )
 
     def __exit__(self, *args: tuple, **kwargs: dict) -> None:
         while mlflow.active_run() is not None:
