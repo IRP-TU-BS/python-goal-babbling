@@ -131,7 +131,7 @@ def test_generate_new_sequence_with_previous_sequence(sequence: SequenceType, st
 
 
 @patch("pygb._impl._gb_states._generate_sequence_state.GenerateSequenceState._generate_new_sequence")
-def test_execute_state(generate_sequence_mock: MagicMock, mock_event_system: Generator[None, None, None]) -> None:
+def test_execute_state(generate_sequence_mock: MagicMock) -> None:
     sequence = ObservationSequence(
         np.array([0.1]),
         np.array([1.0]),

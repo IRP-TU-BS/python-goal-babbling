@@ -34,7 +34,7 @@ def test_get_singleton_instance() -> None:
     assert id(events) == id(events2)
 
 
-def test_emit(mock_event_system: Generator[None, None, None]) -> None:
+def test_emit() -> None:
     events = EventSystem.instance()
     context_value = None
     called = False
@@ -55,14 +55,14 @@ def test_emit(mock_event_system: Generator[None, None, None]) -> None:
     assert not called
 
 
-def test_register_observer(mock_event_system: Generator[None, None, None]) -> None:
+def test_register_observer() -> None:
     events = EventSystem.instance()
 
     events.register_observer("test-event", lambda context: None)
     assert len(events.event_observers["test-event"]) == 1
 
 
-def test_remove_observer(mock_event_system: Generator[None, None, None]) -> None:
+def test_remove_observer() -> None:
     events = EventSystem.instance()
 
     def observer1(context: AbstractContext) -> None:
@@ -88,7 +88,7 @@ def test_remove_observer(mock_event_system: Generator[None, None, None]) -> None
     assert dict(events.event_observers) == {"test-event-1": [observer2], "test-event-2": []}
 
 
-def test_observes_decorator(mock_event_system: Generator[None, None, None]) -> None:
+def test_observes_decorator() -> None:
     events = EventSystem.instance()
 
     called = False

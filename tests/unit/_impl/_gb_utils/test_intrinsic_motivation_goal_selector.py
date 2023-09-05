@@ -17,19 +17,19 @@ from pygb import (
 )
 
 
-def test_init_registers_event_listener(mock_event_system: Generator[None, None, None]) -> None:
+def test_init_registers_event_listener() -> None:
     events = EventSystem.instance()
     selector = IntrinsicMotivationGoalSelector(2, 0.5, 0.5, event_system=events)
 
     assert events.event_observers["sequence-finished"] == [selector._update_data_callback]
 
 
-def test_init_raises_if_window_size_is_not_even(mock_event_system: Generator[None, None, None]) -> None:
+def test_init_raises_if_window_size_is_not_even() -> None:
     with pytest.raises(ValueError):
         IntrinsicMotivationGoalSelector(window_size=3, gamma=0.5, lambda_=0.5, event_system=EventSystem.instance())
 
 
-def test_update_goal_error(mock_event_system: Generator[None, None, None]) -> None:
+def test_update_goal_error() -> None:
     selector = IntrinsicMotivationGoalSelector(2, 0.5, 0.5, EventSystem.instance())
     selector._goal_error_matrix = np.zeros(shape=(4, 2))  # 4 goals, window_size=2
     selector._goals_e_max = np.zeros(shape=(4,))
@@ -59,7 +59,8 @@ def test_update_goal_error(mock_event_system: Generator[None, None, None]) -> No
     ],
 )
 def test_update_data_callback(
-    current_sequence: SequenceType, expect_update_call: bool, mock_event_system: Generator[None, None, None]
+    current_sequence: SequenceType,
+    expect_update_call: bool,
 ) -> None:
     context_mock = MagicMock(
         spec=GoalBabblingContext,
@@ -93,9 +94,7 @@ def test_update_data_callback(
         selector._update_goal_error.assert_not_called()
 
 
-def test_update_data_callback_resets_internal_data_for_new_epoch_set_index(
-    mock_event_system: Generator[None, None, None]
-) -> None:
+def test_update_data_callback_resets_internal_data_for_new_epoch_set_index() -> None:
     context_mock = MagicMock(
         spec=GoalBabblingContext,
         epoch_set_index=1,
@@ -117,7 +116,7 @@ def test_update_data_callback_resets_internal_data_for_new_epoch_set_index(
     assert selector._valid_for_epoch_set == 1
 
 
-def test_relative_errors(mock_event_system: Generator[None, None, None]) -> None:
+def test_relative_errors() -> None:
     selector = IntrinsicMotivationGoalSelector(
         window_size=2, gamma=0.5, lambda_=0.5, event_system=EventSystem.instance()
     )
@@ -128,7 +127,7 @@ def test_relative_errors(mock_event_system: Generator[None, None, None]) -> None
     assert_array_almost_equal(selector._relative_errors(goal_error_matrix), expected_relative_errors)
 
 
-def test_relative_errors_for_equal_error_values(mock_event_system: Generator[None, None, None]) -> None:
+def test_relative_errors_for_equal_error_values() -> None:
     selector = IntrinsicMotivationGoalSelector(
         window_size=2, gamma=0.5, lambda_=0.5, event_system=EventSystem.instance()
     )
@@ -139,7 +138,7 @@ def test_relative_errors_for_equal_error_values(mock_event_system: Generator[Non
     assert_array_almost_equal(selector._relative_errors(goal_error_matrix, delta=1e-9), equally_distr_errors)
 
 
-def test_current_progresses(mock_event_system: Generator[None, None, None]) -> None:
+def test_current_progresses() -> None:
     selector = IntrinsicMotivationGoalSelector(
         window_size=2, gamma=0.5, lambda_=0.5, event_system=EventSystem.instance()
     )
@@ -152,7 +151,7 @@ def test_current_progresses(mock_event_system: Generator[None, None, None]) -> N
     assert_array_almost_equal(selector._current_progresses(goal_error_matrix), expected_current_progress)
 
 
-def test_current_progresses_for_equal_progress_values(mock_event_system: Generator[None, None, None]) -> None:
+def test_current_progresses_for_equal_progress_values() -> None:
     selector = IntrinsicMotivationGoalSelector(
         window_size=2, gamma=0.5, lambda_=0.5, event_system=EventSystem.instance()
     )
@@ -163,7 +162,7 @@ def test_current_progresses_for_equal_progress_values(mock_event_system: Generat
     assert_array_almost_equal(selector._current_progresses(goal_error_matrix), expected_current_progress)
 
 
-def test_general_progress_overviews(mock_event_system: Generator[None, None, None]) -> None:
+def test_general_progress_overviews() -> None:
     selector = IntrinsicMotivationGoalSelector(
         window_size=2, gamma=0.5, lambda_=0.5, event_system=EventSystem.instance()
     )
@@ -184,7 +183,8 @@ def test_general_progress_overviews(mock_event_system: Generator[None, None, Non
 
 @pytest.mark.parametrize(("previous_index", "expected_return"), [(1, 0), (0, 1)])
 def test_select_goal_by_interest_isolated_relative_errors(
-    previous_index: int, expected_return: int, mock_event_system: Generator[None, None, None]
+    previous_index: int,
+    expected_return: int,
 ) -> None:
     selector = IntrinsicMotivationGoalSelector(
         window_size=2, gamma=0.5, lambda_=1.0, event_system=EventSystem.instance()
@@ -201,7 +201,8 @@ def test_select_goal_by_interest_isolated_relative_errors(
 
 @pytest.mark.parametrize(("previous_index", "expected_return"), [(1, 0), (0, 1)])
 def test_select_goal_by_interest_isolated_current_progress(
-    previous_index: int, expected_return: int, mock_event_system: Generator[None, None, None]
+    previous_index: int,
+    expected_return: int,
 ) -> None:
     selector = IntrinsicMotivationGoalSelector(
         window_size=2, gamma=1.0, lambda_=0.0, event_system=EventSystem.instance()
@@ -216,7 +217,8 @@ def test_select_goal_by_interest_isolated_current_progress(
 
 @pytest.mark.parametrize(("previous_index", "expected_return"), [(1, 0), (0, 2)])
 def test_select_goal_by_interest_isolated_general_progress_overview(
-    previous_index: int, expected_return: int, mock_event_system: Generator[None, None, None]
+    previous_index: int,
+    expected_return: int,
 ) -> None:
     selector = IntrinsicMotivationGoalSelector(
         window_size=2, gamma=0.0, lambda_=0.0, event_system=EventSystem.instance()

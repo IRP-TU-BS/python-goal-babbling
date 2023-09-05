@@ -63,7 +63,7 @@ def test_generate_sequence(expected_start_action: np.ndarray, previous_sequence:
 
 
 @patch("pygb._impl._gb_states._generate_home_sequence_state.GenerateHomeSequenceState._generate_sequence")
-def test_execute_state(generate_sequence_mock: MagicMock, mock_event_system: Generator[None, None, None]) -> None:
+def test_execute_state(generate_sequence_mock: MagicMock) -> None:
     dummy_sequence = ActionSequence(
         start_action=np.array([0.0]),
         stop_action=np.array([3.0]),

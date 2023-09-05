@@ -40,7 +40,7 @@ def get_context_mock() -> MagicMock:
 
 
 def test_evaluate() -> None:
-    state = EpochFinishedState(None, None)
+    state = EpochFinishedState(None)
 
     forward_model_mock = MagicMock(spec=AbstractForwardModel)
     forward_model_mock.forward_batch = lambda *_, **__: np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
@@ -56,9 +56,7 @@ def test_evaluate() -> None:
 
 
 @patch("pygb._impl._gb_states._epoch_finished_state.EpochFinishedState._evaluate")
-def test_execute_state_calculates_performance_errors(
-    evaluate_mock: MagicMock, mock_event_system: Generator[None, None, None]
-) -> None:
+def test_execute_state_calculates_performance_errors(evaluate_mock: MagicMock) -> None:
     context_mock = get_context_mock()
     evaluate_mock.side_effect = [42.0, 420.0]
 
@@ -70,9 +68,7 @@ def test_execute_state_calculates_performance_errors(
 
 
 @patch("pygb._impl._gb_states._epoch_finished_state.EpochFinishedState._evaluate")
-def test_execute_state_returns_early_if_stopping_criteria_fulfilled(
-    evaluate_mock: MagicMock, mock_event_system: Generator[None, None, None]
-) -> None:
+def test_execute_state_returns_early_if_stopping_criteria_fulfilled(evaluate_mock: MagicMock) -> None:
     evaluate_mock.side_effect = [42.0, 420.0]
 
     stopping_criteria_mock = MagicMock(spec=AbstractStoppingCriteria)
@@ -88,9 +84,7 @@ def test_execute_state_returns_early_if_stopping_criteria_fulfilled(
 
 
 @patch("pygb._impl._gb_states._epoch_finished_state.EpochFinishedState._evaluate")
-def test_execute_state_proceeds_and_stops_epoch_set(
-    evaluate_mock: MagicMock, mock_event_system: Generator[None, None, None]
-) -> None:
+def test_execute_state_proceeds_and_stops_epoch_set(evaluate_mock: MagicMock) -> None:
     evaluate_mock.side_effect = [4.2, 42.0, 420.0, 4200.0]
     context_mock = get_context_mock()
 
@@ -105,9 +99,7 @@ def test_execute_state_proceeds_and_stops_epoch_set(
 
 
 @patch("pygb._impl._gb_states._epoch_finished_state.EpochFinishedState._evaluate")
-def test_execute_state_resets_epoch_runtime_data(
-    evaluate_mock: MagicMock, mock_event_system: Generator[None, None, None]
-) -> None:
+def test_execute_state_resets_epoch_runtime_data(evaluate_mock: MagicMock) -> None:
     evaluate_mock.return_value = 42.0
     context_mock = get_context_mock()
 
@@ -125,9 +117,7 @@ def test_execute_state_resets_epoch_runtime_data(
 
 
 @patch("pygb._impl._gb_states._epoch_finished_state.EpochFinishedState._evaluate")
-def test_execute_state_stores_model_if_model_store_is_specified(
-    evaluate_mock: MagicMock, mock_event_system: Generator[None, None, None]
-) -> None:
+def test_execute_state_stores_model_if_model_store_is_specified(evaluate_mock: MagicMock) -> None:
     context_mock = get_context_mock()
     context_mock.model_store = MagicMock(spec=AbstractModelStore, conditional_save=MagicMock())
 

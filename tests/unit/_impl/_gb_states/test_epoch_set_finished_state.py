@@ -9,7 +9,7 @@ from pygb.interfaces import AbstractModelStore
 from pygb.states import EpochSetFinishedState
 
 
-def test_state_emits_epoch_set_complete_event(mock_event_system: Generator[None, None, None]) -> None:
+def test_state_emits_epoch_set_complete_event() -> None:
     event_system = EventSystem.instance()
     context_mock = MagicMock(
         spec=GoalBabblingContext,
@@ -35,7 +35,7 @@ def test_state_emits_epoch_set_complete_event(mock_event_system: Generator[None,
     assert called_with_context == context_mock
 
 
-def test_execute_state_continue_training(mock_event_system: Generator[None, None, None]) -> None:
+def test_execute_state_continue_training() -> None:
     context_mock = MagicMock(
         spec=GoalBabblingContext, runtime_data=MagicMock(spec=RuntimeData, epoch_set_index=0), num_epoch_sets=2
     )
@@ -46,7 +46,7 @@ def test_execute_state_continue_training(mock_event_system: Generator[None, None
     assert context_mock.runtime_data.epoch_set_index == 1
 
 
-def test_execute_state_stop_training(mock_event_system: Generator[None, None, None]) -> None:
+def test_execute_state_stop_training() -> None:
     context_mock = MagicMock(
         spec=GoalBabblingContext, runtime_data=MagicMock(spec=RuntimeData, epoch_set_index=1), num_epoch_sets=2
     )
@@ -57,7 +57,7 @@ def test_execute_state_stop_training(mock_event_system: Generator[None, None, No
     assert context_mock.runtime_data.epoch_set_index == 1
 
 
-def test_execute_state_resets_epoch_data(mock_event_system: Generator[None, None, None]) -> None:
+def test_execute_state_resets_epoch_data() -> None:
     context_mock = MagicMock(
         spec=GoalBabblingContext,
         runtime_data=MagicMock(
@@ -79,7 +79,7 @@ def test_execute_state_resets_epoch_data(mock_event_system: Generator[None, None
     assert context_mock.runtime_data.epoch_index == 0
 
 
-def test_execute_state_loads_previous_best_estimate(mock_event_system: Generator[None, None, None]) -> None:
+def test_execute_state_loads_previous_best_estimate() -> None:
     model_store_mock = MagicMock(spec=AbstractModelStore)
     model_store_mock.load.return_value = MagicMock(id_=1)
 
@@ -102,9 +102,7 @@ def test_execute_state_loads_previous_best_estimate(mock_event_system: Generator
     assert context_mock.inverse_estimate.id_ == 1
 
 
-def test_init_raises_if_load_previous_is_set_and_no_model_storage_is_specified(
-    mock_event_system: Generator[None, None, None]
-) -> None:
+def test_init_raises_if_load_previous_is_set_and_no_model_storage_is_specified() -> None:
     with pytest.raises(RuntimeError):
         EpochSetFinishedState(
             context=MagicMock(spec=GoalBabblingContext, model_store=None), event_system=EventSystem.instance()

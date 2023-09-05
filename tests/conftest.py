@@ -6,7 +6,7 @@ import pytest
 from pygb import EventSystem
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def mock_event_system() -> Generator[None, None, None]:
     """Mocks the event system.
 

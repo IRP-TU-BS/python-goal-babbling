@@ -11,7 +11,7 @@ from pygb import (
 from pygb.states import SequenceFinishedState
 
 
-def test_execute_state_emits_sequence_finished_event(mock_event_system: Generator[None, None, None]) -> None:
+def test_execute_state_emits_sequence_finished_event() -> None:
     runtime_data_mock = PropertyMock(spec=RuntimeData, sequence_index=0, sequences=[], previous_sequence=None)
     current_parameters_mock = PropertyMock(spec=GBParameters, len_epoch=2)
     context_mock = MagicMock(runtime_data=runtime_data_mock, current_parameters=current_parameters_mock)
@@ -40,7 +40,7 @@ def test_execute_state_emits_sequence_finished_event(mock_event_system: Generato
     assert attached_context == context_mock
 
 
-def test_execute_state(mock_event_system: Generator[None, None, None]) -> None:
+def test_execute_state() -> None:
     dummy_sequence = ObservationSequence(None, None, None)
     runtime_data_mock = PropertyMock(
         spec=RuntimeData,
