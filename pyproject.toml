@@ -21,6 +21,10 @@ dev = [
     "pytest",
     "pytest-cov"
 ]
+doc = [
+    "sphinx",
+    "furo",
+]
 
 [tool.black]
 line_length = 120
