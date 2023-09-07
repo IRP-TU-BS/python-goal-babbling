@@ -27,6 +27,17 @@ If you intend to plot the state machine which is used under the hood, use the fo
 pip install .[plot]
 ```
 
+### Documentation
+
+You can build a Sphinx documentation by running `tox`:
+
+```shell
+tox
+```
+
+This will remove any previously built documentation artifacts and rebuild it using `sphinx-autodoc` and `sphinx-build`.
+The documentation will be located under `docs/build/html/index.html`.
+
 ### Quick Start
 
 ```Python
