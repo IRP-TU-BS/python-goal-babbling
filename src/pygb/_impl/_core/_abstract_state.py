@@ -2,13 +2,15 @@ from abc import ABC, abstractmethod
 from typing import Generic
 
 from pygb._impl._core._abstract_context import ContextType
-from pygb._impl._core._events import EventSystem
+from pygb._impl._core._event_system import EventSystem
 
 
 class AbstractState(ABC, Generic[ContextType]):
     """Abstract state class."""
 
-    def __init__(self, context: ContextType, event_system: EventSystem | None = None, name: str | None = None) -> None:
+    def __init__(
+        self, context: ContextType, event_system: EventSystem = EventSystem.instance(), name: str | None = None
+    ) -> None:
         """Constructor.
 
         Args:

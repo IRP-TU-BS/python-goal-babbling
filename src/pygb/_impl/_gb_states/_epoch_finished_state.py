@@ -6,6 +6,7 @@ from pygb._impl._core._abstract_state import AbstractState
 from pygb._impl._core._context import GoalBabblingContext
 from pygb._impl._core._event_system import EventSystem
 from pygb._impl._core._events import Events
+from pygb._impl._core._model import AbstractForwardModel, AbstractInverseEstimate
 
 _logger = logging.getLogger(__name__)
 
@@ -17,7 +18,9 @@ class EpochFinishedState(AbstractState[GoalBabblingContext]):
     epoch_set_complete: str = "epoch_set_complete"
     epoch_set_not_complete: str = "epoch_set_not_complete"
 
-    def __init__(self, context: GoalBabblingContext, event_system: EventSystem, name: str | None = None) -> None:
+    def __init__(
+        self, context: GoalBabblingContext, event_system: EventSystem = EventSystem.instance(), name: str | None = None
+    ) -> None:
         """Constructor.
 
         Args:
@@ -25,6 +28,8 @@ class EpochFinishedState(AbstractState[GoalBabblingContext]):
             event_system: Event system singleton instance.
             name: State name. Defaults to None.
         """
+        if event_system is None:
+            raise ValueError("Failed to initialize instance: No event system instance provided.")
         super().__init__(context, event_system, name)
 
     def __call__(self) -> str | None:
@@ -55,7 +60,7 @@ class EpochFinishedState(AbstractState[GoalBabblingContext]):
                     self.context.forward_model, self.context.inverse_estimate, goals
                 )
 
-        self.events.emit("epoch-complete", self.context)
+        self.events.emit(Events.EPOCH_COMPLETE, self.context)
 
         if self.context.model_store is not None:
             if self.context.model_store.conditional_save(
@@ -83,7 +88,7 @@ class EpochFinishedState(AbstractState[GoalBabblingContext]):
         return [EpochFinishedState.epoch_set_complete, EpochFinishedState.epoch_set_not_complete]
 
     def _evaluate(
-        self, forward_model: AbstractForwardModel, inverse_estimate: AbstractInverseEstimator, observations: np.ndarray
+        self, forward_model: AbstractForwardModel, inverse_estimate: AbstractInverseEstimate, observations: np.ndarray
     ) -> float:
         """Calculates the inverse estimate's performance on the specified observation set.
 

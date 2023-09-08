@@ -18,7 +18,7 @@ class EpochSetFinishedState(AbstractState[GoalBabblingContext]):
     def __init__(
         self,
         context: GoalBabblingContext,
-        event_system: EventSystem,
+        event_system: EventSystem = EventSystem.instance(),
         load_previous_best: bool = True,
         name: str | None = None,
     ) -> None:
@@ -51,7 +51,7 @@ class EpochSetFinishedState(AbstractState[GoalBabblingContext]):
         Returns:
             Transition name.
         """
-        self.events.emit("epoch-set-complete", self.context)
+        self.events.emit(Events.EPOCH_SET_COMPLETE, self.context)
 
         # reset epoch-set-specific runtime data:
         train_goal_count = self.context.current_goal_set.train.shape[0]
@@ -61,13 +61,21 @@ class EpochSetFinishedState(AbstractState[GoalBabblingContext]):
         self.context.runtime_data.epoch_index = 0
 
         if self.context.runtime_data.epoch_set_index < self.context.num_epoch_sets - 1:
-            if self.load_previous:
+            if self.load_previous and self.context.model_store is not None:
                 # context.model_store is not None due to check in __init__
                 self.context.inverse_estimate = self.context.model_store.load(self.context.runtime_data.epoch_set_index)
                 _logger.info(
-                    f"""Loaded epoch set {self.context.runtime_data.epoch_set_index} best estimate for upcoming """
-                    f"""epoch set {self.context.runtime_data.epoch_set_index + 1}"""
+                    f"""Loaded best estimate from epoch set ({self.context.runtime_data.epoch_set_index}) for """
+                    f"""upcoming epoch set {self.context.runtime_data.epoch_set_index + 1}"""
                 )
+            else:
+                msg = "Not loading previous best estimate."
+
+                if self.load_previous is False:
+                    msg += " Set 'load_previous' parameter to True to enable loading the previous estimate."
+                else:
+                    msg += " Specify a model store instance in the Goal Babbling context to enable this feature."
+                _logger.warning(msg)
 
             self.context.runtime_data.epoch_set_index += 1
             return EpochSetFinishedState.continue_training

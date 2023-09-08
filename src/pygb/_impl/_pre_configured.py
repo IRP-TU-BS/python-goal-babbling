@@ -1,9 +1,9 @@
-from pygb._impl._core._abstract_model_store import AbstractModelStore
+from pygb._impl._core._abstract_estimate_cache import AbstractEstimateCache
 from pygb._impl._core._abstract_utils import AbstractGoalSelector
 from pygb._impl._core._context import GoalBabblingContext
-from pygb._impl._core._events import EventSystem
+from pygb._impl._core._event_system import EventSystem
 from pygb._impl._core._goals import GoalSet, GoalStore
-from pygb._impl._core._model import AbstractForwardModel, AbstractInverseEstimator
+from pygb._impl._core._model import AbstractForwardModel, AbstractInverseEstimate
 from pygb._impl._core._parameters import (
     GBParameterIncrement,
     GBParameters,
@@ -22,7 +22,7 @@ from pygb._impl._gb_states._setup_state import SetupState
 from pygb._impl._gb_states._stopped_state import StoppedState
 from pygb._impl._gb_utils._gb_home_weight_generator import GBHomeWeightGenerator
 from pygb._impl._gb_utils._gb_weight_generator import GBWeightGenerator
-from pygb._impl._gb_utils._local_goal_generators import GBPathGenerator
+from pygb._impl._gb_utils._local_goal_generators import LinearPathGenerator
 from pygb._impl._gb_utils._noise_generators import GBNoiseGenerator
 
 
@@ -30,8 +30,8 @@ def vanilla_goal_babbling(
     parameters: GBParameters | list[GBParameters | GBParameterIncrement],
     goal_sets: GoalSet | list[GoalSet],
     forward_model: AbstractForwardModel,
-    inverse_estimate: AbstractInverseEstimator,
-    model_store: AbstractModelStore,
+    inverse_estimate: AbstractInverseEstimate,
+    estimate_cache: AbstractEstimateCache,
     goal_selector: AbstractGoalSelector,
     load_previous_best: bool = True,
 ) -> StateMachine:
@@ -46,7 +46,7 @@ def vanilla_goal_babbling(
         inverse_estimate: Inverse estimate. Implements g*(o) = a*.
         model_store: Model store. Used for internally storing the 'best' (best is defined by your concrete
             implementation) inverse estimate. Also used to load previous estimates in case of multiple-epoch-set
-                training.
+            training.
         goal_selector: Goal selector instance.
         load_previous_best: Whether or not to load previous best inverse estimates in case of multiple-epoch-set
             training. Defaults to True.
@@ -59,14 +59,14 @@ def vanilla_goal_babbling(
         goal_store=GoalStore(goal_sets),
         forward_model=forward_model,
         inverse_estimate=inverse_estimate,
-        model_store=model_store,
+        model_store=estimate_cache,
     )
 
     setup_state = SetupState(context)
     generate_sequence_state = GenerateSequenceState(
         context,
         goal_selector=goal_selector,
-        goal_sequence_generator=GBPathGenerator(),
+        goal_sequence_generator=LinearPathGenerator(),
         noise_generator=GBNoiseGenerator(context),
         weight_generator=GBWeightGenerator(norm=2),
         event_system=EventSystem.instance(),
@@ -74,7 +74,7 @@ def vanilla_goal_babbling(
     go_home_decision_state = GoHomeDecisionState(context, event_system=EventSystem.instance())
     generate_home_sequence_state = GenerateHomeSequenceState(
         context,
-        home_sequence_generator=GBPathGenerator(),
+        home_sequence_generator=LinearPathGenerator(),
         weight_generator=GBHomeWeightGenerator(norm=2),
         event_system=EventSystem.instance(),
     )
@@ -83,7 +83,7 @@ def vanilla_goal_babbling(
     epoch_set_finished_state = EpochSetFinishedState(
         context, EventSystem.instance(), load_previous_best=load_previous_best
     )
-    stopped_state = StoppedState(context, event_system=None)
+    stopped_state = StoppedState(context)
 
     state_machine = StateMachine(context=context, initial_state=setup_state)
 

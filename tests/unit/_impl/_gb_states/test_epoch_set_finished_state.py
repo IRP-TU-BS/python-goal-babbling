@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 from pygb import EventSystem, GoalBabblingContext, GoalSet, RuntimeData, observes
-from pygb.interfaces import AbstractModelStore
+from pygb.interfaces import AbstractEstimateCache
 from pygb.states import EpochSetFinishedState
 
 
@@ -80,7 +80,7 @@ def test_execute_state_resets_epoch_data() -> None:
 
 
 def test_execute_state_loads_previous_best_estimate() -> None:
-    model_store_mock = MagicMock(spec=AbstractModelStore)
+    model_store_mock = MagicMock(spec=AbstractEstimateCache)
     model_store_mock.load.return_value = MagicMock(id_=1)
 
     context_mock = MagicMock(

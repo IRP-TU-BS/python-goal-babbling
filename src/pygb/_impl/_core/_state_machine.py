@@ -32,12 +32,18 @@ class StateMachine:
         self._transition_table: dict[str, AbstractState] = dict()
 
     @property
-    def current_state(self) -> AbstractState | None:
+    def current_state(self) -> AbstractState:
         """Current state property. Is updated with each state machine cycle.
 
         Returns:
             The currently active state.
         """
+        if self._current_state is None:
+            raise RuntimeError(
+                """Failed to retrieve current state: Current state is unset. Set one by specifying an initial state """
+                """ when setting up the state machine."""
+            )
+
         return self._current_state
 
     @current_state.setter
@@ -94,7 +100,7 @@ class StateMachine:
 
             if transition not in self._transition_table:
                 raise RuntimeError(
-                    f"""State Machine failure: State '{self._current_state.name}' returned unknown transition """
+                    f"""State Machine failure: State '{self.current_state.name}' returned unknown transition """
                     f"""'{transition}'."""
                 )
 
@@ -168,12 +174,8 @@ class StateMachine:
             no_raise: Wether or not to raise an exception if 'pydot' is not installed. Defaults to False.
 
         Raises:
-            RuntimeError: If no initial state is specified.
             ImportError: If the 'pydot' package is missing.
         """
-        if self.initial_state is None:
-            raise RuntimeError("Failed to plot graph: No initial state set.")
-
         if HAS_PYDOT:
             graph = self._generate_graph(name)
 
@@ -195,6 +197,9 @@ class StateMachine:
         raise ImportError(msg)
 
     def _generate_graph(self, name: str) -> "pydot.Dot":
+        if self.initial_state is None:
+            raise RuntimeError("Failed to plot graph: No initial state set.")
+
         graph = pydot.Dot(name, graph_type="digraph")
         states = list(self._transition_table.values())
 
@@ -214,7 +219,7 @@ class StateMachine:
             for source_name in [s.name for s in states if transition in s.transitions()]:
                 transitions.add((source_name, target_state.name, transition))
 
-        for transition in transitions:
-            graph.add_edge(pydot.Edge(transition[0], transition[1], label=transition[2]))
+        for t in transitions:
+            graph.add_edge(pydot.Edge(t[0], t[1], label=t[2]))
 
         return graph

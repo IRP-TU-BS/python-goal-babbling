@@ -22,7 +22,7 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
         goal_sequence_generator: AbstractSequenceGenerator,
         noise_generator: AbstractNoiseGenerator,
         weight_generator: AbstractWeightGenerator,
-        event_system: EventSystem | None = None,
+        event_system: EventSystem = EventSystem.instance(),
         name: str | None = None,
     ) -> None:
         super().__init__(context, event_system, name)

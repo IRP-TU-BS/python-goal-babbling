@@ -1,7 +1,7 @@
 from pygb._impl._core._abstract_context import AbstractContext
-from pygb._impl._core._abstract_model_store import AbstractModelStore
+from pygb._impl._core._abstract_estimate_cache import AbstractEstimateCache
 from pygb._impl._core._goals import GoalSet, GoalStore
-from pygb._impl._core._model import AbstractForwardModel, AbstractInverseEstimator
+from pygb._impl._core._model import AbstractForwardModel, AbstractInverseEstimate
 from pygb._impl._core._parameters import GBParameters, GBParameterStore
 from pygb._impl._core._runtime_data import RuntimeData
 
@@ -12,8 +12,8 @@ class GoalBabblingContext(AbstractContext):
         param_store: GBParameterStore,
         goal_store: GoalStore,
         forward_model: AbstractForwardModel,
-        inverse_estimate: AbstractInverseEstimator,
-        model_store: AbstractModelStore | None = None,
+        inverse_estimate: AbstractInverseEstimate,
+        model_store: AbstractEstimateCache | None = None,
         runtime_data: RuntimeData = RuntimeData(),
     ) -> None:
         self.gb_param_store = param_store

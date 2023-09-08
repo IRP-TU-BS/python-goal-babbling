@@ -53,7 +53,7 @@ class AbstractForwardModel(AbstractLoggable, ABC):
         """
 
 
-class AbstractInverseEstimator(AbstractLoggable, ABC):
+class AbstractInverseEstimate(AbstractLoggable, ABC):
     """Inverse model, which wraps an estimator (e.g. a neural network) for the reverse calculation
     g(observation) = action or g(o) = a."""
 

@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
-from pygb._impl._core._abstract_context import ContextType
 from pygb._impl._core._abstract_stopping_criteria import AbstractStoppingCriteria
 from pygb._impl._core._context import GoalBabblingContext
 
@@ -30,7 +29,8 @@ class TargetPerformanceStop(AbstractStoppingCriteria[GoalBabblingContext]):
             True if the target performance error is reached, False otherwise.
         """
         if (
-            context.runtime_data.performance_error > self.performance
+            context.runtime_data.performance_error is None
+            or context.runtime_data.performance_error > self.performance
             or context.runtime_data.epoch_index < self.start_epoch
         ):
             return False
@@ -110,7 +110,7 @@ class PerformanceSlopeStop(AbstractStoppingCriteria[GoalBabblingContext]):
         Returns:
             True if the performance has not been increasing for longer than the specified grace period, False otherwise.
         """
-        if context.runtime_data.epoch_index < self.start_epoch:
+        if context.runtime_data.epoch_index < self.start_epoch or context.runtime_data.performance_error is None:
             return False
 
         if self._best_performance is None:

@@ -31,7 +31,7 @@ class ActionSequence:
     stop_action: np.ndarray
     actions: list[np.ndarray] = field(default_factory=list)
     observations: list[np.ndarray] = field(default_factory=list)
-    weights: list[np.ndarray] = field(default_factory=list)
+    weights: list[float] = field(default_factory=list)
 
 
 SequenceType = TypeVar("SequenceType", ActionSequence, ObservationSequence)

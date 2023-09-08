@@ -16,7 +16,7 @@ class GoHomeDecisionState(AbstractState[GoalBabblingContext]):
     def __init__(
         self,
         context: GoalBabblingContext,
-        event_system: EventSystem | None = None,
+        event_system: EventSystem = EventSystem.instance(),
         name: str | None = None,
         random_seed: int | None = None,
     ) -> None:

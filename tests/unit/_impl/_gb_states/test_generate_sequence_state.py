@@ -19,7 +19,7 @@ from pygb import (
 from pygb.interfaces import (
     AbstractForwardModel,
     AbstractGoalSelector,
-    AbstractInverseEstimator,
+    AbstractInverseEstimate,
     AbstractNoiseGenerator,
     AbstractSequenceGenerator,
     AbstractWeightGenerator,
@@ -141,7 +141,7 @@ def test_execute_state(generate_sequence_mock: MagicMock) -> None:
     )
     generate_sequence_mock.return_value = sequence
 
-    inverse_estimator_mock = MagicMock(spec=AbstractInverseEstimator)
+    inverse_estimator_mock = MagicMock(spec=AbstractInverseEstimate)
     inverse_estimator_mock.predict = MagicMock(side_effect=[np.array([-1.0]), np.array([-1.5]), np.array([-2.0])])
     inverse_estimator_mock.fit = MagicMock(side_effect=[1.0, 2.0, 3.0])
 

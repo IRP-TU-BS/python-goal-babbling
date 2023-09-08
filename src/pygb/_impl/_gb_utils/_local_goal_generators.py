@@ -4,7 +4,7 @@ from pygb._impl._core._abstract_utils import AbstractSequenceGenerator
 from pygb._impl._core._context import GoalBabblingContext
 
 
-class GBPathGenerator(AbstractSequenceGenerator[GoalBabblingContext]):
+class LinearPathGenerator(AbstractSequenceGenerator[GoalBabblingContext]):
     """Linear path generator."""
 
     def __init__(self) -> None:

@@ -7,7 +7,7 @@ class SetupState(AbstractState[GoalBabblingContext]):
     setup_complete: str = "setup_complete"
 
     def __init__(
-        self, context: GoalBabblingContext, event_system: EventSystem | None = None, name: str | None = None
+        self, context: GoalBabblingContext, event_system: EventSystem = EventSystem.instance(), name: str | None = None
     ) -> None:
         super().__init__(context, event_system, name)
 

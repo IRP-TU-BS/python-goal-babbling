@@ -22,7 +22,7 @@ class GenerateHomeSequenceState(AbstractState[GoalBabblingContext]):
         context: GoalBabblingContext,
         home_sequence_generator: AbstractSequenceGenerator,
         weight_generator: AbstractWeightGenerator,
-        event_system: EventSystem | None = None,
+        event_system: EventSystem = EventSystem.instance(),
         name: str | None = None,
     ) -> None:
         """Constructor.

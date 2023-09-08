@@ -14,7 +14,7 @@ from pygb import (
 )
 from pygb.interfaces import (
     AbstractForwardModel,
-    AbstractInverseEstimator,
+    AbstractInverseEstimate,
     AbstractSequenceGenerator,
     AbstractWeightGenerator,
 )
@@ -75,7 +75,7 @@ def test_execute_state(generate_sequence_mock: MagicMock) -> None:
     forward_model_mock.forward = MagicMock(side_effect=[np.array([-1.0]), np.array([-2.0]), np.array([-3.0])])
     forward_model_mock.clip = MagicMock()
 
-    inverse_estimator_mock = MagicMock(spec=AbstractInverseEstimator)
+    inverse_estimator_mock = MagicMock(spec=AbstractInverseEstimate)
     inverse_estimator_mock.fit = MagicMock()
 
     weight_generator_mock = MagicMock(spec=AbstractWeightGenerator)

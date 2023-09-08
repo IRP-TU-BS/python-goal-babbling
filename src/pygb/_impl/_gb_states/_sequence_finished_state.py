@@ -1,6 +1,7 @@
 from pygb._impl._core._abstract_state import AbstractState
 from pygb._impl._core._context import GoalBabblingContext
-from pygb._impl._core._events import EventSystem
+from pygb._impl._core._event_system import EventSystem
+from pygb._impl._core._events import Events
 
 
 class SequenceFinishedState(AbstractState[GoalBabblingContext]):
@@ -10,7 +11,9 @@ class SequenceFinishedState(AbstractState[GoalBabblingContext]):
     epoch_finished: str = "epoch_finished"
     epoch_not_finished: str = "epoch_not_finished"
 
-    def __init__(self, context: GoalBabblingContext, event_system: EventSystem, name: str | None = None) -> None:
+    def __init__(
+        self, context: GoalBabblingContext, event_system: EventSystem = EventSystem.instance(), name: str | None = None
+    ) -> None:
         """Constructor.
 
         Args:

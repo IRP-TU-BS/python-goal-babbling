@@ -1,3 +1,4 @@
+import logging
 import pickle
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -7,6 +8,8 @@ import mlflow
 import numpy as np
 
 from pygb import GoalBabblingContext
+
+_logger = logging.getLogger(__name__)
 
 
 class MLFlowWrapper:
@@ -90,8 +93,11 @@ class MLFlowWrapper:
         Args:
             context: Goal Babbling context.
         """
-        model = context.model_store.load(epoch_set_index=context.runtime_data.epoch_set_index)
-        self.log_pickle(model, name=f"best_llm_es{context.runtime_data.epoch_set_index}_pickle")
+        if context.model_store is None:
+            _logger.warning("Not uploading estimate artifact because context does not provide a model cache.")
+        else:
+            model = context.model_store.load(epoch_set_index=context.runtime_data.epoch_set_index)
+            self.log_pickle(model, name=f"best_llm_es{context.runtime_data.epoch_set_index}_pickle")
 
         if self._active_run is not None:
             mlflow.end_run()

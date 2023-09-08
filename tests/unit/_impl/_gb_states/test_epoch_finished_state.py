@@ -13,8 +13,8 @@ from pygb import (
 )
 from pygb.interfaces import (
     AbstractForwardModel,
-    AbstractInverseEstimator,
-    AbstractModelStore,
+    AbstractInverseEstimate,
+    AbstractEstimateCache,
     AbstractStoppingCriteria,
 )
 from pygb.states import EpochFinishedState
@@ -46,7 +46,7 @@ def test_evaluate() -> None:
     forward_model_mock.forward_batch = lambda *_, **__: np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
     forward_model_mock.clip_batch = MagicMock(side_effect=lambda x: x)
 
-    inverse_estimate_mock = MagicMock(spec=AbstractInverseEstimator)
+    inverse_estimate_mock = MagicMock(spec=AbstractInverseEstimate)
     inverse_estimate_mock.predict_batch = lambda x: x
 
     rmse = state._evaluate(forward_model_mock, inverse_estimate_mock, np.array([[0.0, 1.0], [2.0, 3.0], [4.0, 5.0]]))
@@ -119,7 +119,7 @@ def test_execute_state_resets_epoch_runtime_data(evaluate_mock: MagicMock) -> No
 @patch("pygb._impl._gb_states._epoch_finished_state.EpochFinishedState._evaluate")
 def test_execute_state_stores_model_if_model_store_is_specified(evaluate_mock: MagicMock) -> None:
     context_mock = get_context_mock()
-    context_mock.model_store = MagicMock(spec=AbstractModelStore, conditional_save=MagicMock())
+    context_mock.model_store = MagicMock(spec=AbstractEstimateCache, conditional_save=MagicMock())
 
     state = EpochFinishedState(context_mock, event_system=EventSystem.instance())
 

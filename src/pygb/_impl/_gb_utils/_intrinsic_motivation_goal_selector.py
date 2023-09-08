@@ -82,7 +82,7 @@ class IntrinsicMotivationGoalSelector(AbstractGoalSelector[GoalBabblingContext])
 
         self._rng = np.random.default_rng(seed=random_seed)
 
-        event_system.register_observer("sequence-finished", self._update_data_callback)
+        event_system.register_observer(Events.SEQUENCE_FINISHED, self._update_data_callback)
 
     def select(self, context: GoalBabblingContext) -> tuple[int, np.ndarray]:
         """Selects a new target goal.
@@ -126,7 +126,7 @@ class IntrinsicMotivationGoalSelector(AbstractGoalSelector[GoalBabblingContext])
     def _init(self, context: GoalBabblingContext) -> None:
         self._goal_error_matrix = np.zeros(shape=(context.current_goal_set.train.shape[0], self.window_size))
         self._goals_e_max = np.zeros(shape=(context.current_goal_set.train.shape[0],))
-        self._goals_e_min = np.inf = np.ones(shape=(context.current_goal_set.train.shape[0]))
+        self._goals_e_min = np.inf * np.ones(shape=(context.current_goal_set.train.shape[0]))
         self._valid_for_epoch_set = context.runtime_data.epoch_set_index
 
     def _update_data_callback(self, context: GoalBabblingContext) -> None:
@@ -138,6 +138,9 @@ class IntrinsicMotivationGoalSelector(AbstractGoalSelector[GoalBabblingContext])
             self._update_goal_error(goal_index, context.runtime_data.train_goal_error[goal_index])
 
     def _update_goal_error(self, goal_index, goal_error: float) -> None:
+        if self._goal_error_matrix is None:
+            raise RuntimeError("Goal error matrix is None. Initialize it first using self._init().")
+
         # make room for newest goal error at index 0:
         self._goal_error_matrix[goal_index] = np.roll(self._goal_error_matrix[goal_index], 1)
         # insert newest error:
