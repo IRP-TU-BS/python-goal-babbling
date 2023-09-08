@@ -29,7 +29,7 @@ pip install .[plot]
 
 ### Documentation
 
-You can build a Sphinx documentation by running `tox`:
+You can build a Sphinx documentation by running `tox` in the root directory of the package:
 
 ```shell
 tox
