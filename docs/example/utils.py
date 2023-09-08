@@ -10,9 +10,9 @@ from spatialmath import SE3
 
 from pygb import GoalBabblingContext
 from pygb.interfaces import (
+    AbstractEstimateCache,
     AbstractForwardModel,
-    AbstractInverseEstimator,
-    AbstractModelStore,
+    AbstractInverseEstimate,
 )
 
 
@@ -92,7 +92,7 @@ class ForwardModel(AbstractForwardModel):
         return {"joint_limits": self.joint_limit, "tubes": [str(tube) for tube in self.ctcr._tubes]}
 
 
-class InverseEstimator(AbstractInverseEstimator):
+class InverseEstimator(AbstractInverseEstimate):
     def __init__(self, observation0: np.ndarray, action0: np.ndarray, radius: float, learning_rate=float) -> None:
         self.llm = LLM(x0=observation0, y0=action0, radius=radius, learning_rate=learning_rate)
 
@@ -120,7 +120,7 @@ class InverseEstimator(AbstractInverseEstimator):
         return {"prototypes": self.llm.num_prototypes}
 
 
-class FileLLMStore(AbstractModelStore):
+class FileLLMCache(AbstractEstimateCache):
     def __init__(self, target: Path) -> None:
         self.target_dir = target
         self.previous_best: float | None = None
@@ -139,7 +139,7 @@ class FileLLMStore(AbstractModelStore):
         self.map[epoch_set_index] = path
         return True
 
-    def load(self, epoch_set_index: int) -> AbstractInverseEstimator:
+    def load(self, epoch_set_index: int) -> AbstractInverseEstimate:
         if epoch_set_index not in self.map:
             raise KeyError(
                 f"Failed to load trained inverse estimate from epoch set {epoch_set_index}: No saved file found."

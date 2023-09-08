@@ -4,7 +4,7 @@ from pathlib import Path
 
 import numpy as np
 from goals import X_TEST_MM, X_TRAIN_MM
-from utils import FileLLMStore, ForwardModel, InverseEstimator
+from utils import FileLLMCache, ForwardModel, InverseEstimator
 
 from pygb import (
     EventSystem,
@@ -13,7 +13,7 @@ from pygb import (
     GBParameterIncrement,
     GBParameters,
     GBParameterStore,
-    GBPathGenerator,
+    LinearPathGenerator,
     GBWeightGenerator,
     GoalBabblingContext,
     GoalSet,
@@ -82,7 +82,7 @@ gb_context = GoalBabblingContext(
     goal_store=GoalStore(goal_set),  # or list of goal sets per epoch set
     forward_model=forward_model,
     inverse_estimate=inverse_estimator,
-    model_store=FileLLMStore(model_path),
+    model_store=FileLLMCache(model_path),
 )
 
 setup_state = SetupState(gb_context)
@@ -91,16 +91,16 @@ generate_sequence_state = GenerateSequenceState(
     goal_selector=IntrinsicMotivationGoalSelector(
         window_size=12, gamma=0.5, lambda_=0.5, event_system=EventSystem.instance()
     ),
-    goal_sequence_generator=GBPathGenerator(),
+    goal_sequence_generator=LinearPathGenerator(),
     noise_generator=GBNoiseGenerator(gb_context),
-    weight_generator=GBWeightGenerator(norm=1),
+    weight_generator=GBWeightGenerator(),
     event_system=EventSystem.instance(),
 )
 go_home_decision_state = GoHomeDecisionState(gb_context, event_system=EventSystem.instance())
 generate_home_sequence_state = GenerateHomeSequenceState(
     gb_context,
-    home_sequence_generator=GBPathGenerator(),
-    weight_generator=GBHomeWeightGenerator(norm=2),
+    home_sequence_generator=LinearPathGenerator(),
+    weight_generator=GBHomeWeightGenerator(),
     event_system=EventSystem.instance(),
 )
 sequence_finished_state = SequenceFinishedState(gb_context, event_system=EventSystem.instance())
