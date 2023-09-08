@@ -33,7 +33,7 @@ class SequenceFinishedState(AbstractState[GoalBabblingContext]):
         Returns:
             Transition. Either 'epoch_finished' or 'epoch_not_finished'.
         """
-        self.events.emit("sequence-finished", self.context)
+        self.events.emit(Events.SEQUENCE_FINISHED, self.context)
 
         self.context.runtime_data.sequences.append(self.context.runtime_data.current_sequence)
         self.context.runtime_data.previous_sequence = self.context.runtime_data.current_sequence

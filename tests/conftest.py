@@ -16,6 +16,6 @@ def mock_event_system() -> Generator[None, None, None]:
     Yields:
         Nothing.
     """
-    with patch("pygb._impl._core._events.EventSystem.instance") as mock:
+    with patch("pygb._impl._core._event_system.EventSystem.instance") as mock:
         mock.return_value = EventSystem()
         yield

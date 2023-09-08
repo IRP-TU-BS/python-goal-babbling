@@ -2,7 +2,8 @@ import numpy as np
 
 from pygb._impl._core._abstract_utils import AbstractGoalSelector
 from pygb._impl._core._context import GoalBabblingContext
-from pygb._impl._core._events import EventSystem
+from pygb._impl._core._event_system import EventSystem
+from pygb._impl._core._events import Events
 from pygb._impl._core._runtime_data import ObservationSequence
 
 

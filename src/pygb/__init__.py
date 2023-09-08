@@ -1,5 +1,6 @@
 from pygb._impl._core._context import GoalBabblingContext
-from pygb._impl._core._events import EventSystem, observes
+from pygb._impl._core._event_system import EventSystem, observes
+from pygb._impl._core._events import Events
 from pygb._impl._core._goals import GoalSet, GoalStore
 from pygb._impl._core._parameters import (
     GBParameterIncrement,
@@ -24,7 +25,7 @@ from pygb._impl._gb_utils._gb_weight_generator import GBWeightGenerator
 from pygb._impl._gb_utils._intrinsic_motivation_goal_selector import (
     IntrinsicMotivationGoalSelector,
 )
-from pygb._impl._gb_utils._local_goal_generators import GBPathGenerator
+from pygb._impl._gb_utils._local_goal_generators import LinearPathGenerator
 from pygb._impl._gb_utils._noise_generators import GBNoiseGenerator
 from pygb._impl._gb_utils._random_goal_selector import RandomGoalSelector
 from pygb._impl._logging import setup_logging
