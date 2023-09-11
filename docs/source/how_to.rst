@@ -125,6 +125,20 @@ This requires the `pydot` dependency to be installed. The default state machine 
 
 .. image:: goal-babbling-state-machine.png
 
+When to stop training
+---------------------
+
+Goal Babbling is an online learning method, so theoretically there is no real end of training. Usually, you would like
+to use the trained estimate at some point, though. Use one of :py:class:`pygb.interfaces.AbstractStoppingCriteria`'s
+implementations to define criteria when to stop training:
+
+* :py:class:`pygb.TargetPerformanceStop`
+* :py:class:`pygb.TimeBudgetStop`
+* :py:class:`pygb.PerformanceSlopeStop`
+
+These can be passed as an optional parameter to the :py:class:`pygb.GBParameters` constructor. It is possible to specify
+different stopping criteria per epoch set.
+
 Goal Babbling Context
 ---------------------
 
