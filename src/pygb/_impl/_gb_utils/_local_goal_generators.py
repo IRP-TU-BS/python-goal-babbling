@@ -1,5 +1,6 @@
 import numpy as np
 
+from pygb._impl._core._abstract_context import ContextType
 from pygb._impl._core._abstract_utils import AbstractSequenceGenerator
 from pygb._impl._core._context import GoalBabblingContext
 
@@ -10,7 +11,9 @@ class LinearPathGenerator(AbstractSequenceGenerator[GoalBabblingContext]):
     def __init__(self) -> None:
         super().__init__()
 
-    def generate(self, start: np.ndarray, stop: np.ndarray, len_sequence: int) -> list[np.ndarray]:
+    def generate(
+        self, start: np.ndarray, stop: np.ndarray, len_sequence: int, context: ContextType | None = None
+    ) -> list[np.ndarray]:
         """Generates a linear sequence of local observations between two global goals.
 
         The generated sequence excludes the start goal (assumption: start goal has just been visited in the previous
@@ -21,6 +24,7 @@ class LinearPathGenerator(AbstractSequenceGenerator[GoalBabblingContext]):
             stop: Stop (/target) observation, e.g. a global goal.
             len_sequence: Length of the sequence, i.e. how many steps make one sequence (excluding start, but including
                 stop).
+            context: Goal Babbling context (unused).
 
         Returns:
             A seqence of observations on a linear path between a start and a stop goal.

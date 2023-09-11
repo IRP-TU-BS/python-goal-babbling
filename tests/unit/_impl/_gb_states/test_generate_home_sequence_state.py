@@ -10,7 +10,6 @@ from pygb import (
     GoalBabblingContext,
     ObservationSequence,
     RuntimeData,
-    SequenceType,
 )
 from pygb.interfaces import (
     AbstractForwardModel,
@@ -44,7 +43,9 @@ def test_generate_sequence_raises_if_no_previous_sequence() -> None:
         ),
     ],
 )
-def test_generate_sequence(expected_start_action: np.ndarray, previous_sequence: SequenceType) -> None:
+def test_generate_sequence(
+    expected_start_action: np.ndarray, previous_sequence: ActionSequence | ObservationSequence
+) -> None:
     context_mock = MagicMock(
         spec=GoalBabblingContext, runtime_data=MagicMock(spec=RuntimeData, previous_sequence=previous_sequence)
     )

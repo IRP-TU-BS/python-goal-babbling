@@ -36,6 +36,9 @@ class SequenceFinishedState(AbstractState[GoalBabblingContext]):
         Returns:
             Transition. Either 'epoch_finished' or 'epoch_not_finished'.
         """
+        if self.context.runtime_data.current_sequence is None:
+            raise RuntimeError("Failed to execute state: Current sequence is None.")
+
         self.events.emit(Events.SEQUENCE_FINISHED, self.context)
 
         self.context.runtime_data.sequences.append(self.context.runtime_data.current_sequence)

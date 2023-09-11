@@ -34,13 +34,14 @@ class ActionSequence:
     weights: list[float] = field(default_factory=list)
 
 
-SequenceType = TypeVar("SequenceType", ActionSequence, ObservationSequence)
+# SequenceType = TypeVar("SequenceType", ActionSequence, ObservationSequence)
+# SequenceType = TypeVar("SequenceType", bound=ActionSequence)
 
 
 @dataclass
 class RuntimeData(AbstractLoggable):
-    current_sequence: ObservationSequence | None = None
-    previous_sequence: SequenceType | None = None
+    current_sequence: ObservationSequence | ObservationSequence | None = None
+    previous_sequence: ObservationSequence | ActionSequence | None = None
     performance_error: float | None = None  # error on test goals after last completed epoch
     opt_performance_errors: dict[str, float] = field(
         default_factory=dict
@@ -49,7 +50,9 @@ class RuntimeData(AbstractLoggable):
     sequence_index: int = 0  # current sequence index (i.e. how far into the epoch are we?)
     epoch_index: int = 0  # current epoch index (i.e. how far into the epoch set are we?)
     epoch_set_index: int = 0  # current epoch set (i.e. how far into the training are we?)
-    sequences: list[SequenceType] = field(default_factory=list)  # list of COMPLETED (i.e. previous) sequences
+    sequences: list[ActionSequence | ObservationSequence] = field(
+        default_factory=list
+    )  # list of COMPLETED (i.e. previous) sequences
     train_goal_error: list[float] = field(
         default_factory=list
     )  # training goal error, calculated pre goal after a completed sequence

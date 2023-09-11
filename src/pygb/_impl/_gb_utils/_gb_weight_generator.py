@@ -30,9 +30,12 @@ class GBWeightGenerator(AbstractWeightGenerator[GoalBabblingContext]):
         Returns:
             The calculated weight.
         """
+        seq = context.runtime_data.current_sequence
+        if seq is None:
+            raise RuntimeError("Failed to generate weights: No current sequence found.")
+
         prev_local_goal, prev_local_pred, prev_action = self._choose_previous_data(context)
 
-        seq = context.runtime_data.current_sequence
         observation_idx = context.runtime_data.observation_index
 
         w_dir, w_eff = self._calc_weights(
@@ -76,9 +79,10 @@ class GBWeightGenerator(AbstractWeightGenerator[GoalBabblingContext]):
                 prev_action = context.runtime_data.previous_sequence.predicted_actions[-1]
         else:
             # somewhere in the middle of a sequence, simply use the previous observation:
-            prev_local_goal = seq.local_goals[observation_idx - 1]
-            prev_local_pred = seq.observations[observation_idx - 1]
-            prev_action = seq.predicted_actions[observation_idx - 1]
+            # (seq is asserted to not be None in calling function)
+            prev_local_goal = seq.local_goals[observation_idx - 1]  # type: ignore
+            prev_local_pred = seq.observations[observation_idx - 1]  # type: ignore
+            prev_action = seq.predicted_actions[observation_idx - 1]  # type: ignore
 
         return prev_local_goal, prev_local_pred, prev_action
 
@@ -113,16 +117,17 @@ class GBWeightGenerator(AbstractWeightGenerator[GoalBabblingContext]):
         action_norm = np.linalg.norm(action_diff, self.norm)
         local_goal_norm = np.linalg.norm(local_goal_diff, self.norm)
 
+        # TODO this seems questionable
         if prediction_norm <= 1e-10:
-            prediction_norm = 1  # TODO this seems questionable
+            prediction_norm = 1  # type: ignore
 
         if action_norm <= 1e-10:
-            w_eff = 0
+            w_eff = 0.0
         else:
-            w_eff = prediction_norm / action_norm
+            w_eff = prediction_norm / action_norm  # type: ignore
 
         if local_goal_norm <= 1e-10:
-            local_goal_norm = 1  # TODO
+            local_goal_norm = 1.0  # TODO
 
         goal_cosine = np.dot(prediction_diff / prediction_norm, local_goal_diff / local_goal_norm)
 

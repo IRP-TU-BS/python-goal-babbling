@@ -14,7 +14,6 @@ from pygb import (
     GoalStore,
     ObservationSequence,
     RuntimeData,
-    SequenceType,
 )
 from pygb.interfaces import (
     AbstractForwardModel,
@@ -27,7 +26,9 @@ from pygb.interfaces import (
 from pygb.states import GenerateSequenceState
 
 
-def generate_dummy_context(previous_sequence: SequenceType | None = None) -> GoalBabblingContext:
+def generate_dummy_context(
+    previous_sequence: ActionSequence | ObservationSequence | None = None,
+) -> GoalBabblingContext:
     gb_params = GBParameters(
         sigma=0.1,
         sigma_delta=0.01,
@@ -98,7 +99,9 @@ def test_generate_new_sequence_with_no_previous_sequence() -> None:
         ),
     ],
 )
-def test_generate_new_sequence_with_previous_sequence(sequence: SequenceType, start_goal: np.ndarray) -> None:
+def test_generate_new_sequence_with_previous_sequence(
+    sequence: ActionSequence | ObservationSequence, start_goal: np.ndarray
+) -> None:
     goal_selector_mock = MagicMock(spec=AbstractGoalSelector)
     goal_selector_mock.select = MagicMock(return_value=(42, np.array([1.0])))
 

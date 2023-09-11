@@ -11,7 +11,6 @@ from pygb._impl._core._runtime_data import (
     ActionSequence,
     ObservationSequence,
     RuntimeData,
-    SequenceType,
 )
 from pygb._impl._core._state_machine import StateMachine
 from pygb._impl._core._stopping_criteria import (

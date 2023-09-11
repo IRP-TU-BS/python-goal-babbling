@@ -12,11 +12,10 @@ from pygb import (
     ObservationSequence,
     RandomGoalSelector,
     RuntimeData,
-    SequenceType,
 )
 
 
-def create_context_mock(previous_sequence: SequenceType | None = None) -> GoalBabblingContext:
+def create_context_mock(previous_sequence: ActionSequence | ObservationSequence | None = None) -> GoalBabblingContext:
     goal_store = GoalStore(
         [GoalSet(np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]), np.array([[10.0], [20.0], [30.0]]))]
     )
@@ -50,7 +49,9 @@ def create_context_mock(previous_sequence: SequenceType | None = None) -> GoalBa
         (None, 1, np.array([3.0, 4.0])),
     ],
 )
-def test_random_goal_selector(previous_sequence: SequenceType, expected_index: int, expected_goal: np.ndarray) -> None:
+def test_random_goal_selector(
+    previous_sequence: ActionSequence | ObservationSequence, expected_index: int, expected_goal: np.ndarray
+) -> None:
     selector = RandomGoalSelector()
 
     rng_mock = MagicMock()

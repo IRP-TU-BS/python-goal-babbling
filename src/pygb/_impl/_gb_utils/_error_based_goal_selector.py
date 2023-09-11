@@ -36,7 +36,7 @@ class ErrorBasedGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
         """
         if context.runtime_data.previous_sequence is None:
             # start of epoch set or we've just been at home -> choose any goal randomly
-            goal_index = self._rng.integers(0, context.current_goal_set.train.shape[0], size=None)
+            goal_index: int = self._rng.integers(0, context.current_goal_set.train.shape[0], size=None)
             selected_goal = context.current_goal_set.train[goal_index]
         else:
             previous_goal = (

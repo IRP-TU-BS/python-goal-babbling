@@ -6,7 +6,11 @@ from pygb._impl._core._event_system import EventSystem
 
 
 class AbstractState(ABC, Generic[ContextType]):
-    """Abstract state class."""
+    """Abstract state class.
+
+    Note: The use of typing.Generic in combination with typing.TypeVar provides proper type hints for the context
+    attribute.
+    """
 
     def __init__(
         self, context: ContextType, event_system: EventSystem = EventSystem.instance(), name: str | None = None

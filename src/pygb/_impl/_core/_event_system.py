@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import Callable, Optional
 
-from pygb._impl._core._abstract_context import AbstractContext
+from pygb._impl._core._abstract_context import AbstractContext, ContextType
 
 
 class EventSystem:
@@ -35,9 +35,7 @@ class EventSystem:
         for func in self.event_observers[event]:
             func(context)
 
-    def register_observer(
-        self, event: str, observer: Callable[[AbstractContext], None], no_raise: bool = False
-    ) -> None:
+    def register_observer(self, event: str, observer: Callable[[ContextType], None], no_raise: bool = False) -> None:
         """Registers a callable as an observer for the specified event.
 
         Args:

@@ -9,7 +9,6 @@ from pygb import (
     GoalBabblingContext,
     ObservationSequence,
     RuntimeData,
-    SequenceType,
 )
 
 # @patch("pygb._impl._gb_utils._gb_home_weight_generator.GBHomeWeightGenerator._calc_weights")
@@ -68,8 +67,8 @@ from pygb import (
 )
 def test_choose_previous_data(
     observation_index: int,
-    current_sequence: SequenceType,
-    previous_sequence: SequenceType,
+    current_sequence: ObservationSequence | ActionSequence,
+    previous_sequence: ObservationSequence | ActionSequence,
     expected_observation: np.ndarray,
     expected_action: np.ndarray,
 ) -> None:

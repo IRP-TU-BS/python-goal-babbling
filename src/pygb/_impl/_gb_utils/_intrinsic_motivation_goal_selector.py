@@ -110,12 +110,13 @@ class IntrinsicMotivationGoalSelector(AbstractGoalSelector[GoalBabblingContext])
         ):
             previous_index = context.runtime_data.previous_sequence.stop_goal_index
 
+        # self._goal_error_matrix is asserted to not be None before
         if np.any(self._goal_error_matrix == 0):
             # windows not filled
-            goal_index = self._select_random_index(self._goal_error_matrix, previous_index)
+            goal_index = self._select_random_index(self._goal_error_matrix, previous_index)  # type: ignore
         else:
             goal_index = self._select_goal_by_interest(
-                self._goal_error_matrix, self._goals_e_min, self._goals_e_max, previous_index
+                self._goal_error_matrix, self._goals_e_min, self._goals_e_max, previous_index  # type: ignore
             )
 
         return goal_index, context.current_goal_set.train[goal_index]
@@ -144,8 +145,8 @@ class IntrinsicMotivationGoalSelector(AbstractGoalSelector[GoalBabblingContext])
             self._update_goal_error(goal_index, context.runtime_data.train_goal_error[goal_index])
 
     def _update_goal_error(self, goal_index, goal_error: float) -> None:
-        if self._goal_error_matrix is None:
-            raise RuntimeError("Goal error matrix is None. Initialize it first using self._init().")
+        if self._goal_error_matrix is None or self._goals_e_max is None or self._goals_e_min is None:
+            raise RuntimeError("Failed to update goal errors: Instance is not initialized. Call init() first.")
 
         # make room for newest goal error at index 0:
         self._goal_error_matrix[goal_index] = np.roll(self._goal_error_matrix[goal_index], 1)

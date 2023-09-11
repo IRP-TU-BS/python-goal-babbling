@@ -13,7 +13,6 @@ from pygb import (
     IntrinsicMotivationGoalSelector,
     ObservationSequence,
     RuntimeData,
-    SequenceType,
 )
 
 
@@ -59,7 +58,7 @@ def test_update_goal_error() -> None:
     ],
 )
 def test_update_data_callback(
-    current_sequence: SequenceType,
+    current_sequence: ActionSequence | ObservationSequence,
     expect_update_call: bool,
 ) -> None:
     context_mock = MagicMock(
