@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.random import Generator
 
 from pygb._impl._core._abstract_state import AbstractState
 from pygb._impl._core._context import GoalBabblingContext
@@ -18,7 +19,7 @@ class GoHomeDecisionState(AbstractState[GoalBabblingContext]):
         context: GoalBabblingContext,
         event_system: EventSystem = EventSystem.instance(),
         name: str | None = None,
-        random_seed: int | None = None,
+        rng: Generator = np.random.default_rng(),
     ) -> None:
         """Constructor.
 
@@ -26,11 +27,11 @@ class GoHomeDecisionState(AbstractState[GoalBabblingContext]):
             context: Goal Babbling context
             event_system: Event system singleton instance. Defaults to None.
             name: State name. If not specified, the class name is chosen as a default name. Defaults to None.
-            random_seed: Random seed which is used to initialize a numpy random number generator. Defaults to None.
+            rng: Numpy random number generator.
         """
         super().__init__(context, event_system, name)
 
-        self._rng = np.random.default_rng(seed=random_seed)
+        self._rng = rng
 
     def __call__(self) -> str | None:
         """Execute the state.

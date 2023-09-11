@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.random import Generator
 
 from pygb._impl._core._abstract_utils import AbstractGoalSelector
 from pygb._impl._core._context import GoalBabblingContext
@@ -9,14 +10,14 @@ class ErrorBasedGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
     """Goal selector class which selects a goal randomly from the top X% training goals with highest prediction
     error."""
 
-    def __init__(self, select_from_top: float = 0.25, random_seed: int | None = None) -> None:
+    def __init__(self, select_from_top: float = 0.25, rng: Generator = np.random.default_rng()) -> None:
         """Constructor.
 
         Args:
             select_from_top: Defines the interval size of high-error goals to choose from. Defaults to 0.25.
-            random_seed: Random seed used to initialize a numpy default RNG. Defaults to None.
+            rng: Numpy random number generator. Defaults to a randomly initialized RNG.
         """
-        self._rng = np.random.default_rng(seed=random_seed)
+        self._rng = rng
 
         self.select_from_top = select_from_top
 

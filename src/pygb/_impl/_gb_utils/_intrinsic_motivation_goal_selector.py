@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.random import Generator
 
 from pygb._impl._core._abstract_utils import AbstractGoalSelector
 from pygb._impl._core._context import GoalBabblingContext
@@ -50,7 +51,12 @@ class IntrinsicMotivationGoalSelector(AbstractGoalSelector[GoalBabblingContext])
     """
 
     def __init__(
-        self, window_size: int, gamma: float, lambda_: float, event_system: EventSystem, random_seed: int | None = None
+        self,
+        window_size: int,
+        gamma: float,
+        lambda_: float,
+        event_system: EventSystem,
+        rng: Generator = np.random.default_rng(),
     ) -> None:
         """Constructor.
 
@@ -59,7 +65,7 @@ class IntrinsicMotivationGoalSelector(AbstractGoalSelector[GoalBabblingContext])
             gamma: Weighting factor between 0 and 1. Weights PROG(g_i) over REG(g_i).
             lambda_: Weighting factor between 0 and 1. Weights RE(g_i) over FF(g_i).
             event_system: Event system singleton instance.
-            random_seed: Random seed used to initialize a numpy random number generator. Defaults to None.
+            rng: Numpy random number generator. Defaults to a randomly initialized RNG.
 
         Raises:
             ValueError: If the window size is uneven.
@@ -80,7 +86,7 @@ class IntrinsicMotivationGoalSelector(AbstractGoalSelector[GoalBabblingContext])
         self._goals_e_min: np.ndarray | None = None
         self._valid_for_epoch_set: int | None = None
 
-        self._rng = np.random.default_rng(seed=random_seed)
+        self._rng = rng
 
         event_system.register_observer(Events.SEQUENCE_FINISHED, self._update_data_callback)
 

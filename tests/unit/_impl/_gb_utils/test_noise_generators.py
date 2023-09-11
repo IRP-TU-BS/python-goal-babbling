@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, PropertyMock
 
 import numpy as np
 
-from pygb import GBNoiseGenerator, GBParameters, GoalBabblingContext
+from pygb import GBNoiseGenerator, GoalBabblingContext
 
 
 def dummy_context() -> MagicMock:
@@ -14,8 +14,8 @@ def dummy_context() -> MagicMock:
 
 def test_init() -> None:
     context_mock = dummy_context()
-
-    generator = GBNoiseGenerator(context_mock, random_seed=42)
+    rng = np.random.default_rng(seed=42)
+    generator = GBNoiseGenerator(context_mock, rng)
 
     assert generator.sigma.shape == (1, 3)
     assert generator.sigma_delta.shape == (1, 3)
@@ -25,8 +25,8 @@ def test_init() -> None:
 
 def test_generate() -> None:
     context_mock = dummy_context()
-
-    generator = GBNoiseGenerator(context_mock, random_seed=42)
+    rng = np.random.default_rng(seed=42)
+    generator = GBNoiseGenerator(context_mock, rng)
 
     noise = generator.generate(np.array([4.0, 2.0]))
 
@@ -35,8 +35,8 @@ def test_generate() -> None:
 
 def test_update() -> None:
     context_mock = dummy_context()
-
-    generator = GBNoiseGenerator(context_mock, random_seed=42)
+    rng = np.random.default_rng(seed=42)
+    generator = GBNoiseGenerator(context_mock, rng)
 
     prev_A = generator.A.copy()
     prev_b = generator.b.copy()

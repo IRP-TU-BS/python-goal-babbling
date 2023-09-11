@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.random import Generator
 
 from pygb._impl._core._abstract_utils import AbstractNoiseGenerator
 from pygb._impl._core._context import GoalBabblingContext
@@ -7,16 +8,16 @@ from pygb._impl._core._context import GoalBabblingContext
 class GBNoiseGenerator(AbstractNoiseGenerator[GoalBabblingContext]):
     """Variation generator from the original Goal Babbling paper (Rolf, 2010)."""
 
-    def __init__(self, context: GoalBabblingContext, random_seed: int | None = None) -> None:
+    def __init__(self, context: GoalBabblingContext, rng: Generator = np.random.default_rng()) -> None:
         """Constructor.
 
         Creates the A matrix of shape (dim_act, dim_obs) and b vector of shape (1, dim_act).
 
         Args:
             context: Goal Babbling context.
-            random_seed: Random seed used to initialize a numpy random number generator. Defaults to None.
+            rng: Numpy random number generator. Defaults to a randomly initialized RNG.
         """
-        self._rng = np.random.default_rng(seed=random_seed)
+        self._rng = rng
 
         dim_act = context.current_parameters.dim_act
         dim_obs = context.current_parameters.dim_obs

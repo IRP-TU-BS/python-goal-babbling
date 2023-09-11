@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.random import Generator
 
 from pygb._impl._core._abstract_utils import AbstractGoalSelector
 from pygb._impl._core._context import GoalBabblingContext
@@ -8,13 +9,13 @@ from pygb._impl._core._runtime_data import ActionSequence, ObservationSequence
 class RandomGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
     """Random goal selector class."""
 
-    def __init__(self, random_seed: int | None = None) -> None:
+    def __init__(self, rng: Generator = np.random.default_rng()) -> None:
         """Constructor.
 
         Args:
-            random_seed: Random seed which is used to initilaize a numpy random number generator. Defaults to None.
+            rng: Numpy random number generator. Defaults to a randomly initialized RNG.
         """
-        self._rng = np.random.default_rng(seed=random_seed)
+        self._rng = rng
 
     def select(self, context: GoalBabblingContext) -> tuple[int, np.ndarray]:
         """Selects one goal randomly that is different from the previous sequence's stop goal.
