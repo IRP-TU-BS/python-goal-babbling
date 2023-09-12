@@ -132,4 +132,4 @@ def test_execute_state(generate_sequence_mock: MagicMock) -> None:
         ]
     )
 
-    forward_model_mock.clip.assert_called_once()
+    forward_model_mock.clip.assert_called()

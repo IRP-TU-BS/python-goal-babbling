@@ -58,6 +58,7 @@ class GenerateHomeSequenceState(AbstractState[GoalBabblingContext]):
         for index, action in enumerate(sequence.actions):
             self.context.runtime_data.observation_index = index
 
+            action = self.context.forward_model.clip(action)
             observation = self.context.forward_model.forward(action)
             sequence.observations.append(observation)
             weight = self.weight_generator.generate(self.context)
