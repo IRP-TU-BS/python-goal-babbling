@@ -33,7 +33,7 @@ class MLFlowWrapper:
         self.parent_run = parent_run
         self.parent_run_description = parent_run_description
 
-        if directory is None:
+        if directory is not None:
             mlflow.set_tracking_uri(directory)
 
         self._active_run: mlflow.ActiveRun | None = None
