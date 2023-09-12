@@ -82,6 +82,10 @@ class EventSystem:
         self.event_observers[event].remove(observer)
         return observer
 
+    def clear(self) -> None:
+        """Resets all registered events and event observers."""
+        self.event_observers: dict[str, list[Callable]] = defaultdict(list)
+
 
 def observes(event: str) -> Callable[[Callable[[AbstractContext], None]], Callable[[AbstractContext], None]]:
     """Decorator which registers a function as an observer for the specified event.

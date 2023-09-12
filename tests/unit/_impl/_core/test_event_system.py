@@ -99,3 +99,17 @@ def test_observes_decorator() -> None:
         called = True
 
     assert dict(events.event_observers) == {"test-event": [observes("test-event")(observer)]}
+
+
+def test_clear() -> None:
+    events = EventSystem.instance()
+
+    @observes("test-event")
+    def observer(context: AbstractContext) -> None:
+        ...
+
+    assert len(events.event_observers.items()) == 1
+
+    events.clear()
+
+    assert len(events.event_observers.items()) == 0
