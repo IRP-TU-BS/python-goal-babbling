@@ -1,3 +1,6 @@
+import numpy as np
+from numpy.random import Generator
+
 from pygb._impl._core._abstract_estimate_cache import AbstractEstimateCache
 from pygb._impl._core._abstract_utils import AbstractGoalSelector
 from pygb._impl._core._context import GoalBabblingContext
@@ -34,6 +37,7 @@ def vanilla_goal_babbling(
     estimate_cache: AbstractEstimateCache,
     goal_selector: AbstractGoalSelector,
     load_previous_best: bool = True,
+    rng: Generator = np.random.default_rng(),
 ) -> StateMachine:
     """Factory for creating a pre-configured Goal Babbling state machine.
 
@@ -67,11 +71,11 @@ def vanilla_goal_babbling(
         context,
         goal_selector=goal_selector,
         goal_sequence_generator=LinearPathGenerator(),
-        noise_generator=GBNoiseGenerator(context),
+        noise_generator=GBNoiseGenerator(context, rng=rng),
         weight_generator=GBWeightGenerator(norm=2),
         event_system=EventSystem.instance(),
     )
-    go_home_decision_state = GoHomeDecisionState(context, event_system=EventSystem.instance())
+    go_home_decision_state = GoHomeDecisionState(context, event_system=EventSystem.instance(), rng=rng)
     generate_home_sequence_state = GenerateHomeSequenceState(
         context,
         home_sequence_generator=LinearPathGenerator(),
