@@ -24,6 +24,7 @@ dev = [
 doc = [
     "sphinx",
     "furo",
+    "tox"
 ]
 
 [tool.black]
