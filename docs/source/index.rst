@@ -6,7 +6,7 @@
 Welcome to python-goal-gabbling's documentation!
 ================================================
 
-This framework implements the Goal Babbling method developed at IRP (Institute of Robotics and Process Control,
+This framework implements the *Goal Babbling* method developed at IRP (Institute of Robotics and Process Control,
 Technische Universität Braunschweig):
 
 * Rolf et al., 2010: "Goal Babbling Permits Direct Learning of Inverse Kinematics" (*IEEE  Transactions on Autonomous Mental Deployment*)
