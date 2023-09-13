@@ -1,5 +1,10 @@
 # Python Goal Babbling Package
 
+This package implements the *Goal Babbling* method developed at the **IRP** (Intitut für Robotik und Prozessinformatik/
+Institute of Robotics and Process Control) at **Technische Universität Braunschweig**.
+
+It is licensed under the EUPL (compatible to e.g. GPLv3).
+
 ## What is Goal Babbling?
 
 See
@@ -9,7 +14,11 @@ See
 
 for publications on Goal Babbling.
 
-Goal Babbling (GB) is an online learning strategy for directly learning an Inverse Kinematics mapping of a robot. The robot is used during the training process (hence it is called an *online* learning method) to explore the robot's workspace while simultaneously and incrementally updating an Inverse Kinematics estimate, e.g. a Neural Network. While the robot explores its workspace, a weighting mechanism tries to filter the gathered data in a way that only goal-directed, efficient movements are learned.
+Goal Babbling (GB) is an online learning strategy for directly learning an Inverse Kinematics mapping of a robot. The
+robot is used during the training process (hence it is called an *online* learning method) to explore the robot's
+workspace while simultaneously and incrementally updating an Inverse Kinematics estimate, e.g. a Neural Network. While
+the robot explores its workspace, a weighting mechanism tries to filter the gathered data in a way that only
+goal-directed, efficient movements are learned.
 
 ## Getting Started
 
@@ -26,6 +35,13 @@ If you intend to plot the state machine which is used under the hood, use the fo
 ```shell
 pip install .[plot]
 ```
+
+If you intend to build the documentation:
+```shell
+pip install .[doc]
+```
+
+(You can combine all optional dependencies like so: `pip install .[plot,doc,dev]`.)
 
 ### Documentation
 
@@ -120,7 +136,10 @@ trained_estimate = context.model_store.load(epoch_set=0)
 print(trained_estimate.predict(observation=...))
 ```
 
-If you want to train your estimate in distinct sets, e.g. in order to change parameters during the course of training or change/extend your workspace, simply provide a list of `GBParameters` (or `GBParameterIncrement`s) and a list of `GoalSet`s instead of a single instance each. The length of both lists must be equal. It determines the number of epoch sets trained.
+If you want to train your estimate in distinct sets, e.g. in order to change parameters during the course of training or
+change/extend your workspace, simply provide a list of `GBParameters` (or `GBParameterIncrement`s) and a list of
+`GoalSet`s instead of a single instance each. The length of both lists must be equal. It determines the number of epoch
+sets trained.
 
 ## Terminology
 
@@ -135,6 +154,3 @@ If you want to train your estimate in distinct sets, e.g. in order to change par
 | Sequence         | A **collection of local goals** between two (global) goals. In kinematics terms, a sequence is a linear path of positions in task space along which the robot moves ('reaching motions') and along which training samples are generated.                            |
 | Epoch            | A **collection of multiple sequences**. The performance error on the provided test goals (+ optional additional goals) is calculated after a completed epoch.                                                                                                       |
 | Epoch Set        | A **collection of multiple epochs**. Allows e.g. changing Goal Babbling parameters or training goals during training. The best estimate per epoch set is recorded in a model store.                                                                                 |
-
-## How to use this framework
-
