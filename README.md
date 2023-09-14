@@ -5,6 +5,8 @@ Institute of Robotics and Process Control) at **Technische Universität Braunsch
 
 It is licensed under the EUPL (compatible to e.g. GPLv3).
 
+:warning: This project is still work in progress. :warning:
+
 ## What is Goal Babbling?
 
 See
