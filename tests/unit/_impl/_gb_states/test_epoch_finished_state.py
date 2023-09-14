@@ -12,6 +12,7 @@ from pygb import (
     RuntimeData,
 )
 from pygb.interfaces import (
+    AbstractEstimateCache,
     AbstractForwardModel,
     AbstractInverseEstimate,
     AbstractEstimateCache,
@@ -31,7 +32,7 @@ def get_context_mock() -> MagicMock:
         runtime_data=runtime_data_mock,
         current_goal_set=current_goal_set_mock,
         current_parameters=current_parameters_mock,
-        model_store=None,
+        estimate_cache=None,
         forward_model=None,
         inverse_estimate=None,
     )

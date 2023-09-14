@@ -93,10 +93,10 @@ class MLFlowWrapper:
         Args:
             context: Goal Babbling context.
         """
-        if context.model_store is None:
+        if context.estimate_cache is None:
             _logger.warning("Not uploading estimate artifact because context does not provide a model cache.")
         else:
-            model = context.model_store.load(epoch_set_index=context.runtime_data.epoch_set_index)
+            model = context.estimate_cache.load(epoch_set_index=context.runtime_data.epoch_set_index)
             self.log_pickle(model, name=f"best_llm_es{context.runtime_data.epoch_set_index}_pickle")
 
         if self._active_run is not None:

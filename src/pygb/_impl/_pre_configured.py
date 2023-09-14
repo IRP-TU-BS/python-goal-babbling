@@ -63,7 +63,7 @@ def vanilla_goal_babbling(
         goal_store=GoalStore(goal_sets),
         forward_model=forward_model,
         inverse_estimate=inverse_estimate,
-        model_store=estimate_cache,
+        estimate_cache=estimate_cache,
     )
 
     setup_state = SetupState(context)

@@ -13,7 +13,7 @@ class GoalBabblingContext(AbstractContext):
         goal_store: GoalStore,
         forward_model: AbstractForwardModel,
         inverse_estimate: AbstractInverseEstimate,
-        model_store: AbstractEstimateCache | None = None,
+        estimate_cache: AbstractEstimateCache | None = None,
         runtime_data: RuntimeData = RuntimeData(),
     ) -> None:
         self.gb_param_store = param_store
@@ -21,7 +21,7 @@ class GoalBabblingContext(AbstractContext):
         self.runtime_data = runtime_data
         self.forward_model = forward_model
         self.inverse_estimate = inverse_estimate
-        self.model_store = model_store
+        self.estimate_cache = estimate_cache
 
         self.running = False
 

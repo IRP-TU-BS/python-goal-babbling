@@ -33,7 +33,7 @@ class EpochSetFinishedState(AbstractState[GoalBabblingContext]):
 
         self.load_previous = load_previous_best
 
-        if self.load_previous and self.context.model_store is None:
+        if self.load_previous and self.context.estimate_cache is None:
             raise RuntimeError(
                 f"""Failed to initialize {self.__class__.__qualname__}: If 'load_previous' is set to True, """
                 """the Goal Babbling context must contain a model storage."""
@@ -61,9 +61,11 @@ class EpochSetFinishedState(AbstractState[GoalBabblingContext]):
         self.context.runtime_data.epoch_index = 0
 
         if self.context.runtime_data.epoch_set_index < self.context.num_epoch_sets - 1:
-            if self.load_previous and self.context.model_store is not None:
+            if self.load_previous and self.context.estimate_cache is not None:
                 # context.model_store is not None due to check in __init__
-                self.context.inverse_estimate = self.context.model_store.load(self.context.runtime_data.epoch_set_index)
+                self.context.inverse_estimate = self.context.estimate_cache.load(
+                    self.context.runtime_data.epoch_set_index
+                )
                 _logger.info(
                     f"""Loaded best estimate from epoch set ({self.context.runtime_data.epoch_set_index}) for """
                     f"""upcoming epoch set {self.context.runtime_data.epoch_set_index + 1}"""

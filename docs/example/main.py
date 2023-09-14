@@ -82,7 +82,7 @@ gb_context = GoalBabblingContext(
     goal_store=GoalStore(goal_set),  # or list of goal sets per epoch set
     forward_model=forward_model,
     inverse_estimate=inverse_estimator,
-    model_store=FileLLMCache(model_path),
+    estimate_cache=FileLLMCache(model_path),
 )
 
 setup_state = SetupState(gb_context)
