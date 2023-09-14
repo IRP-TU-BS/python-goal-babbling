@@ -9,8 +9,8 @@ It is licensed under the EUPL (compatible to e.g. GPLv3).
 
 See
 
-* Rolf et al., 2010: "Goal Babbling Permits Direct Learning of Inverse Kinematics" (*IEEE  Transactions on Autonomous Mental Deployment*)
-* Rolf et al., 2011: "Online Goal Babbling for rapid bootstrapping of inverse models in high dimensions" (*IEEE Interational Conference on Development and Learning*)
+* Rolf et al., 2010: "Goal Babbling Permits Direct Learning of Inverse Kinematics" (*IEEE Transactions on Autonomous Mental Deployment*)
+* Rolf et al., 2011: "Online Goal Babbling for rapid bootstrapping of inverse models in high dimensions" (*IEEE International Conference on Development and Learning*)
 
 for publications on Goal Babbling.
 
