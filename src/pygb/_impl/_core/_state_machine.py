@@ -1,9 +1,9 @@
 import logging
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Generic, Literal
 
 from pygb._impl._core._abstract_context import AbstractContext
-from pygb._impl._core._abstract_state import AbstractState
+from pygb._impl._core._abstract_state import AbstractState, ContextType
 
 try:
     import pydot
@@ -15,10 +15,10 @@ except ImportError:
 _logger = logging.getLogger(__name__)
 
 
-class StateMachine:
+class StateMachine(Generic[ContextType]):
     """State machine class."""
 
-    def __init__(self, context: AbstractContext, initial_state: AbstractState | None = None) -> None:
+    def __init__(self, context: ContextType, initial_state: AbstractState | None = None) -> None:
         """Constructor.
 
         Args:

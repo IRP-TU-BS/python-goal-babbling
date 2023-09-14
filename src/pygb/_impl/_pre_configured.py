@@ -38,7 +38,7 @@ def vanilla_goal_babbling(
     goal_selector: AbstractGoalSelector,
     load_previous_best: bool = True,
     rng: Generator = np.random.default_rng(),
-) -> StateMachine:
+) -> StateMachine[GoalBabblingContext]:
     """Factory for creating a pre-configured Goal Babbling state machine.
 
     Args:
@@ -89,7 +89,7 @@ def vanilla_goal_babbling(
     )
     stopped_state = StoppedState(context)
 
-    state_machine = StateMachine(context=context, initial_state=setup_state)
+    state_machine = StateMachine[GoalBabblingContext](context=context, initial_state=setup_state)
 
     state_machine.add(SetupState.setup_complete, generate_sequence_state)
 

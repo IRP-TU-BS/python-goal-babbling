@@ -10,20 +10,17 @@ from pygb import (
     EventSystem,
     GBHomeWeightGenerator,
     GBNoiseGenerator,
-    GBParameterIncrement,
     GBParameters,
     GBParameterStore,
-    LinearPathGenerator,
     GBWeightGenerator,
     GoalBabblingContext,
     GoalSet,
     GoalStore,
     IntrinsicMotivationGoalSelector,
-    RandomGoalSelector,
+    LinearPathGenerator,
     StateMachine,
     observes,
     setup_logging,
-    vanilla_goal_babbling,
 )
 from pygb.states import (
     EpochFinishedState,
@@ -108,7 +105,7 @@ epoch_finished_state = EpochFinishedState(gb_context, event_system=EventSystem.i
 epoch_set_finished_state = EpochSetFinishedState(gb_context, EventSystem.instance(), load_previous_best=True)
 stopped_state = StoppedState(gb_context, event_system=None)
 
-state_machine = StateMachine(context=gb_context, initial_state=setup_state)
+state_machine = StateMachine[GoalBabblingContext](context=gb_context, initial_state=setup_state)
 
 state_machine.add(SetupState.setup_complete, generate_sequence_state)
 
@@ -128,6 +125,7 @@ state_machine.add(EpochSetFinishedState.stop_training, stopped_state)
 
 # alternatively use a pre-configured state machine (example shows using multiple epoch sets):
 
+# from pygb import vanilla_goal_babbling, GBParameterIncrement
 # state_machine = vanilla_goal_babbling(
 #     [gb_parameters, GBParameterIncrement(len_epoch_set=5)],
 #     [goal_set, goal_set],
