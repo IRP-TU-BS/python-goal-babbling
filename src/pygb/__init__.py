@@ -1,4 +1,5 @@
 from pygb._impl._core._context import GoalBabblingContext
+from pygb._impl._core._epoch_set_record import EpochSetRecord, EpochSetStats
 from pygb._impl._core._event_system import EventSystem, observes
 from pygb._impl._core._events import Events
 from pygb._impl._core._goals import GoalSet, GoalStore
