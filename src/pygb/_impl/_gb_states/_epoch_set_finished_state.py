@@ -53,6 +53,11 @@ class EpochSetFinishedState(AbstractState[GoalBabblingContext]):
         """
         self.events.emit(Events.EPOCH_SET_COMPLETE, self.context)
 
+        _logger.info(
+            f"""Epoch set {self.context.runtime_data.epoch_set_index} completed """
+            f"""(reason: {self.context.epoch_set_records[-1].stop_reason})"""
+        )
+
         # reset epoch-set-specific runtime data:
         train_goal_count = self.context.current_goal_set.train.shape[0]
 
