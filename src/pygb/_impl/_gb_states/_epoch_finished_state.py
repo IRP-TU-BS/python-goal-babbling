@@ -116,7 +116,7 @@ class EpochFinishedState(AbstractState[GoalBabblingContext]):
             context.inverse_estimate, context.runtime_data.epoch_set_index, context
         ):
             update_best = True
-            _logger.info(f"Stored new best inverse estimate [{context.runtime_data.performance_error}")
+            _logger.info(f"Stored new best inverse estimate [{context.runtime_data.performance_error}]")
 
         elif context.estimate_cache is None and (
             len(context.epoch_set_records[-1].best.performance) == 0
