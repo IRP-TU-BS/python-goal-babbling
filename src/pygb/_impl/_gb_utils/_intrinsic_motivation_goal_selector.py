@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 from numpy.random import Generator
 
@@ -6,6 +8,8 @@ from pygb._impl._core._context import GoalBabblingContext
 from pygb._impl._core._event_system import EventSystem
 from pygb._impl._core._events import Events
 from pygb._impl._core._runtime_data import ObservationSequence
+
+_logger = logging.getLogger(__name__)
 
 
 class IntrinsicMotivationGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
@@ -113,8 +117,10 @@ class IntrinsicMotivationGoalSelector(AbstractGoalSelector[GoalBabblingContext])
         # self._goal_error_matrix is asserted to not be None before
         if np.any(self._goal_error_matrix == 0):
             # windows not filled
+            _logger.debug("Open sliding window detected: Selecting goal randomly")
             goal_index = self._select_random_index(self._goal_error_matrix, previous_index)  # type: ignore
         else:
+            _logger.debug("Selecting goal by interest measurement")
             goal_index = self._select_goal_by_interest(
                 self._goal_error_matrix, self._goals_e_min, self._goals_e_max, previous_index  # type: ignore
             )
@@ -139,6 +145,11 @@ class IntrinsicMotivationGoalSelector(AbstractGoalSelector[GoalBabblingContext])
         self._goals_e_max = np.zeros(shape=(context.current_goal_set.train.shape[0],))
         self._goals_e_min = np.inf * np.ones(shape=(context.current_goal_set.train.shape[0]))
         self._valid_for_epoch_set = context.runtime_data.epoch_set_index
+
+        _logger.debug(
+            "Initialized %s with %dx%d goal error matrix"
+            % (self.__class__.__qualname__, context.current_goal_set.train.shape[0], self.window_size)
+        )
 
     def _update_data_callback(self, context: GoalBabblingContext) -> None:
         if self._goal_error_matrix is None or context.runtime_data.epoch_set_index != self._valid_for_epoch_set:
