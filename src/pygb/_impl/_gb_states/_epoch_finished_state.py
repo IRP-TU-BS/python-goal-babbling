@@ -72,7 +72,7 @@ class EpochFinishedState(AbstractState[GoalBabblingContext]):
 
         self.events.emit(Events.EPOCH_COMPLETE, self.context)
         stop_reason = self._evaluate_stop(self.context)
-        _logger.info("Determined stop reason: '%s'" % stop_reason or "-")
+        _logger.debug("Determined stop reason: '%s'" % stop_reason or "-")
 
         self._update_record(self.context, stop_reason)
 
