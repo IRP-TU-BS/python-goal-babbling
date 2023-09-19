@@ -21,8 +21,6 @@ def setup_logging(
     """
     logging.getLogger().setLevel(logging.DEBUG)
 
-    formatter = logging.Formatter(log_format)
-
     stream_handler = logging.StreamHandler(stream=sys.stderr)
     stream_handler.setLevel(log_level)
     stream_handler.setFormatter(logging.Formatter(log_format))

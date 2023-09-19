@@ -92,7 +92,7 @@ class StateMachine(Generic[ContextType]):
         transition = None
 
         while self.context.is_running():
-            _logger.debug("%s -> %s" % (transition or "-", self.current_state.name))
+            _logger.debug("Executing transition: %s -> %s" % (transition or "-", self.current_state.name))
             transition = self.current_state()
 
             if transition is None:
