@@ -92,7 +92,7 @@ class StateMachine(Generic[ContextType]):
         transition = None
 
         while self.context.is_running():
-            _logger.debug(f"{transition or '-'} -> {self.current_state.name}")
+            _logger.debug("%s -> %s" % (transition or "-", self.current_state.name))
             transition = self.current_state()
 
             if transition is None:
@@ -127,7 +127,7 @@ class StateMachine(Generic[ContextType]):
             )
 
         self._transition_table[transition_name] = state
-        _logger.info(f"Added transition: {transition_name}->{state.name}")
+        _logger.info("Added transition: %s->%s" % (transition_name, state.name))
 
     def pop(self, transition_name: str, no_raise: bool = True) -> AbstractState | None:
         """Removes a transition from the transition table.
@@ -144,7 +144,7 @@ class StateMachine(Generic[ContextType]):
         """
         if transition_name in self._transition_table:
             state = self._transition_table.pop(transition_name)
-            _logger.info(f"Removed transition: {transition_name}->{state.name}")
+            _logger.info("Removed transition: %s->%s" % (transition_name, state.name))
             return state
 
         if no_raise:

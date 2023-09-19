@@ -1,7 +1,10 @@
+import logging
 from collections import defaultdict
 from typing import Callable, Optional
 
 from pygb._impl._core._abstract_context import AbstractContext, ContextType
+
+_logger = logging.getLogger(__name__)
 
 
 class EventSystem:
@@ -32,6 +35,7 @@ class EventSystem:
             event: Event name.
             context: Context instance.
         """
+        _logger.debug("Emitting event '%s'" % event)
         for func in self.event_observers[event]:
             func(context)
 
@@ -55,6 +59,7 @@ class EventSystem:
             return
 
         self.event_observers[event].append(observer)
+        _logger.debug("Registered observer '%s' for event '%s'" % (observer.__name__, event))
 
     def remove_observer(
         self, event: str, observer: Callable[[AbstractContext], None], no_raise: bool = True
@@ -84,7 +89,9 @@ class EventSystem:
 
     def clear(self) -> None:
         """Resets all registered events and event observers."""
+        len_obs = len(self.event_observers)
         self.event_observers: dict[str, list[Callable]] = defaultdict(list)
+        _logger.debug("Reset observers (were: %d)" % len_obs)
 
 
 def observes(event: str) -> Callable[[Callable[[AbstractContext], None]], Callable[[AbstractContext], None]]:

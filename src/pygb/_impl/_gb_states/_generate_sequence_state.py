@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 
 from pygb._impl._core._abstract_state import AbstractState
@@ -10,6 +12,8 @@ from pygb._impl._core._abstract_utils import (
 from pygb._impl._core._context import GoalBabblingContext
 from pygb._impl._core._event_system import EventSystem
 from pygb._impl._core._runtime_data import ActionSequence, ObservationSequence
+
+_logger = logging.getLogger(__name__)
 
 
 class GenerateSequenceState(AbstractState[GoalBabblingContext]):
@@ -46,6 +50,7 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
         """
         # generate sequence between previous stop goal and new target goal:
         target_goal_index, target_goal = self.goal_selector.select(self.context)
+        _logger.debug("Selected sequence target: Goal index %d" % target_goal_index)
 
         sequence = self._generate_new_sequence(target_goal, target_goal_index, self.context)
 
@@ -74,9 +79,18 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
 
         # increase stop goal's visit count:
         self.context.runtime_data.train_goal_visit_count[target_goal_index] += 1
+        _logger.debug(
+            "Train goal %d visit count update: %d->%d"
+            % (
+                target_goal_index,
+                self.context.runtime_data.train_goal_visit_count[target_goal_index] - 1,
+                self.context.runtime_data.train_goal_visit_count[target_goal_index],
+            )
+        )
 
         # note down prediction error on last observation, which is the target global goal:
         self.context.runtime_data.train_goal_error[target_goal_index] = rmse
+        _logger.debug("Train goal %d error update: %.8f" % (target_goal_index, rmse))
 
         return GenerateSequenceState.sequence_finished
 

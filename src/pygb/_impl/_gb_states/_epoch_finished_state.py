@@ -52,12 +52,19 @@ class EpochFinishedState(AbstractState[GoalBabblingContext]):
             Transition name.
         """
         # calculate performance errors on test set and all optional goal sets:
+        _logger.debug("Evaluating performance error")
         self.context.runtime_data.performance_error = self._evaluate(
             self.context.forward_model,
             self.context.inverse_estimate,
             self.context.current_goal_set.test,
         )
+
         if self.context.current_goal_set.optional_test is not None:
+            _logger.debug(
+                "Evaluating performance errors on %d optional test sets"
+                % len(self.context.current_goal_set.optional_test)
+            )
+
             for name, goals in self.context.current_goal_set.optional_test.items():
                 self.context.runtime_data.opt_performance_errors[name] = self._evaluate(
                     self.context.forward_model, self.context.inverse_estimate, goals
@@ -65,6 +72,7 @@ class EpochFinishedState(AbstractState[GoalBabblingContext]):
 
         self.events.emit(Events.EPOCH_COMPLETE, self.context)
         stop_reason = self._evaluate_stop(self.context)
+        _logger.info("Determined stop reason: '%s'" % stop_reason or "-")
 
         self._update_record(self.context, stop_reason)
 
@@ -75,18 +83,24 @@ class EpochFinishedState(AbstractState[GoalBabblingContext]):
 
         # check if any of the stopping criteria is met or the number of epochs per epoch set is reached:
         if stop_reason is not None:
+            _logger.debug("Stopping due to stop reason '%s'" % stop_reason)
             return EpochFinishedState.epoch_set_complete
 
         # otherwise we are still in the epoch set and need to start a new epoch:
         self.context.runtime_data.epoch_index += 1
+        _logger.debug(
+            "Epoch index update: %d->%d"
+            % (self.context.runtime_data.epoch_index - 1, self.context.runtime_data.epoch_index)
+        )
         return EpochFinishedState.epoch_set_not_complete
 
     def transitions(self) -> list[str]:
         return [EpochFinishedState.epoch_set_complete, EpochFinishedState.epoch_set_not_complete]
 
     def _update_record(self, context: GoalBabblingContext, stop_reason: str | None) -> None:
-        if len(context.epoch_set_records) < context.runtime_data.epoch_set_index + 1:
+        if record_count := len(context.epoch_set_records) < context.runtime_data.epoch_set_index + 1:
             context.epoch_set_records.append(EpochSetRecord())
+            _logger.debug("Updated epoch set records from %d to %d" % (record_count, record_count + 1))
 
         observation_sequence_count = 0
         action_sequence_count = 0
@@ -116,7 +130,7 @@ class EpochFinishedState(AbstractState[GoalBabblingContext]):
             context.inverse_estimate, context.runtime_data.epoch_set_index, context
         ):
             update_best = True
-            _logger.info(f"Stored new best inverse estimate [{context.runtime_data.performance_error}]")
+            _logger.info("Stored new best inverse estimate [%.8f]" % context.runtime_data.performance_error)
 
         elif (
             context.estimate_cache is None
@@ -130,6 +144,7 @@ class EpochFinishedState(AbstractState[GoalBabblingContext]):
 
         if update_best:
             context.epoch_set_records[-1].best = deepcopy(context.epoch_set_records[-1].total)
+            _logger.debug("Updated EpochSetRecord.best to match current EpochSetRecord.total")
 
     def _evaluate_stop(self, context: GoalBabblingContext) -> str | None:
         if context.runtime_data.epoch_index >= context.current_parameters.len_epoch_set - 1:

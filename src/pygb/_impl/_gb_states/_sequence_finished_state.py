@@ -1,7 +1,11 @@
+import logging
+
 from pygb._impl._core._abstract_state import AbstractState
 from pygb._impl._core._context import GoalBabblingContext
 from pygb._impl._core._event_system import EventSystem
 from pygb._impl._core._events import Events
+
+_logger = logging.getLogger(__name__)
 
 
 class SequenceFinishedState(AbstractState[GoalBabblingContext]):
@@ -42,10 +46,18 @@ class SequenceFinishedState(AbstractState[GoalBabblingContext]):
         self.events.emit(Events.SEQUENCE_FINISHED, self.context)
 
         self.context.runtime_data.sequences.append(self.context.runtime_data.current_sequence)
+        _logger.debug(
+            "Sequence record update: Appended %s" % self.context.runtime_data.current_sequence.__class__.__qualname__
+        )
         self.context.runtime_data.previous_sequence = self.context.runtime_data.current_sequence
+        _logger.debug("Set previous sequence to current sequence")
 
         if self.context.runtime_data.sequence_index < self.context.current_parameters.len_epoch - 1:
             self.context.runtime_data.sequence_index += 1
+            _logger.debug(
+                "Sequence index update: %d->%d"
+                % (self.context.runtime_data.sequence_index - 1, self.context.runtime_data.sequence_index)
+            )
 
             return SequenceFinishedState.epoch_not_finished
 

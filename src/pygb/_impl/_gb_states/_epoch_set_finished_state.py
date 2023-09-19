@@ -58,13 +58,6 @@ class EpochSetFinishedState(AbstractState[GoalBabblingContext]):
             f"""(reason: {self.context.epoch_set_records[-1].stop_reason})"""
         )
 
-        # reset epoch-set-specific runtime data:
-        train_goal_count = self.context.current_goal_set.train.shape[0]
-
-        self.context.runtime_data.train_goal_error = [0.0] * train_goal_count
-        self.context.runtime_data.train_goal_visit_count = [0] * train_goal_count
-        self.context.runtime_data.epoch_index = 0
-
         if self.context.runtime_data.epoch_set_index < self.context.num_epoch_sets - 1:
             if self.load_previous and self.context.estimate_cache is not None:
                 # context.model_store is not None due to check in __init__
@@ -85,9 +78,26 @@ class EpochSetFinishedState(AbstractState[GoalBabblingContext]):
                 _logger.warning(msg)
 
             self.context.runtime_data.epoch_set_index += 1
+            _logger.debug(
+                "Epoch set index update: %d->%d"
+                % (self.context.runtime_data.epoch_set_index - 1, self.context.runtime_data.epoch_set_index)
+            )
+            self._reset_runtime_data(self.context)
             return EpochSetFinishedState.continue_training
 
         return EpochSetFinishedState.stop_training
 
     def transitions(self) -> list[str]:
         return [EpochSetFinishedState.continue_training, EpochSetFinishedState.stop_training]
+
+    def _reset_runtime_data(self, context: GoalBabblingContext) -> None:
+        train_goal_count = context.current_goal_set.train.shape[0]
+
+        context.runtime_data.train_goal_error = [0.0] * train_goal_count
+        context.runtime_data.train_goal_visit_count = [0] * train_goal_count
+        context.runtime_data.epoch_index = 0
+
+        _logger.debug(
+            "Reset runtime data: Epoch index %d, training goal stats set to length of %d"
+            % (context.runtime_data.epoch_index, train_goal_count)
+        )
