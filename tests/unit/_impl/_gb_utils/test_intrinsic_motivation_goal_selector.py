@@ -229,3 +229,13 @@ def test_select_goal_by_interest_isolated_general_progress_overview(
     selected_index = selector._select_goal_by_interest(goal_error_matrix, goals_e_min, goals_e_max, previous_index)
 
     assert selected_index == expected_return
+
+
+def test_select_random_index_for_one_open_window_goal_that_has_just_been_visited() -> None:
+    selector = IntrinsicMotivationGoalSelector(
+        window_size=2, gamma=0.0, lambda_=0.0, event_system=EventSystem.instance()
+    )
+    goal_error_matrix = np.array([[19.0, 3.0], [3.0, 5.0], [6.0, 0]])  # 3 train goals, window size 2
+
+    assert selector._select_random_index(goal_error_matrix, previous_goal_index=2) != 2
+    assert selector._select_random_index(goal_error_matrix, previous_goal_index=0) == 2

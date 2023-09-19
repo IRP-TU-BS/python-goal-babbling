@@ -123,10 +123,14 @@ class IntrinsicMotivationGoalSelector(AbstractGoalSelector[GoalBabblingContext])
 
     def _select_random_index(self, goal_error_matrix: np.ndarray, previous_goal_index: int) -> int:
         open_window_indices = [idx for idx, sub in enumerate(goal_error_matrix) if np.any(sub == 0)]
-        index = None
 
-        while index is None or index == previous_goal_index:
-            index = self._rng.choice(open_window_indices, size=None, replace=True)
+        index = None
+        if len(open_window_indices) == 1 and open_window_indices[0] == previous_goal_index:
+            while index is None or index == previous_goal_index:
+                index = self._rng.integers(low=0, high=goal_error_matrix.shape[0], size=None)
+        else:
+            while index is None or index == previous_goal_index:
+                index = self._rng.choice(open_window_indices, size=None)
 
         return index
 
