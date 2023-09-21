@@ -162,4 +162,4 @@ sets trained.
 * Nico Weil
 * Heiko Donat
 
-This package is based on the work of M. Rolf.
+This package is based on the work of M. Rolf et al.
