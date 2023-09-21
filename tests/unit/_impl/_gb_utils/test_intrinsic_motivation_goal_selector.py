@@ -1,4 +1,3 @@
-from typing import Generator
 from unittest.mock import MagicMock
 
 import numpy as np

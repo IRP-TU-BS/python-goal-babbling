@@ -1,7 +1,7 @@
-# Python Goal Babbling Package
+# Python Goal Babbling
 
 This package implements the *Goal Babbling* method developed at the **IRP** (Intitut für Robotik und Prozessinformatik/
-Institute of Robotics and Process Control) at **Technische Universität Braunschweig**.
+Institute of Robotics and Process Control) / **Technische Universität Braunschweig**.
 
 It is licensed under the EUPL (compatible to e.g. GPLv3).
 
@@ -33,7 +33,7 @@ cd python-goal-babbling
 pip install .
 ```
 
-If you intend to plot the state machine which is used under the hood, use the following command:
+If you intend to plot the state machine which is used under the hood:
 ```shell
 pip install .[plot]
 ```
@@ -73,8 +73,8 @@ from pygb import (
 )
 from pygb.interfaces import (
     AbstractForwardModel,
-    AbstractInverseEstimator,
-    AbstractModelStore,
+    AbstractInverseEstimate,
+    AbstractEstimateCache,
 )
 
 class MyForwardModel(AbstractForwardModel):
@@ -85,7 +85,7 @@ class MyInverseEstimate(AbstractInverseEstimate):
   # You need to wrap your learner, e.g. your NN
   ...
 
-class MyModelStore(AbstractModelStore):
+class MyCache(AbstractEstimateCache):
   # You need to implement a model cache which caches 'best' models somewhere (e.g. in 
   # your RAM/on your disk)
   ...
@@ -112,7 +112,7 @@ state_machine = vanilla_goal_babbling(
   goal_sets=goal_set,
   forward_model=MyForwardModel(),
   inverse_estimate=MyInverseEstimate(),
-  model_store=MyModelStore(),
+  estimate_cache=MyCache(),
   goal_selector=RandomGoalSelector()
 )
 
@@ -156,3 +156,10 @@ sets trained.
 | Sequence         | A **collection of local goals** between two (global) goals. In kinematics terms, a sequence is a linear path of positions in task space along which the robot moves ('reaching motions') and along which training samples are generated.                            |
 | Epoch            | A **collection of multiple sequences**. The performance error on the provided test goals (+ optional additional goals) is calculated after a completed epoch.                                                                                                       |
 | Epoch Set        | A **collection of multiple epochs**. Allows e.g. changing Goal Babbling parameters or training goals during training. The best estimate per epoch set is recorded in a model store.                                                                                 |
+
+## Contributors
+
+* Nico Weil
+* Heiko Donat
+
+This package is based on the work of M. Rolf.
