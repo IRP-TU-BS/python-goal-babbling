@@ -56,11 +56,11 @@ class GBHomeWeightGenerator(AbstractWeightGenerator[GoalBabblingContext]):
         observation_norm = np.linalg.norm(observation_diff, self.norm)
         action_norm = np.linalg.norm(action_diff, self.norm)
 
-        if observation_norm <= 1e-10:
-            observation_norm = 1  # TODO this seems questionable
+        if observation_norm == 0:
+            observation_norm = 1.0
 
-        if action_norm <= 1e-10:
-            w_eff = 0
+        if action_norm == 0:
+            w_eff = 0.0
         else:
             w_eff = observation_norm / action_norm
 

@@ -117,17 +117,16 @@ class GBWeightGenerator(AbstractWeightGenerator[GoalBabblingContext]):
         action_norm = np.linalg.norm(action_diff, self.norm)
         local_goal_norm = np.linalg.norm(local_goal_diff, self.norm)
 
-        # TODO this seems questionable
-        if prediction_norm <= 1e-10:
+        if prediction_norm == 0:
             prediction_norm = 1  # type: ignore
 
-        if action_norm <= 1e-10:
+        if action_norm == 0:
             w_eff = 0.0
         else:
             w_eff = prediction_norm / action_norm  # type: ignore
 
-        if local_goal_norm <= 1e-10:
-            local_goal_norm = 1.0  # TODO
+        if local_goal_norm == 0:
+            local_goal_norm = 1.0
 
         goal_cosine = np.dot(prediction_diff / prediction_norm, local_goal_diff / local_goal_norm)
 
