@@ -64,4 +64,4 @@ class GBHomeWeightGenerator(AbstractWeightGenerator[GoalBabblingContext]):
         else:
             w_eff = observation_norm / action_norm
 
-        return w_eff
+        return min(w_eff, 1)
