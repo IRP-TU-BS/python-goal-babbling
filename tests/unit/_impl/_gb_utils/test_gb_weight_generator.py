@@ -66,21 +66,21 @@ def test_gb_weight_generator_efficiency_weight() -> None:
 
     # high efficiency vs low efficiency
     _, w_eff_high = generator._calc_weights(
-        local_goal=np.array([1.0, 1.0]),
-        prev_local=np.array([1.0, 1.0]),
-        local_goal_pred=np.array([10.0, 5.0]),
-        prev_local_pred=np.array([0.0, 0.0]),
-        action=np.array([0.5, 0.0]),
-        prev_action=np.array([0.0, 0.0]),
+        local_goal=np.array([0.01, 0.001]),
+        prev_local=np.array([0.0, 0.0]),
+        local_goal_pred=np.array([0.009, 0.011]),
+        prev_local_pred=np.array([0.0001, 0.000025]),
+        action=np.array([0.1, -0.1, 0.1, 0.005, 0.017, 0.027]),
+        prev_action=np.array([0.0, 0.0, 0.0, 0.005, 0.015, 0.025]),
     )
 
     _, w_eff_low = generator._calc_weights(
-        local_goal=np.array([1.0, 1.0]),
-        prev_local=np.array([1.0, 1.0]),
-        local_goal_pred=np.array([5.0, 1.0]),
-        prev_local_pred=np.array([0.0, 0.0]),
-        action=np.array([0.5, 0.0]),
-        prev_action=np.array([0.0, 0.0]),
+        local_goal=np.array([0.01, 0.001]),
+        prev_local=np.array([0.0, 0.0]),
+        local_goal_pred=np.array([0.009, 0.011]),
+        prev_local_pred=np.array([0.0001, 0.000025]),
+        action=np.array([1.0, -0.8, 0.9, 0.015, 0.025, 0.035]),
+        prev_action=np.array([0.0, 0.0, 0.0, 0.005, 0.015, 0.025]),
     )
 
     assert w_eff_low < w_eff_high
