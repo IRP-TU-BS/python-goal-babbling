@@ -19,6 +19,7 @@ from pygb._impl._core._stopping_criteria import (
     TargetPerformanceStop,
     TimeBudgetStop,
 )
+from pygb._impl._gb_utils._balanced_goal_selector import BalancedGoalSelector
 from pygb._impl._gb_utils._error_based_goal_selector import ErrorBasedGoalSelector
 from pygb._impl._gb_utils._gb_home_weight_generator import GBHomeWeightGenerator
 from pygb._impl._gb_utils._gb_weight_generator import GBWeightGenerator
