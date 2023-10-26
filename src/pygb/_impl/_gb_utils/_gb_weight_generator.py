@@ -132,4 +132,4 @@ class GBWeightGenerator(AbstractWeightGenerator[GoalBabblingContext]):
 
         w_dir = 0.5 + 0.5 * goal_cosine
 
-        return w_dir, min(w_eff, 1)
+        return w_dir, min(w_eff, 1.0)

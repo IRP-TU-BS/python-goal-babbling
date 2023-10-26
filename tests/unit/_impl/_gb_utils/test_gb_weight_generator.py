@@ -86,6 +86,21 @@ def test_gb_weight_generator_efficiency_weight() -> None:
     assert w_eff_low < w_eff_high
 
 
+def test_max_w_eff() -> None:
+    generator = GBWeightGenerator()
+
+    _, w_eff = generator._calc_weights(
+        local_goal=np.array([1.0, 1.0]),
+        prev_local=np.array([1.0, 1.0]),
+        local_goal_pred=np.array([10.0, 5.0]),
+        prev_local_pred=np.array([0.0, 0.0]),
+        action=np.array([0.5, 0.0]),
+        prev_action=np.array([0.0, 0.0]),
+    )
+
+    assert w_eff == 1.0
+
+
 @pytest.mark.parametrize(
     (
         "observation_index",
