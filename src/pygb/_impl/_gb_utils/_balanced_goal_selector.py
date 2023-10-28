@@ -27,7 +27,7 @@ class BalancedGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
             unvisited_idx = np.argwhere(visit_count == 0).reshape(-1)
             goal_idx = self.rng.choice(unvisited_idx)
 
-            context.runtime_data.misc_data[self.__class__.__qualname__]["n_random"] += 1
+            self.stats["n_random"] += 1
         else:
             if context.runtime_data.previous_sequence is None or isinstance(
                 context.runtime_data.previous_sequence, ActionSequence
