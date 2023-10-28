@@ -96,6 +96,7 @@ class EpochSetFinishedState(AbstractState[GoalBabblingContext]):
         context.runtime_data.train_goal_error = [0.0] * train_goal_count
         context.runtime_data.train_goal_visit_count = [0] * train_goal_count
         context.runtime_data.epoch_index = 0
+        context.runtime_data.misc_data = {}
 
         _logger.debug(
             "Reset runtime data: Epoch index %d, training goal stats set to length of %d"

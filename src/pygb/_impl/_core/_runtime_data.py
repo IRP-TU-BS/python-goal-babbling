@@ -62,6 +62,8 @@ class RuntimeData(AbstractLoggable):
     """Prediction error on each training goal, calculated after the goal has been visited."""
     train_goal_visit_count: list[int] = field(default_factory=list)
     """Visit count per training goal. Reset before a new epoch set is started."""
+    misc_data: dict[str, Any] = field(default_factory=dict)
+    """Dictionary which can be used to log arbitrary data. Reset after an epoch set has been completed."""
 
     def metrics(self) -> dict[str, Any]:
         """Returns the performance errors formatted as a dictionary.

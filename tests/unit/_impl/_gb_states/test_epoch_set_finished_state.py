@@ -4,7 +4,15 @@ from unittest.mock import MagicMock, PropertyMock
 import numpy as np
 import pytest
 
-from pygb import EventSystem, GoalBabblingContext, GoalSet, RuntimeData, observes
+from pygb import (
+    EpochSetRecord,
+    EpochSetStats,
+    EventSystem,
+    GoalBabblingContext,
+    GoalSet,
+    RuntimeData,
+    observes,
+)
 from pygb.interfaces import AbstractEstimateCache
 from pygb.states import EpochSetFinishedState
 
@@ -60,12 +68,14 @@ def test_execute_state_stop_training() -> None:
 def test_execute_state_resets_epoch_data() -> None:
     context_mock = MagicMock(
         spec=GoalBabblingContext,
+        epoch_set_records=[EpochSetRecord(EpochSetStats(), EpochSetStats(), stop_reason="test-stop-reason")],
         runtime_data=MagicMock(
             spec=RuntimeData,
-            epoch_set_index=1,
+            epoch_set_index=0,
             epoch_index=10,
             train_goal_error=[0.5, 0.4],
             train_goal_visit_count=[2, 4],
+            misc_data={"foo": [1, 2], "bar": [42, 24]},
         ),
         current_goal_set=PropertyMock(spec=GoalSet, train=np.ones((2, 3)), test=np.ones((1, 3))),
         num_epoch_sets=2,
@@ -77,6 +87,7 @@ def test_execute_state_resets_epoch_data() -> None:
     assert context_mock.runtime_data.train_goal_error == [0.0, 0.0]
     assert context_mock.runtime_data.train_goal_visit_count == [0, 0]
     assert context_mock.runtime_data.epoch_index == 0
+    assert context_mock.runtime_data.misc_data == {}
 
 
 def test_execute_state_loads_previous_best_estimate() -> None:
