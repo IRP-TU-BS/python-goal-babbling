@@ -19,11 +19,15 @@ class BalancedGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
         self.ratio = ratio
         self.rng = rng
 
+        self.stats: dict[str, int] = {"n_random": 0, "n_by_error": 0, "n_by_count": 0}
+
     def select(self, context: GoalBabblingContext) -> tuple[int, np.ndarray]:
         visit_count = np.asanyarray(context.runtime_data.train_goal_visit_count)
         if np.any(visit_count == 0):
             unvisited_idx = np.argwhere(visit_count == 0).reshape(-1)
             goal_idx = self.rng.choice(unvisited_idx)
+
+            context.runtime_data.misc_data[self.__class__.__qualname__]["n_random"] += 1
         else:
             if context.runtime_data.previous_sequence is None or isinstance(
                 context.runtime_data.previous_sequence, ActionSequence
@@ -34,8 +38,10 @@ class BalancedGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
 
             if self.rng.random() <= self.ratio:
                 goal_idx = self._choose_goal_by_error(context.runtime_data.train_goal_error, prev_goal_idx)
+                self.stats["n_by_error"] += 1
             else:
                 goal_idx = self._choose_goal_by_visit_count(context.runtime_data.train_goal_visit_count, prev_goal_idx)
+                self.stats["n_by_count"] += 1
 
         return goal_idx, context.current_goal_set.train[goal_idx]
 
