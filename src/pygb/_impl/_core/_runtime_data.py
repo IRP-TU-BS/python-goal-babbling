@@ -37,22 +37,31 @@ class ActionSequence:
 @dataclass
 class RuntimeData(AbstractLoggable):
     current_sequence: ObservationSequence | ObservationSequence | None = None
+    """Currently active sequence. Updated after a completed sequence. Note that data in the sequence is incomplete until
+    a 'sequence-complete' event is emitted."""
     previous_sequence: ObservationSequence | ActionSequence | None = None
-    performance_error: float | None = None  # error on test goals after last completed epoch
-    opt_performance_errors: dict[str, float] = field(
-        default_factory=dict
-    )  # error on optional test goals calculated after each epoch
-    observation_index: int = 0  # how far are we within the sequence?
-    sequence_index: int = 0  # current sequence index (i.e. how far into the epoch are we?)
-    epoch_index: int = 0  # current epoch index (i.e. how far into the epoch set are we?)
-    epoch_set_index: int = 0  # current epoch set (i.e. how far into the training are we?)
-    sequences: list[ActionSequence | ObservationSequence] = field(
-        default_factory=list
-    )  # list of COMPLETED (i.e. previous) sequences
-    train_goal_error: list[float] = field(
-        default_factory=list
-    )  # training goal error, calculated pre goal after a completed sequence
-    train_goal_visit_count: list[int] = field(default_factory=list)  # visit count per goal
+    """Previous sequence. Updated after a completed sequence. None indicates that the current epoch set has just been
+    started."""
+    performance_error: float | None = None
+    """RMSE on all test goals. Updated after a completed epoch and before an 'epoch-complete' (see pygb.Events) is
+    emitted."""
+    opt_performance_errors: dict[str, float] = field(default_factory=dict)
+    """RMSE on all optional test goals. Also updated after an epoch has been completed."""
+    observation_index: int = 0
+    """Current observation (or step) within a sequence."""
+    sequence_index: int = 0
+    """Current sequence index, i.e. indicates the progress within the current epoch."""
+    epoch_index: int = 0
+    """Current epoch index, i.e. indicates the progress within the current epoch set."""
+    epoch_set_index: int = 0
+    """Current epoch set index, i.e. indicates the progress in the overall training."""
+    sequences: list[ActionSequence | ObservationSequence] = field(default_factory=list)
+    """List of completed (i.e. previous) sequences. List is reset after an 'epoch-set-complete' (see pygb.Events) event
+    is emitted"""
+    train_goal_error: list[float] = field(default_factory=list)
+    """Prediction error on each training goal, calculated after the goal has been visited."""
+    train_goal_visit_count: list[int] = field(default_factory=list)
+    """Visit count per training goal. Reset before a new epoch set is started."""
 
     def metrics(self) -> dict[str, Any]:
         """Returns the performance errors formatted as a dictionary.
