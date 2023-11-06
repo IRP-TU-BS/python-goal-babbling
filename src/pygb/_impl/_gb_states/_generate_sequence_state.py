@@ -100,13 +100,14 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
     def _generate_new_sequence(
         self, target_goal: np.ndarray, target_goal_index: int, context: GoalBabblingContext
     ) -> ObservationSequence:
-        if context.runtime_data.previous_sequence is None:
-            # start of epoch set -> no previous sequence, so we start at the home observation
+        if context.runtime_data.previous_sequence is None or isinstance(
+            context.runtime_data.previous_sequence, ActionSequence
+        ):
+            # start of epoch set/previous sequence was to home -> no previous target goal, so we start at the home
+            # observation
             start_goal = context.current_parameters.home_observation
-        elif isinstance(context.runtime_data.previous_sequence, ObservationSequence):
+        else:
             start_goal = context.runtime_data.previous_sequence.stop_goal
-        elif isinstance(context.runtime_data.previous_sequence, ActionSequence):
-            start_goal = context.runtime_data.previous_sequence.observations[-1]
 
         local_goal_sequence = self.goal_sequence_generator.generate(
             start=start_goal, stop=target_goal, len_sequence=context.current_parameters.len_sequence

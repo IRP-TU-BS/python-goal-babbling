@@ -226,3 +226,37 @@ def test_execute_state(generate_sequence_mock: MagicMock) -> None:
     noise_generator_mock.update.assert_called()
 
     goal_selector_mock.select.assert_called_once_with(context)
+
+
+def test_generate_new_sequence_chooses_home_observation_if_last_sequence_was_action_sequence() -> None:
+    home_observation = np.array([3.0, 6.0])
+    stop_goal = np.array([0.0, 0.0])
+    stop_goal_index = 2
+    sequence = [np.array([2.0, 4.0]), np.array([1.0, 2.0]), np.array([0.0, 0.0])]
+
+    mock_context = MagicMock(
+        spec=GoalBabblingContext,
+        runtime_data=MagicMock(
+            spec=RuntimeData,
+            previous_sequence=ActionSequence(None, None, None, None, None),
+        ),
+        current_parameters=MagicMock(spec=GBParameters, home_observation=home_observation, len_sequence=3),
+    )
+    mock_sequence_generator = MagicMock(
+        spec=AbstractSequenceGenerator,
+        generate=MagicMock(return_value=sequence),
+    )
+
+    state = GenerateSequenceState(
+        context=mock_context,
+        goal_selector=None,
+        goal_sequence_generator=mock_sequence_generator,
+        noise_generator=None,
+        weight_generator=None,
+    )
+
+    observation_sequence = state._generate_new_sequence(
+        target_goal=stop_goal, target_goal_index=stop_goal_index, context=mock_context
+    )
+
+    assert np.all(observation_sequence.start_goal == home_observation)
