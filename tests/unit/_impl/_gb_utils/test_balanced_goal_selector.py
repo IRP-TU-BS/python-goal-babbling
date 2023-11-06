@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import numpy as np
 
@@ -84,3 +84,19 @@ def test_select_goal_randomly() -> None:
         context_mock.runtime_data.train_goal_visit_count[index] += 1
 
     assert target_goals != [0, 1, 2, 3, 4]
+
+
+def test_choose_goal_by_error_does_not_pick_previous_goal() -> None:
+    rng = np.random.default_rng(seed=42)
+    selector = BalancedGoalSelector(error_percentile=0.25, count_percentile=0.25, rng=rng)
+
+    goal_errors = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
+    assert selector._choose_goal_by_error(goal_errors, 7) != 7
+
+
+def test_choose_goal_by_visit_count_does_not_pick_previous_goal() -> None:
+    rng = np.random.default_rng(seed=42)
+    selector = BalancedGoalSelector(error_percentile=0.25, count_percentile=0.25, rng=rng)
+
+    visit_counts = [1, 2, 3, 4, 5, 6, 7, 8]
+    assert selector._choose_goal_by_visit_count(visit_counts, 0) != 0

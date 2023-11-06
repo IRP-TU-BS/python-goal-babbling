@@ -45,6 +45,14 @@ class BalancedGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
 
         return goal_idx, context.current_goal_set.train[goal_idx]
 
+    def _choose_goal_randomly(self, goal_count: int, prev_goal_idx: int) -> int:
+        selected_idx = None
+
+        while selected_idx is None or selected_idx == prev_goal_idx:
+            selected_idx = self.rng.integers(low=0, high=goal_count)
+
+        return selected_idx
+
     def _choose_goal_by_error(self, goal_errors: list[float], prev_goal_idx: int) -> int:
         sorted_idx = np.argsort(goal_errors)[::-1]
 
