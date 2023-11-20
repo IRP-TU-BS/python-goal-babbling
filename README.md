@@ -159,7 +159,7 @@ sets trained.
 
 ## Contributors
 
-* Nico Weil
-* Heiko Donat
+* Nico Weil ([qworkz11](https://github.com/qworkz11))
+* Heiko Donat ([hdonat](https://github.com/hdonat))
 
 This package is based on the work of M. Rolf et al.
