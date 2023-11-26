@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from pytest import LogCaptureFixture
 
 from pygb import EventSystem, StateMachine
 from pygb.interfaces import AbstractContext, AbstractState
@@ -69,6 +70,17 @@ class MultipleTransitionState(AbstractState[DummyContext]):
 
     def transitions(self) -> list[str]:
         return ["transition1", "transition2"]
+
+
+class RaisingState(AbstractState[DummyContext]):
+    def __init__(self, context: DummyContext, event_system: EventSystem = ..., name: str | None = None) -> None:
+        super().__init__(context)
+
+    def __call__(self) -> str | None:
+        raise RuntimeError("FooBar")
+
+    def transitions(self) -> list[str]:
+        return []
 
 
 def test_init() -> None:
@@ -236,3 +248,18 @@ def test_graph(tmp_path: Path, type_: str, expected_file: str) -> None:
     sm.graph(tmp_path, type_, "test")
 
     assert tmp_path.joinpath(expected_file).is_file()
+
+
+def test_state_machine_shuts_down_when_state_raises_error(caplog: LogCaptureFixture) -> None:
+    context = DummyContext()
+    state = RaisingState(context)
+
+    sm = StateMachine(context, initial_state=state)
+
+    sm.add("transition", state)
+
+    sm.run()
+
+    assert caplog.messages[0] == "State machine stopped due to error: FooBar"
+    assert "Traceback (most recent call last):" in caplog.messages[1]
+    assert "RuntimeError: FooBar" in caplog.messages[1]

@@ -1,4 +1,5 @@
 import logging
+import traceback
 from pathlib import Path
 from typing import Any, Generic, Literal
 
@@ -92,19 +93,24 @@ class StateMachine(Generic[ContextType]):
         transition = None
 
         while self.context.is_running():
-            _logger.debug("Executing transition: %s -> %s" % (transition or "-", self.current_state.name))
-            transition = self.current_state()
+            try:
+                _logger.debug("Executing transition: %s -> %s" % (transition or "-", self.current_state.name))
+                transition = self.current_state()
 
-            if transition is None:
+                if transition is None:
+                    break
+
+                if transition not in self._transition_table:
+                    raise RuntimeError(
+                        f"""State Machine failure: State '{self.current_state.name}' returned unknown transition """
+                        f"""'{transition}'."""
+                    )
+
+                self._current_state = self._transition_table[transition]
+            except Exception as error:
+                _logger.error("State machine stopped due to error: %s" % error)
+                _logger.error("Full traceback: %s" % traceback.format_exc())
                 break
-
-            if transition not in self._transition_table:
-                raise RuntimeError(
-                    f"""State Machine failure: State '{self.current_state.name}' returned unknown transition """
-                    f"""'{transition}'."""
-                )
-
-            self._current_state = self._transition_table[transition]
 
         _logger.info("State machine stopped")
 
