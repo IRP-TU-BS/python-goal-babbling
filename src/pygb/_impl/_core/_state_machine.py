@@ -3,7 +3,6 @@ import traceback
 from pathlib import Path
 from typing import Any, Generic, Literal
 
-from pygb._impl._core._abstract_context import AbstractContext
 from pygb._impl._core._abstract_state import AbstractState, ContextType
 
 try:
