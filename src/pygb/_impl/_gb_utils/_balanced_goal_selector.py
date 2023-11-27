@@ -26,47 +26,50 @@ class BalancedGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
         if np.any(visit_count == 0):
             unvisited_idx = np.argwhere(visit_count == 0).reshape(-1)
             goal_idx = self.rng.choice(unvisited_idx)
+            goal = context.current_goal_set.train[goal_idx]
 
             self.stats["n_random"] += 1
         else:
             if context.runtime_data.previous_sequence is None or isinstance(
                 context.runtime_data.previous_sequence, ActionSequence
             ):
-                prev_goal_idx = -1
+                prev_observation = context.current_parameters.home_observation
             else:
-                prev_goal_idx = context.runtime_data.previous_sequence.stop_goal_index
+                prev_observation = context.current_goal_set.train[
+                    context.runtime_data.previous_sequence.stop_goal_index
+                ]
 
             if self.rng.random() <= self.ratio:
-                goal_idx = self._choose_goal_by_error(context.runtime_data.train_goal_error, prev_goal_idx)
+                goal_idx, goal = self._choose_goal_by_error(
+                    context.runtime_data.train_goal_error, context.current_goal_set.train, prev_observation
+                )
                 self.stats["n_by_error"] += 1
             else:
-                goal_idx = self._choose_goal_by_visit_count(context.runtime_data.train_goal_visit_count, prev_goal_idx)
+                goal_idx, goal = self._choose_goal_by_visit_count(
+                    context.runtime_data.train_goal_visit_count, context.current_goal_set.train, prev_observation
+                )
                 self.stats["n_by_count"] += 1
 
-        return goal_idx, context.current_goal_set.train[goal_idx]
+        return goal_idx, goal
 
-    def _choose_goal_randomly(self, goal_count: int, prev_goal_idx: int) -> int:
-        selected_idx = None
-
-        while selected_idx is None or selected_idx == prev_goal_idx:
-            selected_idx = self.rng.integers(low=0, high=goal_count)
-
-        return selected_idx
-
-    def _choose_goal_by_error(self, goal_errors: list[float], prev_goal_idx: int) -> int:
+    def _choose_goal_by_error(
+        self, goal_errors: list[float], goals: np.ndarray, prev_observation: int
+    ) -> tuple[int, np.ndarray]:
         sorted_idx = np.argsort(goal_errors)[::-1]
 
         selected_idx = None
-        while selected_idx is None or selected_idx == prev_goal_idx:
+        while selected_idx is None or np.all(goals[selected_idx] == prev_observation):
             selected_idx = self.rng.choice(sorted_idx[: int(len(sorted_idx) * self.error_percentile)], replace=False)
 
-        return selected_idx
+        return selected_idx, goals[selected_idx]
 
-    def _choose_goal_by_visit_count(self, goal_visit_counts: list[int], prev_goal_idx: int) -> int:
+    def _choose_goal_by_visit_count(
+        self, goal_visit_counts: list[int], goals: np.ndarray, prev_observation: np.ndarray
+    ) -> tuple[int, np.ndarray]:
         sorted_idx = np.argsort(goal_visit_counts)
 
         selected_idx = None
-        while selected_idx is None or selected_idx == prev_goal_idx:
+        while selected_idx is None or np.all(goals[selected_idx] == prev_observation):
             selected_idx = self.rng.choice(sorted_idx[: int(len(sorted_idx) * self.count_percentile)], replace=False)
 
-        return selected_idx
+        return selected_idx, goals[selected_idx]
