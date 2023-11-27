@@ -7,6 +7,12 @@ from pygb._impl._core._runtime_data import ActionSequence
 
 
 class BalancedGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
+    """Goal selector which selects goals based on highest prediction errors and lowest visit count.
+
+    A goal is randomly selected among unvisited training goals as long as there exist training goals which have never
+    been visited. As soon as every training goal has been visited at least once, target goals are selected either based
+    on their prediction errors (on the last visit) or based on their visit counts."""
+
     def __init__(
         self,
         error_percentile: float = 0.25,
@@ -14,6 +20,20 @@ class BalancedGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
         ratio: float = 0.5,
         rng: Generator = np.random.default_rng(),
     ) -> None:
+        """Constructor.
+
+        Args:
+            error_percentile: Defines the percentile of the training goals which is used to pick a high-error goal. E.g.
+                if set to 0.25/25%, a random selection is done from the top 25% high prediction error training goals.
+                Defaults to 0.25.
+            count_percentile: Defines the precentile of the training goals which is used to pick a training goal wiht
+                low visit count. E.g. if set to 0.25/25%, a random selection is done from the bottom 25% of goals with
+                low visit counts. Defaults to 0.25.
+            ratio: Defines the ratio of goal selections by error over goal selections by visit count. E.g. if set to
+                0.7/70%, 70% of selections are done based on goals' prediction errors, and 30% of selections are done
+                based on the goals' visit counts. Defaults to 0.5.
+            rng: Numpy random number generator. Defaults to np.random.default_rng().
+        """
         self.error_percentile = error_percentile
         self.count_percentile = count_percentile
         self.ratio = ratio
@@ -22,6 +42,14 @@ class BalancedGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
         self.stats: dict[str, int] = {"n_random": 0, "n_by_error": 0, "n_by_count": 0}
 
     def select(self, context: GoalBabblingContext) -> tuple[int, np.ndarray]:
+        """Selects a new target goal.
+
+        Args:
+            context: GoalBabblingContext instance.
+
+        Returns:
+            A tuple containing the goal index and the goal as a numpy array.
+        """
         visit_count = np.asanyarray(context.runtime_data.train_goal_visit_count)
         if np.any(visit_count == 0):
             unvisited_idx = np.argwhere(visit_count == 0).reshape(-1)
