@@ -1,9 +1,13 @@
+import logging
+
 import numpy as np
 from numpy.random import Generator
 
 from pygb._impl._core._abstract_utils import AbstractGoalSelector
 from pygb._impl._core._context import GoalBabblingContext
-from pygb._impl._core._runtime_data import ActionSequence
+from pygb._impl._core._runtime_data import ActionSequence, ObservationSequence
+
+_logger = logging.getLogger(__name__)
 
 
 class BalancedGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
@@ -56,16 +60,21 @@ class BalancedGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
             goal_idx = self.rng.choice(unvisited_idx)
             goal = context.current_goal_set.train[goal_idx]
 
+            _logger.debug("Random goal selection: Goal index %d" % goal_idx)
             self.stats["n_random"] += 1
         else:
+            _logger.debug("All goals have visit count >= 1. Goal selection by error/visit count")
             if context.runtime_data.previous_sequence is None or isinstance(
                 context.runtime_data.previous_sequence, ActionSequence
             ):
                 prev_observation = context.current_parameters.home_observation
+                _logger.debug("Previous sequence None/ActionSequence: Select home observation as previous observation")
             else:
-                prev_observation = context.current_goal_set.train[
-                    context.runtime_data.previous_sequence.stop_goal_index
-                ]
+                prev_observation = context.runtime_data.previous_sequence.stop_goal
+                _logger.debug(
+                    "Previous sequence %s: Previous stop goal index %d"
+                    % (ObservationSequence.__qualname__, context.runtime_data.previous_sequence.stop_goal_index)
+                )
 
             if self.rng.random() <= self.ratio:
                 goal_idx, goal = self._choose_goal_by_error(
