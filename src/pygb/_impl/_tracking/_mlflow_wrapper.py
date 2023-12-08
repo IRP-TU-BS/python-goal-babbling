@@ -27,9 +27,18 @@ class MLFlowWrapper:
     """
 
     def __init__(
-        self, experiment_name: str, parent_run: str, directory: Path | None = None, parent_run_description: str = "-"
+        self,
+        experiment_name: str | None,
+        parent_run: str,
+        directory: Path | None = None,
+        parent_run_description: str = "-",
+        experiment_id: str | None = None,
     ) -> None:
+        if experiment_name is None and experiment_id is None:
+            raise ValueError("One of experiment_name and experiment_id must be specified.")
+
         self.experiment_name = experiment_name
+        self.experiment_id_ = experiment_id
         self.parent_run = parent_run
         self.parent_run_description = parent_run_description
 
@@ -50,12 +59,21 @@ class MLFlowWrapper:
 
     @property
     def experiment_id(self) -> str:
-        _experiment = mlflow.get_experiment_by_name(self.experiment_name)
-
-        if _experiment is None:
-            _experiment_id = mlflow.create_experiment(self.experiment_name)
-        else:
+        if self.experiment_id_ is not None:
+            _experiment = mlflow.get_experiment(self.experiment_id_)
+            if _experiment is None:
+                raise RuntimeError(
+                    f"""Unknown experiment ID '{self.experiment_id_}'. When specifying an experiment ID, no new """
+                    """experiment is created. Use an experiment name instead."""
+                )
             _experiment_id = _experiment.experiment_id
+        else:
+            _experiment = mlflow.get_experiment_by_name(self.experiment_name)
+
+            if _experiment is None:
+                _experiment_id = mlflow.create_experiment(self.experiment_name)
+            else:
+                _experiment_id = _experiment.experiment_id
 
         return _experiment_id
 
