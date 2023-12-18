@@ -54,28 +54,35 @@ class BalancedGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
         Returns:
             A tuple containing the goal index and the goal as a numpy array.
         """
-        visit_count = np.asanyarray(context.runtime_data.train_goal_visit_count)
+        visit_count = np.asarray(context.runtime_data.train_goal_visit_count)
+
+        _logger.debug("All goals have visit count >= 1. Goal selection by error/visit count")
+        if context.runtime_data.previous_sequence is None or isinstance(
+            context.runtime_data.previous_sequence, ActionSequence
+        ):
+            prev_observation = context.current_parameters.home_observation
+            _logger.debug("Previous sequence None/ActionSequence: Select home observation as previous observation")
+        else:
+            prev_observation = context.runtime_data.previous_sequence.stop_goal
+            _logger.debug(
+                "Previous sequence %s: Previous stop goal index %d"
+                % (ObservationSequence.__qualname__, context.runtime_data.previous_sequence.stop_goal_index)
+            )
+
         if np.any(visit_count == 0):
             unvisited_idx = np.argwhere(visit_count == 0).reshape(-1)
             goal_idx = self.rng.choice(unvisited_idx)
             goal = context.current_goal_set.train[goal_idx]
 
+            if np.all(goal == prev_observation):
+                goal_idx, goal = self._choose_goal_by_visit_count(
+                    context.runtime_data.train_goal_visit_count, context.current_goal_set.train, prev_observation
+                )
+                _logger.debug("Random goal selection equals previous goal. Choosing goal by visit count instead...")
+
             _logger.debug("Random goal selection: Goal index %d" % goal_idx)
             self.stats["n_random"] += 1
         else:
-            _logger.debug("All goals have visit count >= 1. Goal selection by error/visit count")
-            if context.runtime_data.previous_sequence is None or isinstance(
-                context.runtime_data.previous_sequence, ActionSequence
-            ):
-                prev_observation = context.current_parameters.home_observation
-                _logger.debug("Previous sequence None/ActionSequence: Select home observation as previous observation")
-            else:
-                prev_observation = context.runtime_data.previous_sequence.stop_goal
-                _logger.debug(
-                    "Previous sequence %s: Previous stop goal index %d"
-                    % (ObservationSequence.__qualname__, context.runtime_data.previous_sequence.stop_goal_index)
-                )
-
             if self.rng.random() <= self.ratio:
                 goal_idx, goal = self._choose_goal_by_error(
                     context.runtime_data.train_goal_error, context.current_goal_set.train, prev_observation
@@ -90,13 +97,20 @@ class BalancedGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
         return goal_idx, goal
 
     def _choose_goal_by_error(
-        self, goal_errors: list[float], goals: np.ndarray, prev_observation: int
+        self, goal_errors: list[float], goals: np.ndarray, prev_observation: np.ndarray
     ) -> tuple[int, np.ndarray]:
         sorted_idx = np.argsort(goal_errors)[::-1]
 
+        choice_stop_idx = int(len(sorted_idx) * self.error_percentile)
+        if choice_stop_idx <= 2:
+            raise RuntimeError(
+                f"""Error count selection percentile too small: {self.error_percentile}. """
+                f"""Either increase it or increase the number of goals (currently: {goals.shape[0]})."""
+            )
+
         selected_idx = None
         while selected_idx is None or np.all(goals[selected_idx] == prev_observation):
-            selected_idx = self.rng.choice(sorted_idx[: int(len(sorted_idx) * self.error_percentile)], replace=False)
+            selected_idx = self.rng.choice(sorted_idx[:choice_stop_idx], replace=False)
 
         return selected_idx, goals[selected_idx]
 
@@ -105,8 +119,15 @@ class BalancedGoalSelector(AbstractGoalSelector[GoalBabblingContext]):
     ) -> tuple[int, np.ndarray]:
         sorted_idx = np.argsort(goal_visit_counts)
 
+        choice_stop_idx = int(len(sorted_idx) * self.count_percentile)
+        if choice_stop_idx <= 2:
+            raise RuntimeError(
+                f"""Visit count selection percentile too small: {self.count_percentile}. Either increase percentile """
+                f"""or number of goals (currently: {goals.shape[0]} goals)."""
+            )
+
         selected_idx = None
         while selected_idx is None or np.all(goals[selected_idx] == prev_observation):
-            selected_idx = self.rng.choice(sorted_idx[: int(len(sorted_idx) * self.count_percentile)], replace=False)
+            selected_idx = self.rng.choice(sorted_idx[:choice_stop_idx], replace=False)
 
         return selected_idx, goals[selected_idx]
