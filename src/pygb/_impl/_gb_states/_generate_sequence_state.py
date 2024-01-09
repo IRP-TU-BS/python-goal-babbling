@@ -90,9 +90,8 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
         )
 
         # note down performance error on sequence's target goal:
-        self.context.runtime_data.train_goal_error[target_goal_index] = self._calc_performance_error(
-            target_goal, self.context.forward_model, self.context.inverse_estimate
-        )
+        rmse = self._calc_performance_error(target_goal, self.context.forward_model, self.context.inverse_estimate)
+        self.context.runtime_data.train_goal_error[target_goal_index] = rmse
         _logger.debug("Train goal %d error update: %.8f" % (target_goal_index, rmse))
 
         return GenerateSequenceState.sequence_finished
