@@ -80,7 +80,7 @@ class AbstractInverseEstimate(AbstractLoggable, ABC):
         """
 
     @abstractmethod
-    def fit(self, observation: np.ndarray, action: np.ndarray, weight: float) -> float:
+    def fit(self, observation: np.ndarray, action: np.ndarray, weight: float) -> None:
         """Train the estimate incrementally using one observation/action pair.
 
         The observation o represents the input, the action a represents the output.
@@ -89,13 +89,10 @@ class AbstractInverseEstimate(AbstractLoggable, ABC):
             observation: 1D observation vector.
             action: 1D action vector.
             weight: Weighs the training effect of the specified sample (1.0 for full effect, 0.0 for no effect).
-
-        Returns:
-            The estimator's prediction error on the sample (o, a) after fitting.
         """
 
     @abstractmethod
-    def fit_batch(self, observation_batch: np.ndarray, action_batch: np.ndarray, weights: np.ndarray) -> float:
+    def fit_batch(self, observation_batch: np.ndarray, action_batch: np.ndarray, weights: np.ndarray) -> None:
         """Train the estimate incrementally on a batch of N observation/action samples.
 
         Args:
@@ -103,7 +100,4 @@ class AbstractInverseEstimate(AbstractLoggable, ABC):
             action_batch: Actions of shape (N, dim(a)).
             weights: 1D vector or weights between 0.0 and 1.0, where the ith weight weihgs the training effect of the
                 ith sample.
-
-        Returns:
-            The estimator's mean prediction error on the training data after fitting.
         """

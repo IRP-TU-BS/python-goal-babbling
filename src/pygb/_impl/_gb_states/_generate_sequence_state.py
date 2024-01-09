@@ -11,6 +11,7 @@ from pygb._impl._core._abstract_utils import (
 )
 from pygb._impl._core._context import GoalBabblingContext
 from pygb._impl._core._event_system import EventSystem
+from pygb._impl._core._model import AbstractForwardModel, AbstractInverseEstimate
 from pygb._impl._core._runtime_data import ActionSequence, ObservationSequence
 
 _logger = logging.getLogger(__name__)
@@ -62,7 +63,7 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
             self.context.runtime_data.observation_index = observation_index
 
             action = self.context.inverse_estimate.predict(local_goal)
-            action += self.noise_generator.generate(local_goal)
+            action += self.noise_generator.generate(local_goal.T)
             action = self.context.forward_model.clip(action)
             observation = self.context.forward_model.forward(action)
 
@@ -75,7 +76,7 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
             weight = self.weight_generator.generate(self.context)
             sequence.weights.append(weight)
 
-            rmse = self.context.inverse_estimate.fit(observation, action, weight)
+            self.context.inverse_estimate.fit(observation, action, weight)
 
         # increase stop goal's visit count:
         self.context.runtime_data.train_goal_visit_count[target_goal_index] += 1
@@ -88,8 +89,10 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
             )
         )
 
-        # note down prediction error on last observation, which is the target global goal:
-        self.context.runtime_data.train_goal_error[target_goal_index] = rmse
+        # note down performance error on sequence's target goal:
+        self.context.runtime_data.train_goal_error[target_goal_index] = self._calc_performance_error(
+            target_goal, self.context.forward_model, self.context.inverse_estimate
+        )
         _logger.debug("Train goal %d error update: %.8f" % (target_goal_index, rmse))
 
         return GenerateSequenceState.sequence_finished
@@ -119,3 +122,12 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
             stop_goal_index=target_goal_index,
             local_goals=local_goal_sequence,
         )
+
+    def _calc_performance_error(
+        self, observation: np.ndarray, forward_model: AbstractForwardModel, estimate: AbstractInverseEstimate
+    ) -> float:
+        action_prediction = estimate.predict(observation)
+        action_prediction = forward_model.clip(action_prediction)
+        obs_prediction = forward_model.forward(action_prediction)
+
+        return np.sqrt(np.mean((observation - obs_prediction)) ** 2)

@@ -260,3 +260,23 @@ def test_generate_new_sequence_chooses_home_observation_if_last_sequence_was_act
     )
 
     assert np.all(observation_sequence.start_goal == home_observation)
+
+
+def test_calc_performance_error() -> None:
+    state = GenerateSequenceState(
+        context=MagicMock(),
+        goal_selector=None,
+        goal_sequence_generator=None,
+        noise_generator=None,
+        weight_generator=None,
+    )
+    forward_model_mock = MagicMock(forward=MagicMock(return_value=np.array([4.0, 5.0, 6.0])))
+    estimate_mock = MagicMock(
+        predict=MagicMock(return_value=np.array([0.1, 0.2, 0.3, 0.01, 0.02, 0.03])), clip=MagicMock()
+    )
+
+    rmse = state._calc_performance_error(
+        observation=np.array([1.0, 2.0, 3.0]), forward_model=forward_model_mock, estimate=estimate_mock
+    )
+
+    np.testing.assert_almost_equal(rmse, np.sqrt(np.mean((np.array([1.0, 2.0, 3.0]) - np.array([4.0, 5.0, 6.0])) ** 2)))
