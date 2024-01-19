@@ -2,6 +2,11 @@ from pygb._impl._core._context import GoalBabblingContext
 
 
 def epoch_complete_callback(context: GoalBabblingContext) -> None:
+    """Exemplary callback for epoch complete events. Logs the current epoch set, epoch index and metrics.
+
+    Args:
+        context: GoalBabblingContext.
+    """
     s = "---------------------------\n"
     s += f"Epoch set {context.runtime_data.epoch_set_index} | Epoch {context.runtime_data.epoch_index}\n"
 
