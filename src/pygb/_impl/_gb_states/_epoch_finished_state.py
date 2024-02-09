@@ -184,4 +184,4 @@ class EpochFinishedState(AbstractState[GoalBabblingContext]):
         predicted_actions = forward_model.clip_batch(predicted_actions)
         predicted_observations = forward_model.forward_batch(predicted_actions)
 
-        return np.sqrt(np.mean((predicted_observations - observations) ** 2))
+        return rmse(predicted_observations, observations)
