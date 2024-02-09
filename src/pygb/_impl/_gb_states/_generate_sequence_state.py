@@ -13,6 +13,7 @@ from pygb._impl._core._context import GoalBabblingContext
 from pygb._impl._core._event_system import EventSystem
 from pygb._impl._core._model import AbstractForwardModel, AbstractInverseEstimate
 from pygb._impl._core._runtime_data import ActionSequence, ObservationSequence
+from pygb._impl._utils._maths import rmse
 
 _logger = logging.getLogger(__name__)
 
@@ -63,7 +64,7 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
             self.context.runtime_data.observation_index = observation_index
 
             action = self.context.inverse_estimate.predict(local_goal)
-            action += self.noise_generator.generate(local_goal.T)
+            action += self.noise_generator.generate(local_goal)
             action = self.context.forward_model.clip(action)
             observation = self.context.forward_model.forward(action)
 
@@ -129,4 +130,4 @@ class GenerateSequenceState(AbstractState[GoalBabblingContext]):
         action_prediction = forward_model.clip(action_prediction)
         obs_prediction = forward_model.forward(action_prediction)
 
-        return np.sqrt(np.mean((observation - obs_prediction)) ** 2)
+        return rmse(observation, obs_prediction)
