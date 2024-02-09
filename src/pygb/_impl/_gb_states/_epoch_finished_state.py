@@ -10,6 +10,7 @@ from pygb._impl._core._event_system import EventSystem
 from pygb._impl._core._events import Events
 from pygb._impl._core._model import AbstractForwardModel, AbstractInverseEstimate
 from pygb._impl._core._runtime_data import ActionSequence, ObservationSequence
+from pygb._impl._utils._maths import rmse
 
 _logger = logging.getLogger(__name__)
 
@@ -70,11 +71,11 @@ class EpochFinishedState(AbstractState[GoalBabblingContext]):
                     self.context.forward_model, self.context.inverse_estimate, goals
                 )
 
-        self.events.emit(Events.EPOCH_COMPLETE, self.context)
         stop_reason = self._evaluate_stop(self.context)
         _logger.debug("Determined stop reason: '%s'" % stop_reason or "-")
-
         self._update_record(self.context, stop_reason)
+
+        self.events.emit(Events.EPOCH_COMPLETE, self.context)
 
         # reset epoch specific runtime data
         self.context.runtime_data.current_sequence = None
